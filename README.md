@@ -214,19 +214,23 @@ The V5 reference's role-based application flow and local server architecture are
 
 ```mermaid
 flowchart LR
-    Public[Existing landing page] --> Login[Role login]
-    Login --> Citizen[Original citizen shell and overview]
-    Login --> Staff[Separate staff and oversight portals]
-    Citizen --> Tools[Payments, cases, visits and calculator]
-    Tools --> API[Node HTTP API]
+    classDef blueBox fill:#e8f0fe,stroke:#1a73e8,stroke-width:1.5px,color:#174ea6,font-weight:600;
+    classDef blueServer fill:#d2e3fc,stroke:#185abc,stroke-width:2px,color:#174ea6,font-weight:600;
+    classDef blueData fill:#e8f0fe,stroke:#4285f4,stroke-width:1.5px,color:#174ea6;
+
+    Public["Existing landing page"]:::blueBox --> Login["Role login"]:::blueBox
+    Login --> Citizen["Original citizen shell and overview"]:::blueBox
+    Login --> Staff["Separate staff and oversight portals"]:::blueBox
+    Citizen --> Tools["Payments, cases, visits and calculator"]:::blueBox
+    Tools --> API["Node HTTP API"]:::blueServer
     Citizen --> API
     Staff --> API
-    API --> Guards[Session, CSRF, owner and role checks]
-    Guards --> Workflows[Validated service state transitions]
-    Workflows --> Catalogue[33 service definitions]
-    Workflows --> Store[Atomic local JSON and sample evidence]
-    Workflows --> Audit[Hash-linked events and notifications]
-    Workflows --> Output[Watermarked sandbox outcomes]
+    API --> Guards["Session, CSRF, owner and role checks"]:::blueBox
+    Guards --> Workflows["Validated service state transitions"]:::blueBox
+    Workflows --> Catalogue["33 service definitions"]:::blueData
+    Workflows --> Store["Atomic local JSON and sample evidence"]:::blueData
+    Workflows --> Audit["Hash-linked events and notifications"]:::blueData
+    Workflows --> Output["Watermarked sandbox outcomes"]:::blueData
 ```
 
 The landing design, original font stack, lease register/cards and CHT circle/workflow composition are preserved. Their controls now connect to tracked applications. [Architecture blueprint](docs/ARCHITECTURE.md) documents the actual modules and boundaries; [application flow](docs/APP_FLOW.md) describes states and role handoffs.
