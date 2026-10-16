@@ -2,7 +2,12 @@
 const crypto=require('node:crypto');const {services}=require('./catalog.cjs');
 const hash=v=>crypto.createHash('sha256').update(v).digest('hex');
 function seedDemo(db,audit){
- if(db.demoEdition>=6)return false;
+ if(db.demoEdition>=7)return false;
+ // Trim only untouched generated scenarios. User-created and edited requests survive.
+ const keep=new Set();for(const role of ['citizen','representative'])for(const [si,s] of services.entries())for(const vi of [0,1,2+si%8])keep.add('DEMO-'+role.toUpperCase()+'-'+s.id.toUpperCase()+'-'+String(vi+1).padStart(2,'0'));
+ const removed=new Set(db.applications.filter(a=>a.demo&&a.revision===1&&!keep.has(a.id)&&!db.payments.some(p=>p.applicationId===a.id&&p.reconciledBy)).map(a=>a.id));
+ db.applications=db.applications.filter(a=>!removed.has(a.id));const linked=new Set(db.applications.flatMap(a=>a.documentIds));
+ db.documents=db.documents.filter(d=>!d.demo||linked.has(d.id));db.payments=db.payments.filter(p=>!removed.has(p.applicationId));db.notifications=db.notifications.filter(n=>!n.demo||!removed.has(n.reference));
  const statuses=['Draft','Submitted','UnderReview','CorrectionRequested','HearingScheduled','AwaitingPayment','PaymentFailed','ReadyForDelivery','Completed','Rejected'];
  const places=[['Dhaka','Dhaka','Savar','Amin Bazar'],['Sylhet','Moulvibazar','Sreemangal','Kalighat'],['Khulna','Narail','Lohagara','Lohagara'],['Chattogram','Chattogram','Patiya','Kusumpura'],['Rajshahi','Rajshahi','Paba','Harian'],['Rangpur','Rangpur','Mithapukur','Baldipukur'],['Barishal','Barishal','Bakerganj','Dudhal'],['Mymensingh','Mymensingh','Trishal','Kanthal']];
  const at=n=>new Date(Date.now()-n*86400000).toISOString();
@@ -11,6 +16,7 @@ function seedDemo(db,audit){
   db.preferences=db.preferences||{};
   db.preferences[owner.id]={chat:[{role:'assistant',text:'Welcome to the demo assistant. I can explain the Namjari, e-porcha, tax and evidence preparation flows.'},{role:'user',text:'What should I prepare before requesting a Khatian copy?'},{role:'assistant',text:'Prepare the survey, Mouza, Khatian reference and sample evidence. The records desk can review, request corrections and issue a watermarked outcome.',serviceId:'eporcha'},{role:'user',text:'Can this prove ownership?'},{role:'assistant',text:'No. All shown records are samples and no official registry is connected. Use the official source links for authoritative verification.'}],checks:{1:true,2:true},savedSearches:[{query:'1842',survey:'all',date:'2026-10-16'},{query:'Amin Bazar',survey:'RS',date:'2026-10-16'},{query:'Kalighat',survey:'all',date:'2026-10-16'}],favorites:['land-search','applications','documents'],watches:['DAG-1842','DAG-1848','DAG-1854'],shares:[{reference:'DAG-1842',recipient:'sample-family@example.test',access:'View only'},{reference:'DAG-1848',recipient:'sample-adviser@example.test',access:'Representative'}],language:'en',...(db.preferences[owner.id]||{})};
   for(const [si,s]of services.entries())for(const [vi,initial]of statuses.entries()){
+   if(![0,1,2+si%8].includes(vi))continue;
    const key='DEMO-'+role.toUpperCase()+'-'+s.id.toUpperCase()+'-'+String(vi+1).padStart(2,'0');if(db.applications.some(a=>a.id===key))continue;
    const staff=db.users.find(u=>u.email===s.reviewer+'@demo.ebhumi.local'),location=places[(si+vi)%places.length];
    let status=!s.sandboxFee&&['AwaitingPayment','PaymentFailed'].includes(initial)?'ReadyForDelivery':initial;
@@ -37,6 +43,6 @@ function seedDemo(db,audit){
    if(status!=='Draft')db.notifications.push({id:key+'-NTF',userId:owner.id,title:s.name+' · '+status,reference:key,read:vi%3===0,at:a.updated,demo:true});
   }
  }
- db.demoEdition=6;audit(null,'seed-demo-scenarios','demo-edition-5',{serviceCount:services.length,scenarioCount:10,accounts:['citizen-demo','representative-demo']});return true;
+ db.demoEdition=7;audit(null,'seed-demo-scenarios','demo-edition-7',{serviceCount:services.length,scenarioCount:3,accounts:['citizen-demo','representative-demo']});return true;
 }
 module.exports={seedDemo};

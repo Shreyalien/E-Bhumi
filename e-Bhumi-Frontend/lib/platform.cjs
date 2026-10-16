@@ -37,8 +37,9 @@ function createPlatform({dataDir,seedDemo=true}){
   if(complete&&!d.eligibility)fail(400,'Confirm the sandbox eligibility and authority checklist.');
   for(const f of s.fields){if(complete)text(d[f.key],f.label);if(d[f.key]&&f.options&&!f.options.includes(d[f.key]))fail(400,'Invalid option for '+f.label);if(d[f.key]&&f.type==='date'&&!validDate(d[f.key]))fail(400,'Invalid date');}
   if(complete&&s.documents.some(category=>!a.documentIds.some(key=>{const doc=db.documents.find(x=>x.id===key);return doc?.ownerId===a.ownerId&&doc.category===category;})))fail(400,'Attach a sample file for every required evidence category.');
-  if(complete&&a.serviceId==='appointment'&&d.visitDate<dhakaDay())fail(400,'Appointment date must not be in the past.');
+  if(complete&&a.serviceId==='appointment'&&(d.visitDate<dhakaDay()||Date.parse(d.visitDate+'T'+d.slot+':00+06:00')<=Date.now()))fail(400,'Appointment slot must be in the future.');
  };
+ function reserveAppointment(a){const d=a.details;const used=db.applications.filter(b=>b.id!==a.id&&b.serviceId==='appointment'&&!['Draft','Rejected','Withdrawn','Cancelled'].includes(b.status)&&b.details.office?.trim().toLowerCase()===d.office.trim().toLowerCase()&&b.details.visitDate===d.visitDate&&b.details.slot===d.slot).length;if(used>=4)fail(409,'This local demo slot is full. Choose a different date or time.');}
  function authenticate(req){const cookies=String(req.headers.cookie||'').split(';').map(v=>v.trim());const token=cookies.find(c=>c.startsWith('eb_session='))?.slice(11);const s=sessions.get(token);if(!s||s.expires<Date.now()){if(token)sessions.delete(token);return null;}const u=db.users.find(u=>u.id===s.userId&&u.active);return u?{user:u,session:s,token}:null;}
  async function api(req,res,url){
   const send=(status,body,headers={})=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...headers});res.end(JSON.stringify(body));};
@@ -88,6 +89,21 @@ for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body
     if(!canCreate(u))fail(403,'Your role cannot create citizen applications');if(!db.settings.acceptApplications)fail(409,'New applications are temporarily paused');
     const s=service(body.serviceId),a={id:id('EB'),ownerId:u.id,serviceId:s.id,status:'Draft',details:{},documentIds:[],assignedTo:null,history:[],created:now(),updated:now(),revision:1};db.applications.push(a);history(a,u,'created','Draft started');audit(u,'create-draft',a.id);save();return send(201,{application:view(a)});
    }
+   if(route==='/appointment-slots'&&method==='GET'){
+    const day=url.searchParams.get('date'),office=text(url.searchParams.get('office'),'Office',200);if(!validDate(day)||day<dhakaDay())fail(400,'Choose a current or future date');
+    return send(200,{slots:service('appointment').fields.find(f=>f.key==='slot').options.map(slot=>({slot,available:Date.parse(day+'T'+slot+':00+06:00')>Date.now()&&db.applications.filter(a=>a.serviceId==='appointment'&&!['Draft','Rejected','Withdrawn','Cancelled'].includes(a.status)&&a.details.office?.trim().toLowerCase()===office.toLowerCase()&&a.details.visitDate===day&&a.details.slot===slot).length<4})),mode:'Local sandbox capacity: four requests per office slot; no government inventory.'});
+   }
+   const appointmentMatch=route.match(/^\/applications\/([^/]+)\/appointment$/);
+   if(appointmentMatch&&method==='POST'){
+    const a=app(u,appointmentMatch[1]);if(a.ownerId!==u.id)fail(403,'Only the appointment owner can change this booking');if(a.serviceId!=='appointment')fail(400,'This is not an appointment');if(body.revision!==a.revision)fail(409,'Appointment changed; reload before acting');
+    if(['Cancelled','Rejected','Withdrawn','Draft'].includes(a.status))fail(409,'This appointment cannot be changed from its current state');
+    const reason=text(body.note,'Reason');
+    if(body.action==='cancel'){a.status='Cancelled';delete a.outcome;delete a.hearingAt;history(a,u,'appointment-cancel',reason);}
+    else if(body.action==='reschedule'){
+     const candidate={...a,details:{...a.details,visitDate:body.visitDate,slot:body.slot}};validate(candidate,true);reserveAppointment(candidate);a.details=candidate.details;a.status='Submitted';a.assignedTo=null;delete a.outcome;delete a.hearingAt;history(a,u,'appointment-reschedule',reason+'; previous token invalidated; support must confirm again.');
+    }else fail(400,'Unknown appointment action');
+    a.revision++;a.updated=now();notify(u.id,'Appointment '+body.action,a.id);audit(u,'appointment-'+body.action,a.id);save();return send(200,{application:view(a)});
+   }
    const match=route.match(/^\/applications\/([^/]+)(?:\/(action|outcome|export))?$/);
    if(match){const a=app(u,match[1]),s=service(a.serviceId);
     if(method==='GET'){
@@ -107,7 +123,7 @@ for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body
      if(body.revision!==a.revision)fail(409,'This application changed; reload before acting');const action=body.action;let note=String(body.note||'').trim().slice(0,4000);
      if(['submit','withdraw'].includes(action)){
       if(a.ownerId!==u.id)fail(403,'Only the application owner can do this');
-      if(action==='submit'){if(!['Draft','CorrectionRequested'].includes(a.status))fail(409,'Cannot submit from current state');validate(a,true);a.status='Submitted';a.assignedTo=null;notify(u.id,'Application submitted to sandbox queue',a.id);}
+      if(action==='submit'){if(!['Draft','CorrectionRequested'].includes(a.status))fail(409,'Cannot submit from current state');validate(a,true);if(a.serviceId==='appointment')reserveAppointment(a);a.status='Submitted';a.assignedTo=null;notify(u.id,'Application submitted to sandbox queue',a.id);}
       else{if(!['Draft','Submitted','CorrectionRequested'].includes(a.status))fail(409,'Cannot withdraw at this stage');a.status='Withdrawn';}
      }else{
       if(!canReview(u,a))fail(403,'This service belongs to another role queue');if(a.assignedTo&&a.assignedTo!==u.id)fail(403,'Assigned to another reviewer');

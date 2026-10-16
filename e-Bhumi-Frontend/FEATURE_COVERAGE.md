@@ -1,4 +1,4 @@
-# Version 4 coverage
+# Service coverage — v5.2
 
 33 complete local service simulations and 10 server-enforced role platforms. The original 460-item catalogue is a requirement registry, not an implementation count.
 

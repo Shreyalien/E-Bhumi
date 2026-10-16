@@ -43,6 +43,7 @@ flowchart TB
 | Module | Responsibility |
 | --- | --- |
 | `server-v4.cjs` | Loopback HTTP server, allowed static files, security headers and portal routing |
+| `workflows.js` | Dedicated demand/receipt, case, appointment and calculator UI using the existing design components |
 | `lib/platform.cjs` | Account/session operations, API validation, ownership/role policy, transitions and durable local state |
 | `lib/catalog.cjs` | 33 service definitions, service-specific questions, evidence, review role and outcome |
 | `lib/geography.cjs` | Matching division/district validation data |
@@ -71,3 +72,9 @@ flowchart TB
 Run one Node process against one local `.data` directory. Passwords use salted scrypt; sessions are memory-only and require login after a restart. User/account data and sample files are held in JSON and are not encrypted. Stop the process before copying/restoring `.data`. The shared demo credentials and loopback deployment are for evaluation, not public hosting.
 
 Government registry/GIS/identity APIs, official signatures, real payments, postal delivery and legal decisions are not integrated. The 460-item feature catalogue remains a roadmap/specification registry. See the [service handbook](SERVICE_HANDBOOK.md), [application flow](APP_FLOW.md) and [validation](../VALIDATION.md).
+
+## Appointment inventory and demo migration
+
+Appointment availability is an aggregate local simulation with four requests per office/date/time. Submission and reschedule recheck capacity on the server. Owner changes require a matching revision and reason; reschedule removes the old outcome and assignment, cancellation removes the old outcome and enters Cancelled. Government inventory is not queried.
+
+Demo edition 7 trims only untouched generated records, retaining user changes and reconciled payments. It preserves all 33 services with three examples per demo owner.

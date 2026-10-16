@@ -6,7 +6,7 @@
 
 A citizen-first land-service preparation workspace for Bangladesh.
 
-**18 familiar citizen pages · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
+**19 citizen pages (18 preserved + Calculator) · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
@@ -27,7 +27,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Item | Current delivery |
 | --- | --- |
 | Entry point | Public landing page with service links and FAQs |
-| Navigation | 18 workspace routes with shareable hash URLs |
+| Navigation | 19 workspace routes with shareable hash URLs |
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no package installation needed |
@@ -86,38 +86,50 @@ To operate a sample process, use an editable draft or submitted case, then sign 
 
 ## Screenshots
 
-These are actual renders of the included source, captured on 16 October 2026. All displayed records are demonstration sample data. For the complete visual gallery of all 18 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
+Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 19 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
 ### Citizen dashboard
 
 Sample metrics, land passport, recent activity and service shortcuts in one overview.
 
-![Citizen dashboard](docs/screenshots/dashboard.png)
+![Citizen dashboard](docs/screenshots-preserved/dashboard.png)
 
 ### Application preparation
 
-Create a local application draft, attach a land reference and manage preparation notes.
+Complete a five-step application, attach sample evidence, submit to its role queue and track correction, payment and delivery.
 
-![Application draft form](docs/screenshots/application-form.png)
+![Application draft form](docs/screenshots-v4/evidence-step.png)
 
 ### Regional and lease views
 
 | Government land lease | Chattogram Hill Tracts workspace |
 | --- | --- |
-| ![Government lease register](docs/screenshots/land-lease.png) | ![CHT workspace](docs/screenshots/ctg-zone.png) |
+| ![Government lease register](docs/screenshots-preserved/land-lease.png) | ![CHT workspace](docs/screenshots-preserved/ctg-zone.png) |
 
 These screens illustrate separate preparation contexts. Their labels and explanatory copy are not a verified statement of current legal requirements.
 
 > 📷 **Full Gallery:** For all workspace captures (GIS parcel map, land search, document vault, mobile viewport, etc.), see the [Complete Screenshot Gallery](docs/SCREENSHOTS.md).
 
 
+### Payments, case work and visits
+
+| Payments & receipts | Cases & complaints |
+| --- | --- |
+| ![Payable demands and transaction history](docs/screenshots-preserved/payments.png) | ![Case preparation and register](docs/screenshots-preserved/casebook.png) |
+| Pay an approved demand, retry a failure and export receipts. | Follow evidence, hearings and decisions; prepare a linked review or appeal. |
+
+| Appointments & queue | Land Calculator |
+| --- | --- |
+| ![Appointment requests and actions](docs/screenshots-preserved/appointments.png) | ![Land preparation calculators](docs/screenshots-preserved/calculator.png) |
+| Support-issued demo token, calendar export, reschedule and cancellation. | Area, discrepancy, proposed shares, custom units and budget worksheets. |
+
 ## Features and page guide
 
-**Status key:** **Local** means a working browser-side interaction; **Preview** means sample data or explanatory UI; **Planned** means a backend, provider or official authorisation is required.
+**Status key:** **Local** means a working local sandbox interaction with server persistence where applicable; **Preview** means sample data or explanatory UI; **Planned** means a backend, provider or official authorisation is required.
 
 ### Shared workspace tools
 
-- Per-page notes with local autosave.
+- Per-page notes with account-scoped server autosave.
 - Favorite pages and dashboard shortcuts.
 - Page-data JSON exports and a workspace JSON backup download.
 - Area conversion for decimal, acre, hectare and square foot.
@@ -134,20 +146,21 @@ These screens illustrate separate preparation contexts. Their labels and explana
 | Land search / `#land-search` | Filter sample Dag/Khatian/Mouza records; save searches; normalise Bengali numerals | No registry or official location query |
 | My land / `#my-land` | Passport previews, record-link drafts, local watchlist preparation | No verified title or live change alerts |
 | Services / `#services` | Search/category filters, comparison table and application entry | Official eligibility, fees and requirements unverified |
-| Applications / `#applications` | Create, filter and view persistent local drafts | No government submission or officer decision |
+| Applications / `#applications` | Draft, submit, correct, review, pay and download outcomes with status/revision checks | Local staff decisions only; no government submission |
 | Govt land lease / `#land-lease` | Sample lease register, category filter, details and renewal/request preparation | No actual lease grant, renewal or cancellation |
 | Hill Tracts / `#ctg-zone` | Circle selection, regional information and certificate-request preparation | No customary certificate issuance or legal validation |
 | GIS / `#gis` | Select sample parcels, toggle layers, export schematic SVG and print | No real survey accuracy or GIS measurement |
-| Documents / `#documents` | Protected sample-file upload/download, size/signature checks and local hashes and detail previews | No stored file bytes, malware scan, secure vault or official verification |
-| Payments / `#payments` | Sample transaction filters, receipt previews and CSV export | No real charge or refund; local finance reconciliation is simulated |
-| Due diligence / `#due-diligence` | Persistent eight-item checklist and export | No ownership, encumbrance or court verification |
+| Documents / `#documents` | Protected sample-file bytes, upload/download, size/signature checks and SHA-256 integrity | No malware scanning or official authenticity verification |
+| Payments / `#payments` | Payable demands, failure/retry, receipt download, transaction filters, CSV export and finance reconciliation | Sandbox units only; no real collection or refund |
+| Due diligence / `#due-diligence` | Persistent checklist/export, area/share comparisons and tracked review through report delivery | No ownership, encumbrance or court verification |
 | Assistant / `#ai-assistant` | Predefined guidance, prompts and saved conversation | No live AI model, retrieval or OCR |
-| Cases / `#casebook` | Complaint preparation and reviewable local drafts | Requests enter the local support queue; no external office receives them |
-| Appointments / `#appointments` | Preferred-date preparation and local booking drafts | No live slots or confirmed office visit |
+| Cases / `#casebook` | Five case/complaint routes, evidence, correction, hearings, outcome and linked review/appeal drafts | Revenue requests go to local officer; complaints to support; no legal filing |
+| Appointments / `#appointments` | Local capacity checks, support confirmation, token/calendar download, owner reschedule and cancellation | No government inventory or confirmed real office visit |
+| Calculator / `#calculator` | Area conversion, discrepancy, proposed shares, custom local unit and budget worksheets; JSON export | User-entered conventions/costs; no legal share or official fee calculation |
 | Notifications / `#notifications` | Sample category filters and persistent mark-all-read | No SMS/email/push provider |
 | Analytics / `#analytics` | Sample charts, report previews and workspace data export | Charts reflect local records, not government statistics |
 | Catalogue / `#feature-catalog` | 460 requirements, filters, incremental results, details and export | Catalogue coverage does not imply implementation |
-| Administration / `#admin` | Operational fixtures and configuration preparation | No authentication, RBAC enforcement or production administration |
+| Administration / `#admin` | Citizen account controls; separate admin portal enforces staff access and intake settings | Citizen role cannot use privileged administration |
 
 ### Requirement registry
 
@@ -176,6 +189,11 @@ flowchart TD
     NoFee --> Ready
     Ready --> Issue[Assigned staff issues outcome]
     Issue --> Download[Applicant downloads watermarked result]
+    Download --> FollowUp[Eligible case: separate linked review or appeal draft]
+    Download --> Appointment[Appointment: token and calendar download]
+    Appointment --> Reschedule[Owner reschedules: previous token invalidated]
+    Reschedule --> Submit
+    Appointment --> Cancel[Owner cancels: history retained]
 ```
 
 Rejection retains the reason and history. A separate review/appeal-preparation service is available. Every transition validates the actor and current state on the server. Finance reconciles sample transactions; administrators manage accounts/settings without bypassing service decisions; auditors inspect read-only. [Detailed app flow](docs/APP_FLOW.md).
@@ -199,7 +217,9 @@ flowchart LR
     Public[Existing landing page] --> Login[Role login]
     Login --> Citizen[Original citizen shell and overview]
     Login --> Staff[Separate staff and oversight portals]
-    Citizen --> API[Node HTTP API]
+    Citizen --> Tools[Payments, cases, visits and calculator]
+    Tools --> API[Node HTTP API]
+    Citizen --> API
     Staff --> API
     API --> Guards[Session, CSRF, owner and role checks]
     Guards --> Workflows[Validated service state transitions]
@@ -218,6 +238,7 @@ e-Bhumi-Frontend/
 ├── index.html, assets/landing.css    Existing landing appearance
 ├── login.html, auth.js              Account login and safe route return
 ├── portal.html, portal.js           Role portal and workflow UI
+├── workflows.js                    Payments, cases, appointments and calculators
 ├── citizen.js, preserved.css        Original citizen/lease/CHT presentation
 ├── lib/catalog.cjs                 Service questions, evidence and role mapping
 ├── lib/platform.cjs                Sessions, access, transitions and persistence
@@ -231,11 +252,11 @@ e-Bhumi-Frontend/
 
 ## Data and persistence
 
-Version 5.1 stores accounts, application histories, uploaded sample bytes, hashes, payments and notifications in `e-Bhumi-Frontend/.data/platform.json`. Drafts and preparation preferences belong to an authenticated account. The store is created on first startup; it is excluded from Git and static file serving.
+Version 5.2 stores accounts, application histories, uploaded sample bytes, hashes, payments and notifications in `e-Bhumi-Frontend/.data/platform.json`. Drafts and preparation preferences belong to an authenticated account. The store is created on first startup; it is excluded from Git and static file serving.
 
 Sessions use an HttpOnly/SameSite cookie and end on server restart. Passwords use salted scrypt. Mutation APIs enforce CSRF/origin checks, object ownership, review role and revision. This is a single-process local sandbox, not a certified production platform; the JSON store is not encrypted and there is no malware scanner or external identity verification.
 
-The demo citizen and representative each receive 330 sample requests covering 33 services and ten scenarios. Across both accounts there are 660 requests, 1,060 sample files and sample receipts/outcomes. There are 24 parcel references. Seeding is additive and idempotent; existing cases and preferences are not reset. Newly registered accounts have private, initially empty workspaces.
+The demo citizen and representative each receive 99 sample requests: three per service (draft, submitted and one rotating later-stage scenario). Fresh stores contain 198 requests, 318 sample evidence files and 24 parcels. Migration removes only untouched excess generated scenarios; user-created, edited or finance-reconciled requests and saved preferences remain. Restarting does not duplicate fixtures. Newly registered accounts have private, initially empty workspaces.
 
 Stop the server before backing up or restoring the entire .data folder. Never commit it. Prior browser-local V3 state is not automatically imported into the account store. Use only sample personal/land information in the sandbox.
 
@@ -263,7 +284,7 @@ cd e-Bhumi-Frontend
 npm run check
 ```
 
-The reviewed build passes API lifecycle and regression tests, all 18 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
+The reviewed build passes API lifecycle and regression tests, all 19 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
 
 ## Troubleshooting
 

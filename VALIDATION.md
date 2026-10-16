@@ -1,34 +1,29 @@
-# Version 4 validation — 16 October 2026
+# Validation — v5.2, 17 October 2026
 
-## Passed checks
+## Automated API and persistence checks
 
-- npm run check: syntax checks for portal.js, auth.js, server-v4.cjs, platform.cjs and catalog.cjs.
-- npm test: 7 tests passed (parent and 6 subtests), zero failures. The service lifecycle subtest completes **all 33 service types**.
-- Lifecycle: required evidence, upload hash, valid submission, correct staff claim, approval, sandbox payment where applicable, issuance and outcome retrieval.
-- Correction/resubmission and hearing, premature issuance rejected, payment failure/retry, successful replay returns the same payment.
-- Authentication, CSRF/origin, public staff-registration prohibition, ownership, private evidence, negative-area validation, stale revisions, role write restrictions and static .data/source blocking.
-- Administrator suspension revokes session, intake pause blocks new drafts, restart preserves records but invalidates in-memory sessions, audit chain verifies.
-- Browser check passed: all 10 role logins; mutation wizard through actual outcome download; generated sample files; administrator account view; auditor chain; citizen tool views; 33 cards; mobile page overflow absent; no uncaught page errors.
+`npm run check` passes for the runtime JavaScript modules. `npm test` passes **11 tests, zero failures**:
 
-## Test environment and limits
+- All 33 service journeys from evidence preparation to staff-issued sandbox outcome.
+- Sessions, CSRF, origin, owner/service-role permissions, stale revisions, corrections and hearings.
+- Payment failure/retry/idempotence, finance reconciliation, account suspension and restart persistence.
+- Strict calendar dates, geography and nested account preference validation.
+- Appointment owner changes, reason validation, stale writes, cancellation, old-token invalidation and four-place local capacity enforcement.
+- Compact seeding: 198 requests, 318 files and 24 parcels in a fresh store; all 33 services have three cases per demo owner.
+- Migration preserves user-created, edited and finance-reconciled records, and is idempotent.
 
-Node API tests used an isolated writable fixture directory because the tool sandbox did not support renaming files in its redirected temporary directory. Ordinary test runs default to OS temp; EBHUMI_TEST_ROOT overrides this. Browser verification used a request bridge to the actual local server because direct Chromium loopback was denied. See docs/SCREENSHOT_CAPTURE.md.
+## Browser verification
 
-These tests do not validate official rules, fee schedules, statutory deadlines, government/provider integrations, production scaling, malware detection, disaster recovery or complete accessibility/localisation. The suite also verifies replacement after reviewer suspension, rejection/withdrawal terminal states, malformed JSON-object rejection, failed profile updates leaving the profile unchanged and logout invalidation. It does not claim exhaustive organisation workflow coverage.
+Three optional Playwright suites use the actual Node HTTP/API server with isolated stores:
 
+- `tests/preserved-browser.cjs`: all 18 original routes plus Calculator, original font stack, populated Overview, regional controls, preferences, pagination and mobile navigation.
+- `tests/browser.cjs`: all ten role logins, full mutation wizard/evidence/submission/review/payment/outcome, admin/auditor access, 33 service cards and mobile layout.
+- `tests/workflows-browser.cjs`: demand payment failure/retry, transaction search/status filtering and receipt JSON; five calculator results and export; appointment submission/support approval/token/calendar/reschedule/cancel; linked review draft; tracked diligence and mobile layouts.
 
-# Preserved edition validation — 17 October 2026
+The environment isolates browser loopback, so the request bridge forwards browser requests to the actual local HTTP server. Download payloads are observed from the app-generated Blobs; this avoids relying on sandbox-blocked filesystem download completion. No API state or page content is mocked. No uncaught page errors were observed in the passing runs.
 
-- Syntax checks cover citizen.js and seed-demo.cjs in addition to the role platform.
-- npm test: 8 tests passed, zero failures. Existing 33-service lifecycle/security tests remain.
-- New data test verifies 660 demo requests, all 33 services/ten scenarios/two demo owners, evidence categories, repeat-start idempotence, 24 parcels, protected preference persistence and every seeded file integrity digest.
-- Existing role-browser suite passed all 10 logins and a full mutation journey after restoring the shell.
-- New browser suite checks all 18 original menu routes and exact original font stack, actual seeded Overview, Bengali record search, saved searches, persistent diligence/chat/page notes, 30-to-60-row application pagination, responsive Overview and sidebar, and no uncaught page errors.
-- Snapshot samples are in docs/screenshots-preserved. No production integration or exhaustive bug-free guarantee is claimed.
+## Visual preservation and documentation
 
+Original assets/styles.css and assets/landing.css remain unchanged. The landing, lease/CHT compositions, original fonts and previous 18 sidebar entries remain. Calculator is an additional entry. Current workspace screenshots were regenerated; the README keeps its existing structure/gallery treatment and Mermaid diagrams, updated for the actual flows.
 
-## Reviewed integration — 17 October 2026
-
-Syntax checks and API tests passed: 9 tests, zero failures. Coverage includes all 33 service lifecycles plus strict calendar dates, division/district combinations and nested preference validation. Both browser suites passed: all ten role logins; complete mutation outcome download; all 18 citizen routes; original typography; lease category filtering/detail; CHT circle switching and full-service handoff; saved search/checklist/chat/notes; mobile layout. Selected-route login return and favorite persistence are also covered by the final citizen browser run.
-
-Original landing/workspace stylesheet hashes are preserved. README edits are targeted rather than adopting the supplied reference README wholesale. See docs/REVIEW_NOTES.md and docs/ARCHITECTURE.md.
+This verifies the local sandbox within these scenarios. Official integrations, real payments, production security/load testing and a formal accessibility audit remain outside this implementation.

@@ -1,6 +1,6 @@
 # Preserved Citizen Workspace — 17 October 2026
 
-Actual authenticated browser renders with the expanded sample store. Original font stack and all 18 sidebar entries were checked. Desktop 1440 × 1000; mobile 390 × 844. Every pictured record is demo data.
+Actual authenticated browser renders with the compact sample store. Original font stack and all 18 original sidebar entries plus Calculator were checked. Desktop 1440 × 1000; mobile 390 × 844. Every pictured record is demo data.
 
 ## dashboard
 
@@ -45,6 +45,10 @@ Actual authenticated browser renders with the expanded sample store. Original fo
 ## due-diligence
 
 ![due-diligence](screenshots-preserved/due-diligence.png)
+
+## calculator
+
+![Land Calculator](screenshots-preserved/calculator.png)
 
 ## ai-assistant
 

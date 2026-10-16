@@ -1,4 +1,4 @@
-# Version 4 capture and test method
+# Browser capture and test method — v5.2
 
 The optional tests/browser.cjs starts the actual Node server and uses Playwright Chromium with isolated contexts for each role. Because direct browser loopback navigation was denied in this environment, a route bridge forwarded browser requests to the actual local HTTP server, including real API/session/cookie responses. It did not inject fixture page content or fake application state.
 
@@ -11,4 +11,8 @@ This is bounded workflow verification, not a production security, legal-process,
 
 ## Preserved edition — 17 October 2026
 
-tests/preserved-browser.cjs starts an isolated server with the actual additive demo seeder enabled. It captures all 18 original routes and mobile Overview/sidebar, verifies the exact original font-family names, checks navigation count and exercises saved search, checklist, chat, page notes, pagination and mobile overflow. Screenshots disable finite animations to avoid capturing a sidebar mid-transition. The bridge still forwards to the actual Node API.
+tests/preserved-browser.cjs starts an isolated server with the actual additive demo seeder enabled. It captures all 18 original routes plus Calculator and mobile Overview/sidebar, verifies the exact original font-family names, checks navigation count and exercises saved search, checklist, chat, page notes, pagination and mobile overflow. Screenshots disable finite animations to avoid capturing a sidebar mid-transition. The bridge still forwards to the actual Node API.
+
+## Dedicated workflow checks
+
+Run node tests/workflows-browser.cjs with the same Playwright environment. It verifies payment retry/receipt filtering, all five calculator worksheets, appointment token/calendar and reschedule/cancel, case follow-up drafts and tracked diligence. Download content is captured from actual app-generated Blobs because browser filesystem downloads may be canceled by the sandbox. No request/application state is mocked.

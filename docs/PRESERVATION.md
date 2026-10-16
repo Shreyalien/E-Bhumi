@@ -31,7 +31,7 @@ Earlier v4 aliases land/tools/features/reports remain accepted. Role permissions
 
 ## Data generation
 
-lib/seed-demo.cjs adds deterministic sample IDs once (demoEdition 5). It only enriches the seeded citizen and representative demo accounts. It never replaces their existing non-seeded cases or clears any account. Restarting twice does not duplicate records. Each service has ten scenarios per demo owner, for 660 total requests and 1,060 sample evidence files. The generated TXT bytes contain demonstration statements, not private documents.
+lib/seed-demo.cjs uses deterministic IDs and demoEdition 7. Fresh demo accounts have 99 requests each: three per service. There are 198 requests and 318 sample evidence files in a fresh store. Migration removes untouched excess generated scenarios only; edited, user-created and finance-reconciled cases survive. Preferences remain. Sample TXT bytes contain demonstration statements, not private documents.
 
 Different states demonstrate the next actionable step: draft editing, queue claim, correction/resubmit, hearing decision, sandbox payment success/failure, outcome issuance and completed download. Support services skip fee states. Reviewer role queues are populated from those same requests.
 
@@ -52,3 +52,7 @@ Sharing drafts do not send email or grant account access. Watch references are n
 ## Maintenance
 
 Do not remove .data to obtain the demo data. Restart the new Node server; the additive migration handles it. Do not publish .data or seed passwords to a public deployment. Backup source is delivered separately and existing local runtime storage is left in place.
+
+## Calculator restored
+
+The original 18 entries remain, with Land Calculator added under LAND TOOLS. It uses existing fonts, panels and buttons. Five preparation worksheets and calculation export are available.
