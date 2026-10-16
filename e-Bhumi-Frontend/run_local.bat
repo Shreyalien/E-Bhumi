@@ -1,18 +1,10 @@
 @echo off
 cd /d "%~dp0"
 where node >nul 2>nul
-if %errorlevel% equ 0 (
-    echo Starting e-Bhumi Frontend via Node.js...
-    node server.cjs
-    pause
-    exit /b
+if errorlevel 1 (
+ echo Install Node.js 18 or newer. This role platform needs its API server.
+ pause
+ exit /b 1
 )
-where python >nul 2>nul
-if %errorlevel% equ 0 (
-    echo Starting e-Bhumi Frontend via Python...
-    python -m http.server 8080
-    pause
-    exit /b
-)
-echo Neither Node.js nor Python was found. Please install Node.js or Python to run this workspace.
+node server.cjs
 pause
