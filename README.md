@@ -317,6 +317,6 @@ Never commit credentials, real identity files or private land records. Report se
 
 ## License and authority
 
-The project references [Shreyalien/E-Bhumi](https://github.com/Shreyalien/E-Bhumi). This local edition originated from the supplied ZIP and subsequent local edits; it does not claim to match the latest remote branch. This README update does not push changes to GitHub.
+The project references [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). This local edition originated from the supplied ZIP and subsequent local edits; it does not claim to match the latest remote branch. This README update does not push changes to GitHub.
 
 No license grant is included in this delivery; confirm redistribution rights with the maintainer. e-Bhumi is not affiliated with or operated by the Government of Bangladesh. Always confirm official records, current rules and legal requirements with the competent authority.

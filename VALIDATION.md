@@ -19,3 +19,8 @@ This report documents the automated test results and verification checks for the
   - `GET /assets/styles.css` -> HTTP 200 `text/css; charset=utf-8`
   - `GET /assets/landing.css` -> HTTP 200 `text/css; charset=utf-8`
 - **File Export Handlers:** Handlers for JSON workspace report, CSV receipts, and SVG parcel map generated valid payload streams.
+
+
+## Documentation refresh — 16 October 2026
+
+Captured 22 actual renders using installed Chromium: landing, 18 routes, application dialog and two mobile views. No uncaught page errors were observed during capture. Verified note reload persistence, 460 catalogue entries, one result for CORE-001, and no horizontal page overflow on captured mobile landing/dashboard views. Local file rendering used the unchanged feature JSON through a browser fetch shim because tool loopback navigation was denied. These checks do not establish HTTP deployment, full end-to-end coverage or production readiness. See docs/SCREENSHOT_CAPTURE.md for details. Earlier report claims above describe prior local work and were not all independently repeated during this documentation update.
