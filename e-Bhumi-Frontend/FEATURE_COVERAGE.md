@@ -1,6 +1,6 @@
 # Frontend Feature Coverage
 
-The feature catalogue is loaded from `data/features.json`, copied from the Maximum Feature Edition package manifest. The manifest contains **458 tracked feature records across 19 modules**. Each feature is searchable and exposes the source manifest's frontend, backend, database, API, integration, priority and phase fields.
+The feature catalogue is loaded from `data/features.json`, copied from the Maximum Feature Edition package manifest. The manifest contains **460 tracked feature records across 19 modules, including new Government Land Lease/Bandobasto and Chattogram Hill Tracts (CHT) special-zone features**. Each feature is searchable and exposes the source manifest's frontend, backend, database, API, integration, priority and phase fields.
 
 ## Implemented frontend workspaces
 

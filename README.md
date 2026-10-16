@@ -7,7 +7,7 @@ Service discovery · Parcel & GIS workspace · Applications · Documents · Veri
 
 ![Status](https://img.shields.io/badge/status-in%20development-orange)
 ![Stage](https://img.shields.io/badge/stage-pre--alpha-red)
-![Features](https://img.shields.io/badge/tracked%20features-458-blue)
+![Features](https://img.shields.io/badge/tracked%20features-460-blue)
 ![Mode](https://img.shields.io/badge/data-demo%20%2F%20sandbox-lightgrey)
 ![i18n](https://img.shields.io/badge/lang-বাংলা%20%7C%20English-green)
 ![License](https://img.shields.io/badge/license-TBD-lightgrey)
@@ -172,7 +172,7 @@ Government / external adapters (demo providers by default)
 e-Bhumi/
 ├── e-Bhumi-Frontend/     # Runnable frontend workspace (Maximum Feature Edition)
 │   ├── assets/           # Responsive CSS styles & theme
-│   ├── data/             # Feature catalogue manifest (458 tracked features)
+│   ├── data/             # Feature catalogue manifest (460 tracked features)
 │   ├── app.js            # Frontend logic, modular routing & interactive state
 │   ├── index.html        # App shell & accessible layout
 │   ├── run_local.bat     # Windows one-click local server launcher
@@ -216,7 +216,7 @@ Open [http://localhost:8080](http://localhost:8080) in your browser.
 For full-stack production deployment with PostgreSQL + PostGIS, Node.js API adapters, and background workers:
 ```bash
 # 1. Clone repository
-git clone https://github.com/Shreyalien/E-Bhumi.git
+git clone https://github.com/<your-username>/E-Bhumi.git
 cd E-Bhumi
 
 # 2. Configure environment

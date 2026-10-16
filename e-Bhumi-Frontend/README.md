@@ -1,6 +1,6 @@
 # e-Bhumi Frontend — Maximum Feature Edition
 
-A responsive, original frontend implementation for the e-Bhumi Bangladesh land-services platform. This is a frontend-only demonstration build with 458 tracked features available in the Feature Catalogue. It is designed as a runnable starting point for backend integration, not as an official government service.
+A responsive, original frontend implementation for the e-Bhumi Bangladesh land-services platform. This is a frontend-only demonstration build with 460 tracked features available in the Feature Catalogue. It is designed as a runnable starting point for backend integration, not as an official government service.
 
 ## Run locally
 
@@ -17,7 +17,9 @@ You can also use any static file server. Opening `index.html` directly via `file
 ## Included
 
 - Citizen workspace dashboard
-- Land search with filters and demo record results
+- Land search with filters and demo record results (now covering Sylhet, Chattogram and CHT districts)
+- Government Land Lease & Bandobasto workspace (tea-garden leases, khas land bandobasto, industrial/commercial leases)
+- Chattogram Hill Tracts (CHT) special land-zone workspace (Chakma/Bomang/Mong circles, Headman/Karbari/Council workflow)
 - My Land / Land Passport workspace
 - Land-service catalogue and service guidance
 - Application tracker and draft creation
@@ -28,7 +30,7 @@ You can also use any static file server. Opening `index.html` directly via `file
 - AI assistant interface with bounded, rule-based demo responses
 - Complaints / cases, appointments / queue, notifications
 - Analytics and admin dashboards
-- Searchable feature catalogue generated from the 458-feature package manifest
+- Searchable feature catalogue generated from the 460-feature package manifest
 - Feature traceability detail: frontend, backend, database, API, integration and phase fields
 - Responsive layout, keyboard shortcuts, basic accessibility, Bengali navigation labels
 

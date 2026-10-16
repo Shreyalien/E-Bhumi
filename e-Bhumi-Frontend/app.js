@@ -15,7 +15,9 @@
     chat: [],
     layerState: { parcels: true, mouza: true, roads: true, water: true, labels: true },
     zoom: 1,
-    diligenceChecks: {}
+    diligenceChecks: {},
+    leaseFilter: 'all',
+    ctgCircle: 'ranga'
   };
   let manifest = { features: [] };
 
@@ -25,6 +27,8 @@
     {id:'my-land',label:'My Land & Passport',icon:'⌂',group:'main',count:'3'},
     {id:'services',label:'Land Services',icon:'▤',group:'main'},
     {id:'applications',label:'My Applications',icon:'▣',group:'main',count:'2'},
+    {id:'land-lease',label:'Govt Land Lease',icon:'⌁',group:'main'},
+    {id:'ctg-zone',label:'Hill Tracts Zone (CHT)',icon:'◭',group:'main'},
     {id:'gis',label:'GIS & Parcel Map',icon:'⌖',group:'tools'},
     {id:'documents',label:'Documents Vault',icon:'▧',group:'tools'},
     {id:'payments',label:'Payments & Receipts',icon:'৳',group:'tools'},
@@ -50,7 +54,9 @@
     {icon:'◷',title:'Office Appointment',desc:'Book a visit or view queue information',tag:'Citizen'},
     {icon:'⌁',title:'Inheritance / Faraiz',desc:'Organise co-sharer and inheritance information',tag:'Family'},
     {icon:'▣',title:'Land Transfer Readiness',desc:'Prepare a checklist before a transaction',tag:'Transaction'},
-    {icon:'✳',title:'AI Document Guide',desc:'Understand document contents with source-aware guidance',tag:'AI'}
+    {icon:'✳',title:'AI Document Guide',desc:'Understand document contents with source-aware guidance',tag:'AI'},
+    {icon:'⌁',title:'Govt Lease / Bandobasto',desc:'Tea garden, khas land and industrial land lease services',tag:'Lease'},
+    {icon:'◭',title:'CHT Land Procedure',desc:'Circle Chief and Mouza Headman approval process guidance',tag:'Special Zone'}
   ];
 
   const applications = [
@@ -101,12 +107,30 @@
     ['documents','Deed chain and supporting documents reviewed']
   ];
 
+  const leaseRecords = [
+    {id:'LSE-SYL-0012',name:'Lackatura Tea Estate',type:'Tea garden lease',location:'Sylhet Sadar, Sylhet',area:'550 acres',term:'1998–2028',status:'Renewal in progress',tone:'amber'},
+    {id:'LSE-SYL-0019',name:'Malnichhara Tea Estate',type:'Tea garden lease',location:'Sylhet Sadar, Sylhet',area:'420 acres',term:'2005–2035',status:'Active',tone:'green'},
+    {id:'LSE-SYL-0027',name:'Chatak Valley Tea Estate',type:'Tea garden lease',location:'Chhatak, Sylhet',area:'780 acres',term:'1992–2022',status:'Expired · review required',tone:'amber'},
+    {id:'LSE-MLV-0004',name:'Sreemangal Tea Estate',type:'Tea garden lease',location:'Sreemangal, Moulvibazar',area:'610 acres',term:'2008–2038',status:'Active',tone:'green'},
+    {id:'LSE-KHS-0081',name:'Landless family khas allotment',type:'Khas land bandobasto',location:'Lohagara, Narail',area:'0.5 acre',term:'Perpetual · conditions apply',status:'Allotted',tone:'green'},
+    {id:'LSE-KHS-0094',name:'Ashrayan Project allotment',type:'Khas land bandobasto',location:'Kalia, Narail',area:'2.0 acres',term:'Perpetual · conditions apply',status:'Verification in progress',tone:'amber'},
+    {id:'LSE-IND-0033',name:'Private industrial park lease',type:'Industrial / commercial lease',location:'Savar, Dhaka',area:'40 acres',term:'2018–2048',status:'Active',tone:'green'}
+  ];
+
+  const chtCircles = [
+    {id:'ranga',name:'Chakma Circle',district:'Rangamati Hill District',chief:'Circle Chief (Chakma Raja)',mouzas:'123 mouzas',desc:'The largest of the three CHT circles, administered under the 1900 CHT Regulation and the 1997 CHT Accord.'},
+    {id:'bandar',name:'Bomang Circle',district:'Bandarban Hill District',chief:'Circle Chief (Bomang Raja)',mouzas:'99 mouzas',desc:'Covers most of Bandarban district, with its own Circle Chief and Mouza Headman structure.'},
+    {id:'khagra',name:'Mong Circle',district:'Khagrachhari Hill District',chief:'Circle Chief (Mong Raja)',mouzas:'45 mouzas',desc:'Covers part of Khagrachhari district, with a parallel customary administration to the other two circles.'}
+  ];
+
   const bn = {
     dashboard:'ওভারভিউ',
     'land-search':'জমি অনুসন্ধান',
     'my-land':'আমার জমি ও পাসপোর্ট',
     services:'ভূমি সেবা',
     applications:'আমার আবেদন',
+    'land-lease':'সরকারি বন্দোবস্ত ও লিজ',
+    'ctg-zone':'পার্বত্য চট্টগ্রাম জোন',
     gis:'জিআইএস ও পার্সেল ম্যাপ',
     documents:'নথির ভল্ট',
     payments:'পেমেন্ট ও রসিদ',
@@ -204,7 +228,7 @@
     <section class="panel">
       <div class="form-grid" id="landSearchForm">
         <div class="form-field"><label>Division</label><select id="division"><option value="">Select division</option><option>Dhaka</option><option>Chattogram</option><option>Khulna</option><option>Rajshahi</option><option>Barishal</option><option>Sylhet</option><option>Rangpur</option><option>Mymensingh</option></select></div>
-        <div class="form-field"><label>District</label><select id="district"><option value="">Select district</option><option>Dhaka</option><option>Narail</option><option>Gazipur</option><option>Manikganj</option></select></div>
+        <div class="form-field"><label>District</label><select id="district"><option value="">Select district</option><option>Dhaka</option><option>Narail</option><option>Gazipur</option><option>Manikganj</option><option>Sylhet</option><option>Moulvibazar</option><option>Chattogram</option><option>Rangamati</option><option>Bandarban</option><option>Khagrachhari</option></select></div>
         <div class="form-field"><label>Upazila / Thana</label><input id="upazila" placeholder="e.g. Savar" value="Savar"/></div>
         <div class="form-field"><label>Mouza</label><input id="mouza" placeholder="Mouza name" value="Amin Bazar"/></div>
         <div class="form-field"><label>Survey type</label><select id="surveyType"><option>Any survey</option><option>CS</option><option>SA</option><option>RS</option><option>BS / BRS</option></select></div>
@@ -485,6 +509,7 @@
 
   function notifications(){
     return `${heading('UPDATES','Notifications','Important application events, document reminders, payments, and service announcements.',`<button class="btn" data-action="mark-read">✓ Mark all read</button><button class="btn" data-action="notification-settings">⚙ Preferences</button>`)}
+    ${demoBanner()}
     <section class="panel">${panelHead('All notifications','Recent activity in this demo workspace.')}
       <div class="toolbar">
         <select class="select-field" id="noticeFilter">
@@ -631,6 +656,62 @@
     <div class="service-grid">${[['User & role management','RBAC / ABAC and delegated access','♙'],['Workflow designer','Configure service states and transitions','↗'],['Service catalogue','Forms, checklists, SLA and eligibility','▤'],['Audit & security','Review security events and admin changes','◈'],['Feature flags','Enable modules by environment or authority','⚙'],['Data quality','Review duplicates and reconciliation queues','⌁'],['Notification templates','Manage approved content by channel','♧'],['Integration registry','Provider health and failure queue','⇄']].map(x=>`<button class="service-card" data-action="admin-module" data-name="${x[0]}"><span class="service-icon">${x[2]}</span><b>${x[0]}</b><small>${x[1]}</small></button>`).join('')}</div>`;
   }
 
+  function leasePage(){
+    const filtered = state.leaseFilter && state.leaseFilter!=='all' ? leaseRecords.filter(l=>l.type===state.leaseFilter) : leaseRecords;
+    return `${heading('GOVERNMENT LEASE & SETTLEMENT','Government land lease & bandobasto','Track long-term government land lease and settlement records: tea-garden leases, khas land bandobasto to eligible citizens, and industrial/commercial leases.',`<button class="btn" data-action="lease-guide">ⓘ Lease guidance</button><button class="btn primary" data-action="lease-renewal">＋ Start renewal / new request</button>`)}
+    ${demoBanner()}
+    <div class="stats-grid">
+      ${stat('Tracked lease & settlement records',String(leaseRecords.length).padStart(2,'0'),'⌁','Across|3 lease categories')}
+      ${stat('Active',String(leaseRecords.filter(l=>l.tone==='green').length).padStart(2,'0'),'✓','Currently|in force')}
+      ${stat('Renewal / review needed',String(leaseRecords.filter(l=>l.tone!=='green').length).padStart(2,'0'),'◷','Action|required','warning')}
+      ${stat('Tea estates (Sylhet division)',String(leaseRecords.filter(l=>l.type==='Tea garden lease').length).padStart(2,'0'),'⌁','Sylhet · Moulvibazar|demo sample')}
+    </div>
+    <section class="panel">${panelHead('Lease & settlement register','Illustrative records. Official lease deeds, revenue-share terms and renewal rules must be confirmed with the Deputy Commissioner (Lease) and Ministry of Land.')}
+      <div class="toolbar">
+        <select class="select-field" id="leaseTypeFilter">
+          <option value="all">All categories</option>
+          <option ${state.leaseFilter==='Tea garden lease'?'selected':''}>Tea garden lease</option>
+          <option ${state.leaseFilter==='Khas land bandobasto'?'selected':''}>Khas land bandobasto</option>
+          <option ${state.leaseFilter==='Industrial / commercial lease'?'selected':''}>Industrial / commercial lease</option>
+        </select>
+      </div>
+      <div id="leaseTable">${table(filtered.map(l=>`<tr><td class="table-primary">${esc(l.id)}</td><td><strong>${esc(l.name)}</strong></td><td>${esc(l.type)}</td><td>${esc(l.location)}</td><td>${esc(l.area)}</td><td>${esc(l.term)}</td><td><span class="pill ${l.tone}">${esc(l.status)}</span></td><td><button class="table-actions" data-action="lease-detail" data-id="${esc(l.id)}">Open ↗</button></td></tr>`).join(''),['Lease ID','Name','Category','Location','Area','Term','Status',''])}</div>
+    </section>
+    <div class="section-row"><div><h2>How government land lease works</h2><p>General structure only; eligibility, fees and terms vary by category and require official confirmation.</p></div></div>
+    <div class="feature-list">
+      <article class="feature-card"><div class="feature-symbol">⌁</div><div><h3>Tea garden lease (e.g. Sylhet division)</h3><p>Long-term government leases, commonly for 30+ years, with annual lease rent and periodic renewal review by the Deputy Commissioner (Lease) office. Sylhet and Moulvibazar hold most of Bangladesh's tea-garden leaseholds.</p></div></article>
+      <article class="feature-card"><div class="feature-symbol">⌂</div><div><h3>Khas land bandobasto</h3><p>Allotment of government khas (vacant) agricultural or homestead land to landless and eligible families, subject to upazila/district land office verification and conditions against transfer.</p></div></article>
+      <article class="feature-card"><div class="feature-symbol">🏭</div><div><h3>Industrial / commercial lease</h3><p>Government land leased to private or public entities for industrial, commercial, or institutional use, under fixed-term agreements with defined rent and renewal conditions.</p></div></article>
+    </div>
+    <section class="panel"><div class="warning-panel">This workspace organises lease and settlement information only. It does not grant, renew, or cancel an actual government lease. Confirm current rules, rent schedules, and application forms with the Deputy Commissioner (Lease), Ministry of Land, and the relevant Hill/Tea District administration.</div></section>`;
+  }
+
+  function ctgZonePage(){
+    const active = chtCircles.find(c=>c.id===(state.ctgCircle||'ranga')) || chtCircles[0];
+    return `${heading('SPECIAL ADMINISTRATIVE ZONE','Chattogram Hill Tracts (CHT) land zone','Rangamati, Bandarban and Khagrachhari follow a separate customary land-governance structure under the CHT Regulation 1900 and the 1997 CHT Accord, distinct from the plains RS/BS Khatian system used elsewhere in this platform.',`<button class="btn" data-action="ctg-guide">ⓘ CHT land guidance</button><button class="btn primary" data-action="ctg-certificate">＋ Request customary land certificate</button>`)}
+    ${demoBanner()}
+    <div class="warning-panel" style="margin-bottom:18px"><b>Important:</b> In the CHT, land transactions generally require endorsement by the Mouza Headman, approval by the Circle Chief, and are subject to Hill District Council authority — outside the national Khatian/RS record system used in the plains. This workspace is informational only.</div>
+    <div class="toolbar">${chtCircles.map(c=>`<button class="btn ${active.id===c.id?'primary':''}" data-action="ctg-select-circle" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>
+    <div class="content-grid" style="margin-top:14px">
+      <section class="panel">${panelHead(active.name,`${active.district} · ${active.mouzas}`)}
+        <p class="panel-subtitle" style="line-height:1.8">${esc(active.desc)}</p>
+        <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Customary authority</div><div class="detail-value">${esc(active.chief)}</div></div><div><div class="detail-label">Local record keeper</div><div class="detail-value">Mouza Headman</div></div></div>
+        <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Village-level authority</div><div class="detail-value">Karbari (para/village headman)</div></div><div><div class="detail-label">Regional authority</div><div class="detail-value">Hill District Council</div></div></div>
+        <button class="btn primary" style="width:100%;margin-top:14px" data-action="ctg-certificate" data-id="${active.id}">Request customary land certificate</button>
+      </section>
+      <section class="panel">${panelHead('Approval workflow','Customary land matters generally follow this sequence.')}
+        <div class="workflow">${[['1','Karbari','Village-level note'],['2','Headman','Mouza record check'],['3','Circle','Chief endorsement'],['4','Council','Hill District Council']].map(x=>`<div class="workflow-step"><div class="step-circle">${x[0]}</div><b>${x[1]}</b><small>${x[2]}</small></div>`).join('')}</div>
+        <p class="panel-subtitle" style="margin-top:12px;line-height:1.7">Jum (shifting) cultivation land, common/community land, and individually held plots can follow different customary rules. Always confirm the applicable process with the Circle and Hill District Council offices.</p>
+      </section>
+    </div>
+    <div class="section-row"><div><h2>Why this zone is kept separate</h2><p>The CHT land-governance model differs structurally from the rest of the platform.</p></div></div>
+    <div class="feature-list">
+      <article class="feature-card"><div class="feature-symbol">◭</div><div><h3>No RS/BS Khatian by default</h3><p>Much of CHT land is managed through customary mouza records rather than the national RS/BS khatian survey system used in the plains districts.</p></div></article>
+      <article class="feature-card"><div class="feature-symbol">⚖</div><div><h3>Accord-based governance</h3><p>The 1997 CHT Accord and CHT Regulation 1900 establish the Circle Chief, Headman and Karbari roles alongside the three Hill District Councils.</p></div></article>
+      <article class="feature-card"><div class="feature-symbol">⚑</div><div><h3>Khas land sensitivity</h3><p>Khas and community land disputes in CHT require particular care; this platform routes such cases through the Casebook rather than a general khas allotment form.</p></div></article>
+    </div>`;
+  }
+
   function pageContent(){
     switch(state.page){
       case'dashboard':return dashboard();
@@ -638,6 +719,8 @@
       case'my-land':return myLand();
       case'services':return servicesPage();
       case'applications':return applicationsPage();
+      case'land-lease':return leasePage();
+      case'ctg-zone':return ctgZonePage();
       case'gis':return gisPage();
       case'documents':return documentsPage();
       case'payments':return paymentsPage();
@@ -670,6 +753,9 @@
     if(sf) sf.addEventListener('input', filterServiceGrid);
     const sc = $('#serviceCategory');
     if(sc) sc.addEventListener('change', filterServiceGrid);
+
+    const ltf = $('#leaseTypeFilter');
+    if(ltf) ltf.addEventListener('change', e => { state.leaseFilter = e.target.value; renderPage(); });
 
     const lf = $('#landFilter');
     if(lf) lf.addEventListener('input', filterLandTable);
@@ -1194,6 +1280,50 @@
           <p class="panel-subtitle" style="line-height:1.7;margin-top:12px">Review the related application and retain evidence. Escalation decisions require authorised service staff.</p>
           <div class="modal-actions"><button class="btn" data-action="close-modal">Close</button></div>
         `, 'SUPPORT CASE');
+        break;
+
+      case 'lease-detail': {
+        const l = leaseRecords.find(x => x.id === id) || leaseRecords[0];
+        openModal(`${esc(l.id)} · ${esc(l.name)}`, `
+          <div class="detail-row"><div><div class="detail-label">Category</div><div class="detail-value"><strong>${esc(l.type)}</strong></div></div><span class="pill ${l.tone}">${esc(l.status)}</span></div>
+          <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Location</div><div class="detail-value">${esc(l.location)}</div></div><div><div class="detail-label">Area</div><div class="detail-value">${esc(l.area)}</div></div></div>
+          <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Lease term</div><div class="detail-value">${esc(l.term)}</div></div></div>
+          <div class="warning-panel" style="margin-top:15px">Demo lease record — not an official government lease deed. Confirm current terms, rent, and renewal status with the Deputy Commissioner (Lease) / Ministry of Land.</div>
+          <div class="modal-actions"><button class="btn" data-action="close-modal">Close</button><button class="btn primary" data-action="lease-renewal" data-id="${esc(l.id)}">Start renewal request →</button></div>
+        `, 'GOVERNMENT LEASE');
+        break;
+      }
+
+      case 'lease-renewal':
+        openModal('Lease / settlement renewal request', modalForm([
+          {name:'leaseId',label:'Existing lease / settlement ID (if any)',placeholder:'e.g. LSE-SYL-0012'},
+          {name:'category',label:'Category',options:['Tea garden lease','Khas land bandobasto','Industrial / commercial lease'],required:true},
+          {name:'location',label:'District / Upazila',placeholder:'e.g. Sylhet Sadar, Sylhet',required:true},
+          {name:'notes',label:'Notes for the reviewing office',type:'textarea',full:true,placeholder:'Describe the renewal or new request'}
+        ],'Create draft request'), 'GOVERNMENT LEASE');
+        break;
+
+      case 'lease-guide':
+        openModal('Lease & bandobasto guidance', `<div class="activity-list">${[['Tea garden leases','Generally long-term (30+ years) with annual lease rent and a formal renewal review before expiry.'],['Khas land bandobasto','Allotment to eligible landless/homestead-need families, verified by the upazila/district land office.'],['Industrial & commercial leases','Fixed-term agreements for private or institutional use, with defined rent and renewal conditions.'],['Always confirm officially','Eligibility, rent schedules and required documents must be confirmed with the Deputy Commissioner (Lease) and Ministry of Land.']].map(x=>`<div class="activity-item"><div class="activity-icon">⌁</div><div class="activity-copy"><b>${x[0]}</b><p>${x[1]}</p></div></div>`).join('')}</div>`, 'LEASE GUIDANCE');
+        break;
+
+      case 'ctg-select-circle':
+        state.ctgCircle = id;
+        renderPage();
+        break;
+
+      case 'ctg-certificate':
+        openModal('Request a customary land certificate', modalForm([
+          {name:'circle',label:'Circle',options:chtCircles.map(c=>c.name),required:true},
+          {name:'mouza',label:'Mouza',placeholder:'Mouza name',required:true},
+          {name:'applicant',label:'Applicant name',placeholder:'As recorded with the Headman',required:true},
+          {name:'purpose',label:'Purpose',options:['Homestead','Jum cultivation','Transfer endorsement','Other']},
+          {name:'notes',label:'Notes for the Headman / Circle office',type:'textarea',full:true}
+        ],'Create draft request'), 'HILL TRACTS ZONE');
+        break;
+
+      case 'ctg-guide':
+        openModal('CHT land guidance', `<div class="activity-list">${[['Separate system','CHT land is largely governed by the CHT Regulation 1900 and the 1997 CHT Accord, not the plains RS/BS Khatian system.'],['Mouza Headman','First point of contact for local land record and customary endorsement.'],['Circle Chief','Endorses matters within Chakma, Bomang or Mong Circle jurisdiction.'],['Hill District Council','Regional authority for Rangamati, Bandarban or Khagrachhari.'],['Always confirm officially','This workspace is informational; it does not replace the Headman, Circle or Council process.']].map(x=>`<div class="activity-item"><div class="activity-icon">◭</div><div class="activity-copy"><b>${x[0]}</b><p>${x[1]}</p></div></div>`).join('')}</div>`, 'CHT GUIDANCE');
         break;
 
       case 'close-modal':
