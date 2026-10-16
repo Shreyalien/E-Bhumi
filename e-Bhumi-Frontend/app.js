@@ -157,7 +157,7 @@
   }
 
   function dashboard(){
-    return `${heading('CITIZEN WORKSPACE','Good morning, Shreya <span style="color:#8ab79b">✳</span>','Here is your land-service overview for Friday, 16 October 2026.',`<button class="btn" data-action="download-summary">↓ Export summary</button><button class="btn primary" data-action="new-application">＋ New application</button>`)}
+    return `${heading('CITIZEN WORKSPACE','Good morning, Citizen <span style="color:#8ab79b">✳</span>','Here is your land-service overview for Friday, 16 October 2026.',`<button class="btn" data-action="download-summary">↓ Export summary</button><button class="btn primary" data-action="new-application">＋ New application</button>`)}
     ${demoBanner()}
     <div class="stats-grid">
       ${stat('Land parcels linked','03','⌂','+1|record added this month')}
@@ -1123,7 +1123,7 @@
 
       case 'profile':
         openModal('Citizen profile', `
-          <div class="detail-row"><div><div class="detail-label">Name</div><div class="detail-value">Shreya Rahman</div></div><div><div class="detail-label">Account type</div><div class="detail-value">Citizen · Demo</div></div></div>
+          <div class="detail-row"><div><div class="detail-label">Name</div><div class="detail-value">Citizen Account</div></div><div><div class="detail-label">Account type</div><div class="detail-value">Citizen · Demo</div></div></div>
           <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">NID Verification</div><div class="detail-value"><span class="pill green">Verified · 9585288633</span></div></div><div><div class="detail-label">Phone</div><div class="detail-value">+880 1700-000000</div></div></div>
           <p class="panel-subtitle" style="line-height:1.7;margin-top:15px">Identity verification, profile changes, and delegated access must be handled by the authenticated backend in a production implementation.</p>
           <div class="modal-actions"><button class="btn" data-action="close-modal">Close</button></div>

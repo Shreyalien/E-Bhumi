@@ -169,59 +169,62 @@ Government / external adapters (demo providers by default)
 ## 📁 Repository structure
 
 ```text
-e-bhumi/
-├── apps/
-│   ├── web/          # React citizen + gov + admin frontend
-│   ├── api/          # Node/TS modular API (domain modules)
-│   └── worker/       # Async jobs (notifications, OCR, GIS, sync, reports)
-├── packages/
-│   ├── contracts/    # OpenAPI, types, schemas
-│   ├── shared/       # Domain-safe utilities
-│   ├── i18n/         # Bangla/English resources
-│   └── config/       # Validated config types
-├── db/               # migrations, seeds, fixtures
-├── gis/              # schemas, sample data, processing, styles
-├── infrastructure/   # docker, ci, deployment, monitoring, backups
-├── tests/            # e2e, security, performance, accessibility
-├── docs/             # PRD, TRD, App Flow, ADRs
-└── scripts/
+e-Bhumi/
+├── e-Bhumi-Frontend/     # Runnable frontend workspace (Maximum Feature Edition)
+│   ├── assets/           # Responsive CSS styles & theme
+│   ├── data/             # Feature catalogue manifest (458 tracked features)
+│   ├── app.js            # Frontend logic, modular routing & interactive state
+│   ├── index.html        # App shell & accessible layout
+│   ├── run_local.bat     # Windows one-click local server launcher
+│   ├── run_local.sh      # Unix local server launcher
+│   ├── FEATURE_COVERAGE.md
+│   └── README.md         # Frontend workspace documentation
+└── README.md             # Platform specification & architectural blueprint
 ```
-
-Folder rules: frontend never touches DB code · workers call domain services · integrations cannot bypass audit/provenance · GIS processing is isolated from CRUD · shared packages never depend on apps.
 
 ---
 
 ## 🚀 Getting started
 
-> 🚧 The project is not runnable yet. This section describes the **intended** developer workflow and will be updated as phases land.
+### Quick start: Running the e-Bhumi Frontend
 
-### Prerequisites
-- Node.js (LTS) and a package manager (pnpm recommended)
-- Docker & Docker Compose
-- PostgreSQL with PostGIS (provided via Docker)
+The demonstration frontend workspace is ready to run immediately:
 
-### Quick start (planned)
-```bash
-# 1. Clone
-git clone https://github.com/<your-org>/e-bhumi.git
-cd e-bhumi
-
-# 2. Configure
-cp .env.example .env
-
-# 3. Start infrastructure (Postgres+PostGIS, Redis, object storage)
-docker compose up -d
-
-# 4. Install, migrate, seed demo data
-pnpm install
-pnpm db:migrate
-pnpm db:seed:demo
-
-# 5. Run everything
-pnpm dev          # web + api + worker
+#### Windows (One-Click)
+Navigate to the `e-Bhumi-Frontend` folder and double-click `run_local.bat`, or in terminal:
+```cmd
+cd e-Bhumi-Frontend
+run_local.bat
 ```
 
-Default local URLs (planned): web `http://localhost:5173` · API `http://localhost:4000/api/v1` · docs `/api/docs`.
+#### Any Platform (Python / Node / Static Server)
+```bash
+cd e-Bhumi-Frontend
+
+# Using Python:
+python -m http.server 8080
+
+# Or using Node:
+npx serve .
+```
+
+Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+> 💡 **Tip:** Serving over HTTP (via `run_local.bat` or Python) ensures the browser can load the complete 458-feature catalogue from `data/features.json` without browser local file security restrictions.
+
+### Full-Stack Architecture (Targeted Roadmap)
+For full-stack production deployment with PostgreSQL + PostGIS, Node.js API adapters, and background workers:
+```bash
+# 1. Clone repository
+git clone https://github.com/Shreyalien/E-Bhumi.git
+cd E-Bhumi
+
+# 2. Configure environment
+cp .env.example .env
+
+# 3. Start infrastructure (Postgres + PostGIS, Redis)
+docker compose up -d
+```
 
 ### Demo mode
 With `DEMO_MODE=true` (default locally) all government integrations, payments, SMS/email, AI and OCR use **clearly labelled sandbox providers**. A persistent "Demo data" banner is shown in the UI.
@@ -231,6 +234,7 @@ With `DEMO_MODE=true` (default locally) all government integrations, payments, S
 ## ⚙️ Configuration & feature flags
 
 Configuration is loaded and validated at startup. Secrets are **never** committed — see `.env.example`.
+
 
 Server-controlled, audited feature flags gate: government integrations · payment providers · AI providers · OCR · advanced GIS · authority-gated modules · experimental workflows.
 
