@@ -1,0 +1,5 @@
+e-Bhumi-Frontend/.data/
+e-Bhumi-Frontend/tests/.browser-data/
+node_modules/
+*.log
+DELIVERY.json

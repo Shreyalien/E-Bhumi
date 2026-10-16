@@ -1,133 +1,85 @@
-# Screenshot gallery
+# Preserved Citizen Workspace — 17 October 2026
 
-Actual renders of the included source, captured on **16 October 2026**. All records, metrics and statuses shown are demonstration data. Desktop captures use 1440 × 1000; mobile captures use 390 × 844. Most images show the initial viewport rather than the entire page.
+Actual authenticated browser renders with the expanded sample store. Original font stack and all 18 sidebar entries were checked. Desktop 1440 × 1000; mobile 390 × 844. Every pictured record is demo data.
 
-[Capture method and limitations](SCREENSHOT_CAPTURE.md) · [README](../README.md)
+## dashboard
 
-## Landing page
+![dashboard](screenshots-preserved/dashboard.png)
 
-![Landing desktop](screenshots/landing-desktop.png)
+## land-search
 
-## 01. Overview
+![land-search](screenshots-preserved/land-search.png)
 
-Route: `workspace.html#dashboard`.
+## my-land
 
-![Overview](screenshots/dashboard.png)
+![my-land](screenshots-preserved/my-land.png)
 
-## 02. Land Search
+## services
 
-Route: `workspace.html#land-search`.
+![services](screenshots-preserved/services.png)
 
-![Land Search](screenshots/land-search.png)
+## applications
 
-## 03. My Land & Passport
+![applications](screenshots-preserved/applications.png)
 
-Route: `workspace.html#my-land`.
+## land-lease
 
-![My Land & Passport](screenshots/my-land.png)
+![land-lease](screenshots-preserved/land-lease.png)
 
-## 04. Land Services
+## ctg-zone
 
-Route: `workspace.html#services`.
+![ctg-zone](screenshots-preserved/ctg-zone.png)
 
-![Land Services](screenshots/services.png)
+## gis
 
-## 05. My Applications
+![gis](screenshots-preserved/gis.png)
 
-Route: `workspace.html#applications`.
+## documents
 
-![My Applications](screenshots/applications.png)
+![documents](screenshots-preserved/documents.png)
 
-## 06. Govt Land Lease
+## payments
 
-Route: `workspace.html#land-lease`.
+![payments](screenshots-preserved/payments.png)
 
-![Govt Land Lease](screenshots/land-lease.png)
+## due-diligence
 
-## 07. Hill Tracts Zone (CHT)
+![due-diligence](screenshots-preserved/due-diligence.png)
 
-Route: `workspace.html#ctg-zone`.
+## ai-assistant
 
-![Hill Tracts Zone (CHT)](screenshots/ctg-zone.png)
+![ai-assistant](screenshots-preserved/ai-assistant.png)
 
-## 08. GIS & Parcel Map
+## casebook
 
-Route: `workspace.html#gis`.
+![casebook](screenshots-preserved/casebook.png)
 
-![GIS & Parcel Map](screenshots/gis.png)
+## appointments
 
-## 09. Documents Vault
+![appointments](screenshots-preserved/appointments.png)
 
-Route: `workspace.html#documents`.
+## notifications
 
-![Documents Vault](screenshots/documents.png)
+![notifications](screenshots-preserved/notifications.png)
 
-## 10. Payments & Receipts
+## analytics
 
-Route: `workspace.html#payments`.
+![analytics](screenshots-preserved/analytics.png)
 
-![Payments & Receipts](screenshots/payments.png)
+## feature-catalog
 
-## 11. Due Diligence
+![feature-catalog](screenshots-preserved/feature-catalog.png)
 
-Route: `workspace.html#due-diligence`.
+## admin
 
-![Due Diligence](screenshots/due-diligence.png)
+![admin](screenshots-preserved/admin.png)
 
-## 12. AI Land Assistant
+## Mobile Overview
 
-Route: `workspace.html#ai-assistant`.
+<img src="screenshots-preserved/mobile-overview.png" alt="Restored mobile Overview" width="320">
 
-![AI Land Assistant](screenshots/ai-assistant.png)
+## Mobile sidebar
 
-## 13. Cases & Complaints
+<img src="screenshots-preserved/mobile-navigation.png" alt="Preserved mobile navigation" width="320">
 
-Route: `workspace.html#casebook`.
-
-![Cases & Complaints](screenshots/casebook.png)
-
-## 14. Appointments & Queue
-
-Route: `workspace.html#appointments`.
-
-![Appointments & Queue](screenshots/appointments.png)
-
-## 15. Notifications
-
-Route: `workspace.html#notifications`.
-
-![Notifications](screenshots/notifications.png)
-
-## 16. Analytics & Reports
-
-Route: `workspace.html#analytics`.
-
-![Analytics & Reports](screenshots/analytics.png)
-
-## 17. Feature Catalogue
-
-Route: `workspace.html#feature-catalog`.
-
-![Feature Catalogue](screenshots/feature-catalog.png)
-
-## 18. Administration
-
-Route: `workspace.html#admin`.
-
-![Administration](screenshots/admin.png)
-
-## Application preparation dialog
-
-The form creates a local draft, not an official submission.
-
-![Application form](screenshots/application-form.png)
-
-## Mobile views
-
-### Landing page
-
-<img src="screenshots/landing-mobile.png" alt="Full mobile landing page" width="320">
-
-### Citizen dashboard
-
-<img src="screenshots/workspace-mobile.png" alt="Mobile citizen dashboard" width="320">
+Earlier role-platform screenshots remain in screenshots-v4. [Capture method](SCREENSHOT_CAPTURE.md) · [README](../README.md)

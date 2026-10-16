@@ -6,7 +6,7 @@
 
 A citizen-first land-service preparation workspace for Bangladesh.
 
-**18 workspace pages · 460 tracked requirements · Zero runtime packages · Local demo**
+**18 familiar citizen pages · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
@@ -31,7 +31,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no package installation needed |
-| Storage | Versioned browser localStorage |
+| Storage | Persistent server JSON with protected sample evidence; account-scoped preparation preferences |
 | Languages | English content; partial Bangla navigation and numeral support |
 | Official integrations | Not connected |
 
@@ -72,9 +72,17 @@ Open **[http://127.0.0.1:8080](http://127.0.0.1:8080)**.
 | Applications | `http://127.0.0.1:8080/workspace.html#applications` |
 | Feature catalogue | `http://127.0.0.1:8080/workspace.html#feature-catalog` |
 
-**Windows:** double-click `e-Bhumi-Frontend/run_local.bat`. **Linux/macOS:** run `sh run_local.sh` from that folder. Alternatively, use `python -m http.server 8080` in the frontend directory.
+**Windows:** double-click `e-Bhumi-Frontend/run_local.bat`. **Linux/macOS:** run `sh run_local.sh` from that folder. This authenticated edition requires Node; static-only serving cannot run the API.
 
 Use HTTP for normal use. Opening HTML directly with `file://` may prevent the full feature JSON from loading. The included server listens on `127.0.0.1`; it is a local development server, not a production service.
+
+## Role login and demo evaluation
+
+Open /login.html and choose a demo role. The local demo password is `BhumiDemo!2026`. Emails follow `<role>@demo.ebhumi.local` for citizen, representative, officer, records, surveyor, registrar, finance, support, admin and auditor.
+
+Citizens and representatives can register; administrators provision staff. One browser profile shares one session cookie, so use separate profiles/private contexts for simultaneous role evaluation. Public registration cannot select a staff role. All original 18 citizen navigation entries remain visible, with private citizen settings under Administration.
+
+To operate a sample process, use an editable draft or submitted case, then sign into the corresponding service reviewer. Completed outcomes are watermarked and do not update any government registry.
 
 ## Screenshots
 
@@ -122,7 +130,7 @@ These screens illustrate separate preparation contexts. Their labels and explana
 
 | Workspace / route | What you can explore or do | Boundary |
 | --- | --- | --- |
-| Overview / `#dashboard` | Sample summary, service shortcuts, activity, saved pages and report export | Summary totals remain fixtures |
+| Overview / `#dashboard` | Sample summary, service shortcuts, activity, saved pages and report export | Counts reflect the local sample/application store |
 | Land search / `#land-search` | Filter sample Dag/Khatian/Mouza records; save searches; normalise Bengali numerals | No registry or official location query |
 | My land / `#my-land` | Passport previews, record-link drafts, local watchlist preparation | No verified title or live change alerts |
 | Services / `#services` | Search/category filters, comparison table and application entry | Official eligibility, fees and requirements unverified |
@@ -130,14 +138,14 @@ These screens illustrate separate preparation contexts. Their labels and explana
 | Govt land lease / `#land-lease` | Sample lease register, category filter, details and renewal/request preparation | No actual lease grant, renewal or cancellation |
 | Hill Tracts / `#ctg-zone` | Circle selection, regional information and certificate-request preparation | No customary certificate issuance or legal validation |
 | GIS / `#gis` | Select sample parcels, toggle layers, export schematic SVG and print | No real survey accuracy or GIS measurement |
-| Documents / `#documents` | File metadata intake, extension/size checks, filtering and detail previews | No stored file bytes, malware scan, secure vault or official verification |
-| Payments / `#payments` | Sample transaction filters, receipt previews and CSV export | No real charge, refund or reconciliation |
+| Documents / `#documents` | Protected sample-file upload/download, size/signature checks and local hashes and detail previews | No stored file bytes, malware scan, secure vault or official verification |
+| Payments / `#payments` | Sample transaction filters, receipt previews and CSV export | No real charge or refund; local finance reconciliation is simulated |
 | Due diligence / `#due-diligence` | Persistent eight-item checklist and export | No ownership, encumbrance or court verification |
 | Assistant / `#ai-assistant` | Predefined guidance, prompts and saved conversation | No live AI model, retrieval or OCR |
-| Cases / `#casebook` | Complaint preparation and reviewable local drafts | Sample register is separate; no complaint is delivered |
+| Cases / `#casebook` | Complaint preparation and reviewable local drafts | Requests enter the local support queue; no external office receives them |
 | Appointments / `#appointments` | Preferred-date preparation and local booking drafts | No live slots or confirmed office visit |
 | Notifications / `#notifications` | Sample category filters and persistent mark-all-read | No SMS/email/push provider |
-| Analytics / `#analytics` | Sample charts, report previews and workspace data export | Charts are not live operational statistics |
+| Analytics / `#analytics` | Sample charts, report previews and workspace data export | Charts reflect local records, not government statistics |
 | Catalogue / `#feature-catalog` | 460 requirements, filters, incremental results, details and export | Catalogue coverage does not imply implementation |
 | Administration / `#admin` | Operational fixtures and configuration preparation | No authentication, RBAC enforcement or production administration |
 
@@ -149,29 +157,28 @@ The source of truth for catalogue entries is [`data/features.json`](e-Bhumi-Fron
 
 ```mermaid
 flowchart TD
-    Landing[Public landing page] --> Dashboard[Citizen dashboard]
-    Landing --> Services[Service directory]
-    Dashboard --> Search[Sample land search]
-    Search --> GIS[Parcel map and context]
-    Dashboard --> Land[Land passport preview]
-    Services --> Form[Prepare application form]
-    Form --> Draft[Save local application draft]
-    Draft --> Applications[My applications]
-    Applications --> Detail[Sample workflow detail]
-    Dashboard --> Documents[Document metadata workspace]
-    Dashboard --> Review[Due-diligence checklist]
-    Dashboard --> Regional[Lease and CHT workspaces]
-    Dashboard --> Support[Complaints and appointment drafts]
-    Dashboard --> Tools[Catalogue, analytics and admin previews]
-    Review --> Export[Download preparation data]
-    Documents --> Export
-    Applications --> Export
-    Export --> Official[User separately consults official authority]
+    Login[Citizen or representative login] --> Guide[Read service description and evidence checklist]
+    Guide --> Draft[Applicant and land-specific draft]
+    Draft --> Evidence[Attach sample evidence]
+    Evidence --> Submit[Submit to service-role queue]
+    Submit --> Claim[Eligible staff claims request]
+    Claim --> Review[Inspect data and evidence]
+    Review --> Correct[Request correction]
+    Correct --> Draft
+    Review --> Hearing[Schedule sandbox hearing]
+    Hearing --> Decision[Reasoned approval or rejection]
+    Review --> Decision
+    Decision --> Fee[Sandbox checkout where configured]
+    Fee --> Retry[Failure and retry path]
+    Retry --> Fee
+    Fee --> Ready[Ready for delivery]
+    Decision --> NoFee[Fee-free support approval]
+    NoFee --> Ready
+    Ready --> Issue[Assigned staff issues outcome]
+    Issue --> Download[Applicant downloads watermarked result]
 ```
 
-Official consultation is a next step outside this app. The diagram does not imply an integrated official submission or verification service.
-
-For detailed application, document, review and regional journeys, see [App flows](docs/APP_FLOW.md).
+Rejection retains the reason and history. A separate review/appeal-preparation service is available. Every transition validates the actor and current state on the server. Finance reconciles sample transactions; administrators manage accounts/settings without bypassing service decisions; auditors inspect read-only. [Detailed app flow](docs/APP_FLOW.md).
 
 ## Five-minute walkthrough
 
@@ -185,66 +192,57 @@ For detailed application, document, review and regional journeys, see [App flows
 
 ## Architecture
 
-### What runs today
+The V5 reference's role-based application flow and local server architecture are integrated while retaining this project's existing visual identity and explanatory README structure.
 
 ```mermaid
 flowchart LR
-    Server[Node static server] --> Landing[index.html and landing.css]
-    Server --> Shell[workspace.html and styles.css]
-    Shell --> App[app.js: routing, rendering and actions]
-    App --> Fixtures[Sample arrays in app.js]
-    App --> Manifest[data/features.json]
-    App <--> Storage[Browser localStorage]
-    App --> Files[JSON, CSV and SVG downloads]
+    Public[Existing landing page] --> Login[Role login]
+    Login --> Citizen[Original citizen shell and overview]
+    Login --> Staff[Separate staff and oversight portals]
+    Citizen --> API[Node HTTP API]
+    Staff --> API
+    API --> Guards[Session, CSRF, owner and role checks]
+    Guards --> Workflows[Validated service state transitions]
+    Workflows --> Catalogue[33 service definitions]
+    Workflows --> Store[Atomic local JSON and sample evidence]
+    Workflows --> Audit[Hash-linked events and notifications]
+    Workflows --> Output[Watermarked sandbox outcomes]
 ```
 
-There is no production API, database, job queue or identity provider in this delivery. The Node server serves files; it does not implement land-service business operations. The architecture diagram describes the present app, not the production roadmap.
+The landing design, original font stack, lease register/cards and CHT circle/workflow composition are preserved. Their controls now connect to tracked applications. [Architecture blueprint](docs/ARCHITECTURE.md) documents the actual modules and boundaries; [application flow](docs/APP_FLOW.md) describes states and role handoffs.
 
-### Repository layout
+There is no authorised government API, real payment provider, legally valid certificate service, live GIS dataset or production identity integration. The reference's 460 entries remain a requirements catalogue rather than an implementation claim.
 
 ```text
-E-Bhumi/
-├── README.md
-├── VALIDATION.md
-├── docs/
-│   ├── APP_FLOW.md
-│   ├── FEATURES.md
-│   ├── SCREENSHOTS.md
-│   ├── SCREENSHOT_CAPTURE.md
-│   └── screenshots/              22 actual page captures
-└── e-Bhumi-Frontend/
-    ├── index.html                Landing page
-    ├── workspace.html            Workspace shell
-    ├── app.js                    Routes, fixtures, UI and local persistence
-    ├── assets/                   Landing and workspace CSS
-    ├── data/features.json        Requirement registry
-    ├── server.cjs                npm start entry point
-    ├── server.js                 Alternative server retained in source
-    ├── package.json              Start and syntax-check commands
-    ├── run_local.bat
-    ├── run_local.sh
-    └── FEATURE_COVERAGE.md
+e-Bhumi-Frontend/
+├── index.html, assets/landing.css    Existing landing appearance
+├── login.html, auth.js              Account login and safe route return
+├── portal.html, portal.js           Role portal and workflow UI
+├── citizen.js, preserved.css        Original citizen/lease/CHT presentation
+├── lib/catalog.cjs                 Service questions, evidence and role mapping
+├── lib/platform.cjs                Sessions, access, transitions and persistence
+├── lib/geography.cjs               Shared division/district validation data
+├── lib/seed-demo.cjs                Additive sample scenarios
+├── server-v4.cjs                   HTTP and protected static/API routing
+├── server.cjs                      npm start entry point
+├── data/features.json              Original 460 requirements
+└── tests/                          Lifecycle, security and browser regressions
 ```
 
 ## Data and persistence
 
-State is stored in localStorage under `ebhumi.workspace.v3`. It can include notes, favorites, workflow drafts, application records, document metadata, diligence checks, saved searches, language, chat and map preferences.
+Version 5.1 stores accounts, application histories, uploaded sample bytes, hashes, payments and notifications in `e-Bhumi-Frontend/.data/platform.json`. Drafts and preparation preferences belong to an authenticated account. The store is created on first startup; it is excluded from Git and static file serving.
 
-| Data | Behavior |
-| --- | --- |
-| Browser state | Local to one browser profile and origin |
-| `localhost` versus `127.0.0.1` | Separate storage; use one hostname consistently |
-| Uploaded document | Filename/category metadata only; file contents are not retained |
-| Workspace backup | JSON download; backup import is not implemented |
-| Clear site data | Resets saved work; keep an export first if needed |
-| Role switch/share draft | Demo preparation, not a security or sharing boundary |
+Sessions use an HttpOnly/SameSite cookie and end on server restart. Passwords use salted scrypt. Mutation APIs enforce CSRF/origin checks, object ownership, review role and revision. This is a single-process local sandbox, not a certified production platform; the JSON store is not encrypted and there is no malware scanner or external identity verification.
 
-No cloud synchronisation, encryption at rest, account recovery or server authorisation is provided. Use sample information. A selected file is not a verified document, and a local status change is not an official decision.
+The demo citizen and representative each receive 330 sample requests covering 33 services and ten scenarios. Across both accounts there are 660 requests, 1,060 sample files and sample receipts/outcomes. There are 24 parcel references. Seeding is additive and idempotent; existing cases and preferences are not reset. Newly registered accounts have private, initially empty workspaces.
+
+Stop the server before backing up or restoring the entire .data folder. Never commit it. Prior browser-local V3 state is not automatically imported into the account store. Use only sample personal/land information in the sandbox.
 
 ## Performance approach
 
 - No frontend framework or runtime package installation.
-- Workspace renders before the catalogue request completes.
+- The requirements catalogue loads on demand when its route is opened.
 - Catalogue search text is indexed once instead of rebuilt on every filter operation.
 - Results render incrementally, initially 20 cards rather than the entire catalogue.
 - Delegated actions reduce repeated per-button event bindings.
@@ -265,9 +263,7 @@ cd e-Bhumi-Frontend
 npm run check
 ```
 
-The documentation refresh captured the landing page, all 18 workspace routes, mobile views and an application form using installed Chromium. All 18 routes displayed headings, with no uncaught page errors observed during capture. Notes survived a reload; the catalogue displayed 460 entries and an ID filter returned one result. No horizontal page overflow was detected in the two captured mobile entry views.
-
-**Capture boundary:** screenshots were rendered from local files; the browser received the unchanged feature JSON through a local fetch shim because loopback HTTP access was blocked in this tool environment. This validates those renders, not HTTP deployment, production APIs, legal copy or every workflow. See [capture notes](docs/SCREENSHOT_CAPTURE.md) and [validation report](VALIDATION.md).
+The reviewed build passes API lifecycle and regression tests, all 18 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
 
 ## Troubleshooting
 

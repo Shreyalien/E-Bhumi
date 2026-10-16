@@ -1,0 +1,5 @@
+.data/
+node_modules/
+*.log
+.browser-data/
+.test-data/
