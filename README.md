@@ -78,39 +78,22 @@ Use HTTP for normal use. Opening HTML directly with `file://` may prevent the fu
 
 ## Screenshots
 
-These are actual renders of the included source, captured on 16 October 2026. Desktop views use **1440 × 1000**; mobile uses **390 × 844**. All displayed records are sample data. See the [complete gallery](docs/SCREENSHOTS.md) for every workspace page and the capture method.
+These are actual renders of the included source, captured on 16 October 2026. All displayed records are demonstration sample data. For the complete visual gallery of all 18 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
 ### Citizen dashboard
 
-Sample metrics, a land passport, recent activity and service shortcuts in one overview.
+Sample metrics, land passport, recent activity and service shortcuts in one overview.
 
 ![Citizen dashboard](docs/screenshots/dashboard.png)
 
-### GIS and parcel workspace
-
-Illustrative parcels, selection controls, layer toggles and parcel context. The geometry is schematic, not a cadastral survey.
-
-![GIS and parcel workspace](docs/screenshots/gis.png)
-
 ### Application preparation
 
-Create a local application draft, attach a land reference and keep preparation notes.
+Create a local application draft, attach a land reference and manage preparation notes.
 
 ![Application draft form](docs/screenshots/application-form.png)
 
-### Regional and lease views
+> 📷 **Full Gallery:** For all workspace captures (GIS parcel map, land search, government lease, CHT special zone, document vault, mobile viewport, etc.), see the [Complete Screenshot Gallery](docs/SCREENSHOTS.md).
 
-| Government land lease | Chattogram Hill Tracts workspace |
-| --- | --- |
-| ![Government lease register](docs/screenshots/land-lease.png) | ![CHT workspace](docs/screenshots/ctg-zone.png) |
-
-These screens illustrate separate preparation contexts. Their labels and explanatory copy are not a verified statement of current legal requirements.
-
-### Mobile workspace
-
-<img src="docs/screenshots/workspace-mobile.png" alt="Citizen dashboard at a 390-pixel mobile viewport" width="320">
-
-[View mobile landing capture](docs/screenshots/landing-mobile.png) · [View all 22 screenshots](docs/SCREENSHOTS.md)
 
 ## Features and page guide
 
