@@ -171,14 +171,19 @@ Government / external adapters (demo providers by default)
 ```text
 e-Bhumi/
 ├── e-Bhumi-Frontend/     # Runnable frontend workspace (Maximum Feature Edition)
-│   ├── assets/           # Responsive CSS styles & theme
+│   ├── assets/           # Responsive CSS styles (landing.css & styles.css)
 │   ├── data/             # Feature catalogue manifest (460 tracked features)
-│   ├── app.js            # Frontend logic, modular routing & interactive state
-│   ├── index.html        # App shell & accessible layout
+│   ├── app.js            # Complete frontend logic, 18 modular workspaces & persistence
+│   ├── index.html        # Public landing page with parcel landscape & entry points
+│   ├── workspace.html    # Full 18-module interactive citizen workspace shell
+│   ├── server.cjs        # Zero-dependency local development server (port 8080)
+│   ├── server.js         # Alternative local development server
+│   ├── package.json      # npm start & npm run check scripts
 │   ├── run_local.bat     # Windows one-click local server launcher
 │   ├── run_local.sh      # Unix local server launcher
 │   ├── FEATURE_COVERAGE.md
 │   └── README.md         # Frontend workspace documentation
+├── VALIDATION.md         # Automated test & validation report
 └── README.md             # Platform specification & architectural blueprint
 ```
 
@@ -190,6 +195,13 @@ e-Bhumi/
 
 The demonstration frontend workspace is ready to run immediately:
 
+#### Node.js (Recommended)
+```bash
+cd e-Bhumi-Frontend
+npm start
+# or: node server.cjs
+```
+
 #### Windows (One-Click)
 Navigate to the `e-Bhumi-Frontend` folder and double-click `run_local.bat`, or in terminal:
 ```cmd
@@ -197,20 +209,17 @@ cd e-Bhumi-Frontend
 run_local.bat
 ```
 
-#### Any Platform (Python / Node / Static Server)
+#### Python (Alternative)
 ```bash
 cd e-Bhumi-Frontend
-
-# Using Python:
 python -m http.server 8080
-
-# Or using Node:
-npx serve .
 ```
 
-Open [http://localhost:8080](http://localhost:8080) in your browser.
+Open [http://localhost:8080](http://localhost:8080) in your browser:
+- **Landing Page:** [http://localhost:8080/](http://localhost:8080/)
+- **Workspace:** [http://localhost:8080/workspace.html#dashboard](http://localhost:8080/workspace.html#dashboard)
 
-> 💡 **Tip:** Serving over HTTP (via `run_local.bat` or Python) ensures the browser can load the complete 458-feature catalogue from `data/features.json` without browser local file security restrictions.
+> 💡 **Tip:** Serving over HTTP (via `npm start`, `run_local.bat`, or Python) ensures the browser can load the complete 460-feature catalogue from `data/features.json` without browser local file security restrictions.
 
 ### Full-Stack Architecture (Targeted Roadmap)
 For full-stack production deployment with PostgreSQL + PostGIS, Node.js API adapters, and background workers:

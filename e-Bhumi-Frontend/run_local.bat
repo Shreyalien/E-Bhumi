@@ -3,7 +3,7 @@ cd /d "%~dp0"
 where node >nul 2>nul
 if %errorlevel% equ 0 (
     echo Starting e-Bhumi Frontend via Node.js...
-    node server.js
+    node server.cjs
     pause
     exit /b
 )

@@ -1,0 +1,1 @@
+{"name":"e-bhumi-demo","version":"3.0.0","private":true,"description":"Buildless e-Bhumi land-services preparation demo","scripts":{"start":"node server.cjs","check":"node --check app.js && node --check server.cjs"},"engines":{"node":">=18"}}

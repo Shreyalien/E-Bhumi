@@ -147,7 +147,7 @@
   function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function title(id){const n=nav.find(x=>x.id===id);return n?(state.lang==='bn'?(bn[id]||n.label):n.label):id;}
   function toast(message, detail=''){const el=document.createElement('div');el.className='toast';el.innerHTML=`${esc(message)}${detail?`<small>${esc(detail)}</small>`:''}`;$('#toastRegion').append(el);setTimeout(()=>el.remove(),3500);}
-  function setPage(id){state.page=id;renderNav();renderPage();$('#crumbCurrent').textContent=title(id);$('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
+  function setPage(id){if(!nav.some(n=>n.id===id)) id='dashboard'; if(location.hash.slice(1)!==id) history.pushState(null,'','#'+id); state.page=id;renderNav();renderPage();$('#crumbCurrent').textContent=title(id);$('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
 
   function renderNav(){
     const el=$('#mainNav');
@@ -600,7 +600,7 @@
     return (manifest.features||[]).filter(f =>
       (state.featureModule==='all'||f.module===state.featureModule) &&
       (state.featurePriority==='all'||f.priority===state.featurePriority) &&
-      (`${f.id} ${f.name} ${f.module} ${f.frontend} ${f.backend} ${f.database} ${f.api} ${f.integration} ${f.notes}`).toLowerCase().includes(state.featureQuery.toLowerCase())
+      (featureIndex.get(f.id) || normalize(Object.values(f).join(' '))).includes(normalize(state.featureQuery))
     );
   }
 
@@ -737,8 +737,11 @@
   }
 
   function renderPage(){
-    $('#pageContent').innerHTML = pageContent();
+    $('#pageContent').innerHTML = pageContent() + workspaceTools();
+    $('#pageContent').setAttribute('tabindex','-1');
+    document.title = title(state.page) + ' | e-Bhumi';
     bindPageInputs();
+    if(local.read) $$('.notice-bullet').forEach(n=>n.style.background='#c4cec8');
   }
 
   function bindPageInputs(){
@@ -799,6 +802,7 @@
       const q = input.value.trim();
       if(!q) return;
       state.chat.push({role:'user',text:q}, {role:'assistant',text:answerFor(q)});
+      persist();
       renderPage();
       const msgs = $('#chatMessages');
       if(msgs) msgs.scrollTop = msgs.scrollHeight;
@@ -824,14 +828,14 @@
   }
 
   function filterLandTable(){
-    const q = ($('#landFilter')?.value || '').toLowerCase();
+    const q = normalize($('#landFilter')?.value || '');
     const sur = $('#recordSurveyFilter')?.value || 'all';
     state.landQuery = q;
     const rows = [
       ['DAG-1842','Amin Bazar','731','RS','12.50 decimal'],
       ['DAG-1843','Amin Bazar','732','RS','8.00 decimal'],
       ['DAG-0918','Baipayl','204','SA','5.25 decimal']
-    ].filter(r => (sur === 'all' || r[3] === sur) && r.join(' ').toLowerCase().includes(q));
+    ].filter(r => (sur === 'all' || r[3] === sur) && normalize(r.join(' ')).includes(q));
     const tbl = $('#landTable');
     if(tbl) {
       tbl.innerHTML = rows.length ? table(rows.map(r => `<tr><td class="table-primary">${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><span class="pill blue">Demo data</span></td><td><button class="table-actions" data-action="view-parcel" data-id="${r[0]}">Open ↗</button></td></tr>`).join(''), ['Dag reference','Mouza','Khatian','Survey','Recorded area','Source status','']) : '<div class="no-results">No records match. Try a different reference or location.</div>';
@@ -871,6 +875,7 @@
   function updateCheckProgress(){
     const all = $$('[data-check]');
     all.forEach(c => { state.diligenceChecks[c.dataset.check] = c.checked; });
+    persist();
     const checked = all.filter(c => c.checked).length;
     const out = $('#checkProgress');
     if(out) out.textContent = `${checked} of ${all.length} checks marked`;
@@ -894,6 +899,7 @@
   }
 
   function openModal(titleText, body, eyebrow='QUICK ACTION'){
+    if($('#modalBackdrop').hidden) modalReturnFocus = document.activeElement;
     $('#modalTitle').textContent = titleText;
     $('#modalEyebrow').textContent = eyebrow;
     $('#modalBody').innerHTML = body;
@@ -902,8 +908,10 @@
     if(focus) focus.focus();
   }
 
+  let modalReturnFocus;
   function closeModal(){
     $('#modalBackdrop').hidden = true;
+    modalReturnFocus?.focus();
   }
 
   function modalForm(fields, submitLabel='Save'){
@@ -915,6 +923,7 @@
   }
 
   function actionHandler(action, el){
+    if(enhancedAction(action, el)) return;
     const id = el.dataset.id;
     const name = el.dataset.name;
     const service = el.dataset.service;
@@ -1026,7 +1035,11 @@
         const n = $('#recordNumber')?.value || '1842';
         const res = $('#landResults');
         if(res){
+          state.landQuery = normalize($('#recordNumber')?.value || '');
           res.innerHTML = landResults();
+          $('#landFilter').addEventListener('input', filterLandTable);
+          $('#recordSurveyFilter').addEventListener('change', filterLandTable);
+          filterLandTable();
           toast('Search completed', `Illustrative matches for ${n}.`);
           setTimeout(() => $('#landResults')?.scrollIntoView({behavior:'smooth',block:'start'}), 50);
         }
@@ -1060,10 +1073,11 @@
       case 'confirm-upload': {
         const f = $('#demoFile')?.files?.[0];
         if(!f) { toast('Choose a file first'); break; }
+        if(!/\.(pdf|jpe?g|png|webp)$/i.test(f.name)){ toast('Unsupported file type', 'Allowed formats: PDF, JPG, PNG, WEBP.'); break; }
         if(f.size > 10*1024*1024) { toast('File too large', 'Demo limit is 10 MB.'); break; }
         const cat = $('#docCatSelect')?.value || 'Uploaded document';
         docs.unshift([`DOC-${String(docs.length+1).padStart(4,'0')}`, f.name, cat, 'Needs review', 'amber', 'Just now']);
-        toast('Document added', `${f.name} · ${Math.round(f.size/1024)} KB added to demo vault.`);
+        persist(); toast('Document added', `${f.name} · ${Math.round(f.size/1024)} KB added to demo vault.`);
         closeModal();
         if(state.page === 'documents') renderPage();
         break;
@@ -1369,6 +1383,7 @@
       const fd = new FormData(e.target);
       const data = Object.fromEntries(fd.entries());
       const t = $('#modalTitle').textContent;
+      saveWorkflow(t, data);
       closeModal();
       toast(`${t} · draft saved`, 'Demo state only. No government service was contacted.');
       if(t.toLowerCase().includes('application')) {
@@ -1381,7 +1396,7 @@
           tone: 'blue',
           step: 1
         });
-        if(state.page === 'applications' || state.page === 'dashboard') renderPage();
+        persist(); if(state.page === 'applications' || state.page === 'dashboard') renderPage();
       }
     }
   });
@@ -1390,11 +1405,7 @@
     if(e.key === 'Enter') {
       const q = e.target.value.trim();
       if(!q) return;
-      state.landQuery = q;
-      setPage('feature-catalog');
-      state.featureQuery = q;
-      renderPage();
-      toast('Workspace search', `Searching features and service capabilities for “${q}”.`);
+      showSearch(q);
     }
   });
 
@@ -1419,10 +1430,15 @@
   });
 
   async function init(){
+    restore();
+    document.documentElement.lang = state.lang;
+    $('#languageToggle').innerHTML = state.lang === 'bn' ? 'English <span>⌄</span>' : 'বাংলা <span>⌄</span>';
+    state.page = nav.some(n => n.id === location.hash.slice(1)) ? location.hash.slice(1) : 'dashboard';
     try {
       const r = await fetch('data/features.json');
       if(r.ok) {
         manifest = await r.json();
+        featureIndex = new Map(manifest.features.map(f => [f.id, normalize(Object.values(f).join(' '))]));
       }
     } catch(err) {
       console.warn('Feature manifest fetch failed (likely file:// protocol); loading built-in manifest.', err);
@@ -1446,6 +1462,265 @@
     renderNav();
     renderPage();
   }
+
+
+  const storageKey = 'ebhumi.workspace.v3';
+  let featureIndex = new Map();
+  let local = { notes: {}, favorites: [], workflows: [], events: [], read: false };
+  const normalize = v => String(v).replace(/[০-৯]/g, c => '০১২৩৪৫৬৭৮৯'.indexOf(c)).toLowerCase().trim();
+
+  function persist(){
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({
+        version: 3,
+        local,
+        applications,
+        docs,
+        state: {
+          lang: state.lang,
+          savedSearches: state.savedSearches,
+          diligenceChecks: state.diligenceChecks,
+          chat: state.chat.slice(-40),
+          layerState: state.layerState
+        }
+      }));
+    } catch {
+      toast('Browser storage unavailable', 'Export your workspace to keep a local backup.');
+    }
+  }
+
+  function restore(){
+    try {
+      const s = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (s?.version === 3) {
+        local = { ...local, ...s.local };
+        if (Array.isArray(s.applications)) applications.splice(0, applications.length, ...s.applications);
+        if (Array.isArray(s.docs)) docs.splice(0, docs.length, ...s.docs);
+        Object.assign(state, s.state || {});
+      }
+    } catch {
+      console.warn('Saved workspace could not be restored.');
+    }
+  }
+
+  function workspaceTools(){
+    const rows = local.workflows.filter(w => w.page === state.page);
+    return `<section class="panel workspace-tools">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">YOUR LOCAL WORKSPACE</span>
+          <h2 class="panel-title">Keep your next step close</h2>
+          <p class="panel-subtitle">Saved on this browser. Use sample information only.</p>
+        </div>
+        <button class="btn" data-action="favorite-page">${local.favorites.includes(state.page) ? '★ Saved page' : '☆ Save page'}</button>
+      </div>
+      <div class="form-field">
+        <label for="pageNote">Notes for ${esc(title(state.page))}</label>
+        <textarea id="pageNote" maxlength="4000" placeholder="References to compare, questions to ask, or your next step…">${esc(local.notes[state.page] || '')}</textarea>
+        <small id="noteStatus" role="status">Autosaves as you type</small>
+      </div>
+      <div class="toolbar" style="margin-top:14px">
+        <button class="btn" data-action="export-page">Export page data</button>
+        <button class="btn" data-action="backup-workspace">Back up workspace</button>
+        <button class="btn" data-action="unit-converter">Area converter</button>
+        <a class="btn" href="index.html">Visit landing page ↗</a>
+      </div>
+      ${rows.length ? `<h3>Saved local drafts</h3>${rows.map(w => `<article class="local-draft"><strong>${esc(w.id)} · ${esc(w.title)}</strong><p>${esc(Object.entries(w.data).map(([k,v]) => k + ': ' + v).join(' · '))}</p><button class="btn small" data-action="delete-workflow" data-id="${esc(w.id)}">Delete draft</button></article>`).join('')}` : ''}
+      ${state.page === 'land-search' ? `<h3>Saved searches</h3>${state.savedSearches.map(s => `<p>${esc(s.query)} · ${esc(s.date)}</p>`).join('') || '<p>No saved searches yet.</p>'}` : ''}
+      ${state.page === 'dashboard' ? `<h3>Saved pages</h3>${local.favorites.map(p => `<button class="btn" data-page="${esc(p)}">${esc(title(p))}</button>`).join('') || '<p>Save a page to add a shortcut here.</p>'}` : ''}
+    </section>`;
+  }
+
+  function saveWorkflow(t, data){
+    if (t.toLowerCase().includes('application')) return;
+    const page = t.includes('complaint') ? 'casebook' : t.includes('appointment') ? 'appointments' : state.page;
+    local.workflows.unshift({
+      id: 'LOCAL-' + Date.now().toString(36).toUpperCase(),
+      page,
+      title: t,
+      data,
+      created: new Date().toISOString()
+    });
+    persist();
+    setTimeout(renderPage, 0);
+  }
+
+  function showSearch(q){
+    const query = normalize(q);
+    const hits = [
+      ...nav.filter(n => normalize(n.label).includes(query)).map(n => ({ label: n.label, page: n.id })),
+      ...services.filter(s => normalize(s.title + ' ' + s.desc).includes(query)).map(s => ({ label: s.title, page: 'services' })),
+      ...applications.filter(a => normalize(Object.values(a).join(' ')).includes(query)).map(a => ({ label: a.id + ' · ' + a.service, page: 'applications' })),
+      ...docs.filter(d => normalize(d.join(' ')).includes(query)).map(d => ({ label: d[1], page: 'documents' })),
+      ...leaseRecords.filter(l => normalize(l.id + ' ' + l.title + ' ' + l.location).includes(query)).map(l => ({ label: l.id + ' · ' + l.title, page: 'land-lease' })),
+      ...chtCircles.filter(c => normalize(c.name + ' ' + c.district).includes(query)).map(c => ({ label: c.name, page: 'ctg-zone' }))
+    ];
+    openModal('Search results', `<p>Results for “${esc(q)}”</p>
+      ${hits.map(h => `<p><button class="btn" data-action="search-result" data-id="${h.page}">${esc(h.label)} ↗</button></p>`).join('') || '<p>No workspace results found. Try a service, document, or application reference.</p>'}
+      <button class="btn" data-action="search-features" data-name="${esc(q)}">Search feature catalogue</button>
+    `);
+  }
+
+  function enhancedAction(action, el){
+    switch(action){
+      case 'download-summary':
+      case 'export-report':
+        downloadFile('ebhumi-report.json', JSON.stringify({
+          source: 'DEMO',
+          generated: new Date().toISOString(),
+          applications,
+          documents: docs,
+          payments,
+          leases: leaseRecords,
+          localDrafts: local.workflows,
+          review: state.diligenceChecks
+        }, null, 2), 'application/json');
+        return true;
+
+      case 'download-receipts':
+        downloadFile('demo-receipts.csv', 'Transaction,Service,Amount,Date,Status\n' + payments.map(p => [p.id, p.service, p.amount, p.date, p.status].map(v => '"' + String(v).replaceAll('"', '""') + '"').join(',')).join('\n'), 'text/csv;charset=utf-8');
+        return true;
+
+      case 'print-map':
+        window.print();
+        return true;
+
+      case 'export-map':
+        downloadFile('demo-parcel-map.svg', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420"><rect width="600" height="420" fill="#edf3e7"/><text x="20" y="25">DEMO schematic — not a survey or geographic dataset</text>' + parcels.map((p, i) => '<rect x="' + (25 + (i % 4) * 140) + '" y="' + (65 + Math.floor(i / 4) * 150) + '" width="125" height="110" fill="#bfd4ad" stroke="#52744a"/><text x="' + (32 + (i % 4) * 140) + '" y="' + (120 + Math.floor(i / 4) * 150) + '">' + p[1] + '</text>').join('') + '</svg>', 'image/svg+xml');
+        return true;
+
+      case 'watch-land':
+        local.watches = local.watches || [];
+        if (!local.watches.includes(el.dataset.id)) local.watches.push(el.dataset.id);
+        persist();
+        toast('Parcel saved to local watchlist', 'Live change monitoring is not connected.');
+        return true;
+
+      case 'service-compare':
+        openModal('Compare service preparation', table(services.map(s => '<tr><td><strong>' + esc(s.title) + '</strong></td><td>' + esc(s.tag) + '</td><td>' + esc(s.desc) + '</td></tr>').join(''), ['Service', 'Category', 'Purpose']) + '<p style="margin-top:14px;font-size:11px;color:#6b7c72">Current official fees, eligibility and required documents need competent land office confirmation.</p>');
+        return true;
+
+      case 'cancel-appointment':
+        local.workflows = local.workflows.filter(w => w.page !== 'appointments');
+        persist();
+        renderPage();
+        toast('Local appointment drafts removed', 'Sample office appointment cards remain illustrative.');
+        return true;
+
+      case 'search-result':
+        closeModal();
+        setPage(el.dataset.id);
+        return true;
+
+      case 'search-features':
+        state.featureQuery = el.dataset.name;
+        closeModal();
+        setPage('feature-catalog');
+        return true;
+
+      case 'favorite-page':
+        local.favorites = local.favorites.includes(state.page) ? local.favorites.filter(p => p !== state.page) : [...local.favorites, state.page];
+        persist();
+        renderPage();
+        return true;
+
+      case 'delete-workflow':
+        local.workflows = local.workflows.filter(w => w.id !== el.dataset.id);
+        persist();
+        renderPage();
+        return true;
+
+      case 'export-page':
+        downloadFile('ebhumi-' + state.page + '.json', JSON.stringify({
+          page: state.page,
+          note: local.notes[state.page] || '',
+          drafts: local.workflows.filter(w => w.page === state.page),
+          applications: state.page === 'applications' ? applications : undefined,
+          documents: state.page === 'documents' ? docs : undefined,
+          checks: state.page === 'due-diligence' ? state.diligenceChecks : undefined,
+          payments: state.page === 'payments' ? payments : undefined,
+          leases: state.page === 'land-lease' ? leaseRecords : undefined,
+          chtCircles: state.page === 'ctg-zone' ? chtCircles : undefined,
+          features: state.page === 'feature-catalog' ? filterFeatures() : undefined,
+          source: 'DEMO'
+        }, null, 2), 'application/json');
+        return true;
+
+      case 'backup-workspace':
+        persist();
+        downloadFile('ebhumi-workspace-backup.json', localStorage.getItem(storageKey) || '{}', 'application/json');
+        return true;
+
+      case 'unit-converter':
+        openModal('Land area converter', `<div class="form-grid">
+          <div class="form-field"><label for="areaValue">Area (nonnegative)</label><input id="areaValue" type="number" min="0" step="any" value="1"></div>
+          <div class="form-field"><label for="areaUnit">From</label><select id="areaUnit"><option value="1">Decimal</option><option value="100">Acre</option><option value="247.105381">Hectare</option><option value="0.0022956841">Square foot</option></select></div>
+        </div>
+        <p id="areaResult" role="status" style="font-size:13px;font-weight:700;color:#245842;margin:16px 0 8px"></p>
+        <p class="panel-subtitle">1 acre = 100 decimal = 43,560 square feet. Local katha/bigha conventions vary by district and are excluded.</p>`);
+        updateArea();
+        return true;
+
+      case 'mark-read':
+        local.read = true;
+        persist();
+        $$('.notice-bullet').forEach(n => n.style.background = '#c4cec8');
+        toast('All notifications marked read');
+        return true;
+    }
+    return false;
+  }
+
+  function updateArea(){
+    const value = Number($('#areaValue')?.value);
+    const unit = Number($('#areaUnit')?.value);
+    const decimal = value * unit;
+    const res = $('#areaResult');
+    if (res) {
+      res.textContent = Number.isFinite(value) && value >= 0
+        ? `${decimal.toFixed(4)} decimal · ${(decimal/100).toFixed(6)} acres · ${(decimal*435.6).toFixed(2)} sq ft`
+        : 'Enter a valid nonnegative area.';
+    }
+  }
+
+  document.addEventListener('input', e => {
+    if (e.target.id === 'pageNote') {
+      local.notes[state.page] = e.target.value;
+      persist();
+      const status = $('#noteStatus');
+      if (status) status.textContent = 'Saved locally';
+    }
+    if (e.target.id === 'areaValue') updateArea();
+  });
+
+  document.addEventListener('change', e => {
+    if (e.target.id === 'areaUnit') updateArea();
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-action],#languageToggle')) setTimeout(persist, 0);
+  });
+
+  window.addEventListener('popstate', () => {
+    state.page = nav.some(n => n.id === location.hash.slice(1)) ? location.hash.slice(1) : 'dashboard';
+    renderNav();
+    renderPage();
+    $('#crumbCurrent').textContent = title(state.page);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab' || $('#modalBackdrop').hidden) return;
+    const items = $$('button,input,select,textarea,a[href]', $('.modal')).filter(n => !n.disabled && n.getClientRects().length);
+    if (!items.length) return;
+    const first = items[0], last = items.at(-1);
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
 
   init();
 })();
