@@ -1,165 +1,96 @@
 <div align="center">
 
-# e-Bhumi · Role Platform
+# e-Bhumi
 
-### বাংলাদেশের ভূমিসেবার একটি সম্পূর্ণ স্থানীয় sandbox journey
+### Your land. A clearer path.
 
-**33 service workflows · 10 separate role portals · Server-side login · Persistent applications & evidence**
+A citizen-first land-service preparation workspace for Bangladesh.
 
-[Run locally](#quick-start) · [Roles](#role-platforms) · [Services](#service-coverage) · [App flow](#application-flow) · [Screenshots](docs/SCREENSHOTS.md) · [Research](docs/BD_LAND_RESEARCH.md)
+**18 workspace pages · 460 tracked requirements · Zero runtime packages · Local demo**
+
+[Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
 </div>
 
-![e-Bhumi role login](docs/screenshots-v4/login.png)
+![e-Bhumi landing page — desktop](docs/screenshots/landing-desktop.png)
 
-> **Local sandbox, not a government system.** You can complete the simulated application, staff review, correction/hearing, payment and outcome process. This app cannot update official records, issue legally valid certificates, register deeds, collect real tax or transfer compensation. Use sample information only.
+> **Demo status:** e-Bhumi is an independent prototype, not an official Government of Bangladesh service. Land references, geometry, statuses and amounts are illustrative. It does not establish ownership, accept real payments, submit official applications or reserve government appointments.
 
-## What changed
+## Why e-Bhumi?
 
-The former frontend-only previews now have a Node.js API, server-side accounts, role-scoped work queues, validated state transitions and file-backed storage. Selecting a role is no longer a client-side menu switch: each account opens its own `/portal/<role>` and API permissions are enforced on the server.
+Land-service preparation involves many related details: a Dag or Khatian reference, a Mouza, supporting documents, an application, and questions that need official confirmation. e-Bhumi brings that preparation into a single browser workspace.
 
-- 33 described services with their own fields, evidence categories, reviewing role and outcome.
-- Five-step applicant wizard: eligibility, applicant/authority, land/service information, evidence, review/submit.
-- Draft resume, correction/resubmission, withdrawal, staff claim, hearing, reasoned approval/rejection and outcome issuance.
-- Sandbox checkout with failure/retry, duplicate-success protection, receipts and finance reconciliation.
-- Actual sample-file storage, server SHA-256 hashes, ownership checks and protected download.
-- Notifications and analytics derived from current local records instead of fixed dashboard totals.
-- Separate citizen, representative, land-officer, records, surveyor, registration, finance, support, administrator and auditor platforms.
-- Administrator account creation, role/suspension controls and intake settings; read-only auditor access.
-- Sample parcel passport/timeline, schematic map, evidence discrepancy comparison, area conversion and user-proposed share worksheet.
-- Official-source links and an honest separation between implemented sandbox services and the 460-item requirement registry.
+Citizens can explore sample records, organise drafts, review checklists and keep notes beside each task. The prototype also demonstrates lease, regional, administrative and analytics screens for future development.
+
+### At a glance
+
+| Item | Current delivery |
+| --- | --- |
+| Entry point | Public landing page with service links and FAQs |
+| Navigation | 18 workspace routes with shareable hash URLs |
+| Catalogue | 460 requirement entries; requirements are not implementation claims |
+| Frontend | HTML, CSS and vanilla JavaScript |
+| Local server | Node.js standard library; no package installation needed |
+| Storage | Versioned browser localStorage |
+| Languages | English content; partial Bangla navigation and numeral support |
+| Official integrations | Not connected |
+
+## Contents
+
+- [Quick start](#quick-start)
+- [Screenshots](#screenshots)
+- [Features and page guide](#features-and-page-guide)
+- [App flow](#app-flow)
+- [Five-minute walkthrough](#five-minute-walkthrough)
+- [Architecture](#architecture)
+- [Data and persistence](#data-and-persistence)
+- [Performance approach](#performance-approach)
+- [Accessibility and localisation](#accessibility-and-localisation)
+- [Validation](#validation)
+- [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License and authority](#license-and-authority)
 
 ## Quick start
 
-**Requires Node.js 18+. No npm package installation, build, API key or database setup is required.**
+**Prerequisite:** Node.js 18 or newer. No API keys, database, `.env`, Docker, build step or `npm install` is needed for this frontend.
+
+From the project directory:
 
 ```bash
 cd e-Bhumi-Frontend
 npm start
 ```
 
-Open **[http://127.0.0.1:8080](http://127.0.0.1:8080)**, then choose **Open workspace**.
+Open **[http://127.0.0.1:8080](http://127.0.0.1:8080)**.
 
-Windows: double-click `run_local.bat`. Linux/macOS: run `sh run_local.sh`.
-
-**This edition needs its Node server.** Python/static-only hosting and GitHub Pages cannot run the login/API workflows. `file://` is not supported. `server.js` delegates to the same server as `server.cjs`.
-
-If port 8080 is occupied:
-
-```powershell
-$env:PORT=8081
-npm start
-```
-
-## Demo login
-
-At `/login.html`, select a sample account and sign in. The first startup seeds local role accounts. Their shared demo password is:
-
-```text
-BhumiDemo!2026
-```
-
-| Role | Sample email | Separate portal |
-| --- | --- | --- |
-| Citizen | `citizen@demo.ebhumi.local` | `/portal/citizen` |
-| Representative | `representative@demo.ebhumi.local` | `/portal/representative` |
-| Land officer | `officer@demo.ebhumi.local` | `/portal/officer` |
-| Records officer | `records@demo.ebhumi.local` | `/portal/records` |
-| Surveyor | `surveyor@demo.ebhumi.local` | `/portal/surveyor` |
-| Registration desk | `registrar@demo.ebhumi.local` | `/portal/registrar` |
-| Finance | `finance@demo.ebhumi.local` | `/portal/finance` |
-| Support | `support@demo.ebhumi.local` | `/portal/support` |
-| Administrator | `admin@demo.ebhumi.local` | `/portal/admin` |
-| Auditor | `auditor@demo.ebhumi.local` | `/portal/auditor` |
-
-Citizens and representatives can self-register. Public registration cannot create staff or administrator accounts. Staff are provisioned by an administrator. These published demo credentials are for local evaluation; the app binds only to loopback and is not configured for public deployment.
-
-## Role platforms
-
-| Platform | Working responsibilities | Restrictions |
-| --- | --- | --- |
-| Citizen | Own applications, evidence, payment attempts, outcomes, notifications and account | Cannot view another applicant's private file or act as staff |
-| Representative | Applicant workflows with principal/authority reference | Own account scope; no access to every citizen's records |
-| Land officer | Mutation, lease, acquisition, regional and revenue-service queues | Cannot process a records, finance or surveyor queue |
-| Records officer | Khatian/e-porcha, map, record correction and land-information requests | Cannot make a mutation decision |
-| Surveyor | Boundary, survey objection, due diligence and zoning enquiries | No authority over unrelated queues |
-| Registration desk | Deed search/copy and registration-readiness reviews | Does not register a real deed |
-| Finance | Tax requests, sandbox receipts and reconciliation | Cannot decide non-finance service cases |
-| Support | Grievances, assisted service and appointment requests | No live office inventory or external complaint dispatch |
-| Administrator | Accounts/access, settings, read-only case oversight and audit | Cannot bypass service-role review or issue decisions |
-| Auditor | Read-only case inspection, operational reports and audit-chain verification | No case, account or settings mutations |
-
-Staff cannot see applicant drafts before submission. A reviewer must claim a submitted request before deciding it. Changing or suspending a staff account revokes its sessions and returns active assigned work to the relevant role queue.
-
-![Citizen platform](docs/screenshots-v4/citizen.png)
-
-## Service coverage
-
-All 33 services have a described intake, service-specific questions, required sample evidence categories, assigned review role and downloadable sandbox outcome. [Detailed service handbook](docs/SERVICE_HANDBOOK.md) includes every field and evidence category.
-
-| Area | Implemented local workflows |
+| Destination | Local URL |
 | --- | --- |
-| Mutation | Transfer mutation / নামজারি, inheritance mutation, partition / জমাভাগ, consolidation |
-| Records | Record correction, certified e-porcha, online Khatian copy |
-| Maps and survey | Mouza map, survey objection, boundary/field survey |
-| Tax | Holding registration/coordination, land development tax/Dakhila, tax-demand objection |
-| Lease and settlement | Khas settlement, tea-estate renewal, waterbody lease, commercial/industrial lease |
-| Acquisition/requisition | Compensation claim, objection, requisition request, agency acquisition proposal |
-| Revenue cases | Miscellaneous case, review, appeal preparation, rent-certificate response |
-| Registration | Deed search/copy, registration readiness |
-| Intelligence | Purchase due-diligence request |
-| Support | Grievance, office/assisted appointment |
-| Regional | Separate CHT customary-land request |
-| Information | Land-information bank request, land-use/zoning enquiry |
+| Landing page | `http://127.0.0.1:8080/` |
+| Dashboard | `http://127.0.0.1:8080/workspace.html#dashboard` |
+| Applications | `http://127.0.0.1:8080/workspace.html#applications` |
+| Feature catalogue | `http://127.0.0.1:8080/workspace.html#feature-catalog` |
 
-**Important:** “Implemented” here means the local simulation can be completed. Current legal eligibility, documents, official fee schedules, deadlines and provider access require competent-authority validation. The evidence lists are prototype preparation checklists, not official exhaustive requirements.
+**Windows:** double-click `e-Bhumi-Frontend/run_local.bat`. **Linux/macOS:** run `sh run_local.sh` from that folder. Alternatively, use `python -m http.server 8080` in the frontend directory.
 
-## Application flow
+Use HTTP for normal use. Opening HTML directly with `file://` may prevent the full feature JSON from loading. The included server listens on `127.0.0.1`; it is a local development server, not a production service.
 
-```mermaid
-flowchart TD
-    Login[Citizen or representative login] --> Service[Choose service and read requirements]
-    Service --> Draft[Complete five-step draft wizard]
-    Draft --> Evidence[Attach sample files for each category]
-    Evidence --> Submit[Submit to assigned role queue]
-    Submit --> Claim[Staff logs in and claims case]
-    Claim --> Review[Inspect data and evidence]
-    Review --> Correction[Request correction with reason]
-    Correction --> Draft
-    Review --> Hearing[Schedule sandbox hearing]
-    Hearing --> Decision[Reasoned decision]
-    Review --> Decision
-    Decision --> Reject[Rejected with reason]
-    Decision --> Approved[Approved in sandbox]
-    Approved --> Fee{Sandbox fee configured?}
-    Fee -->|Yes| Pay[Applicant simulates payment]
-    Pay --> Failed[Failed attempt]
-    Failed --> Pay
-    Pay --> Ready[Ready for delivery]
-    Fee -->|No| Ready
-    Ready --> Issue[Assigned staff issues outcome]
-    Issue --> Complete[Completed and downloadable]
-```
+## Screenshots
 
-Every change adds case history and an audit event. Owner notifications appear for staff actions and payment events. Read views refresh periodically; the wizard is not overwritten while being edited.
+These are actual renders of the included source, captured on 16 October 2026. All displayed records are demonstration sample data. For the complete visual gallery of all 18 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
-### Try a complete Namjari journey
+### Citizen dashboard
 
-1. Sign in as **citizen** and open **All land services → নামজারি → Start this service**.
-2. Confirm sandbox eligibility and fill sample applicant, authority, division/district, Mouza, Khatian, Dag and area information.
-3. Fill deed reference, transfer date and transfer type. All eight divisions and 64 district options are available; Upazila/Mouza are user-entered references.
-4. Upload sample files, or use **Generate sample TXT evidence** for each category. Review and submit.
-5. In another browser profile, sign in as **officer**. Open the queue, claim the request and inspect evidence.
-6. Request correction, schedule a hearing or record approval/rejection with a reason. The applicant can amend a returned request and resubmit it.
-7. After approval, the citizen opens **Sandbox checkout** and can test a failure followed by successful retry.
-8. The officer issues the ready outcome. The citizen downloads the watermarked HTML/JSON outcome.
-9. Finance can reconcile the successful sample transaction; auditor can inspect the linked history.
+Sample metrics, land passport, recent activity and service shortcuts in one overview.
 
-One browser profile shares one session cookie across tabs. Use different browser profiles/private contexts when operating different roles simultaneously, or sign out and sign in as the next role.
+![Citizen dashboard](docs/screenshots/dashboard.png)
 
-![Completed mutation outcome](docs/screenshots-v4/completed-outcome.png)
+### Application preparation
 
+Create a local application draft, attach a land reference and manage preparation notes.
 
+![Application draft form](docs/screenshots/application-form.png)
 
 ### Regional and lease views
 
@@ -167,100 +98,216 @@ One browser profile shares one session cookie across tabs. Use different browser
 | --- | --- |
 | ![Government lease register](docs/screenshots/land-lease.png) | ![CHT workspace](docs/screenshots/ctg-zone.png) |
 
-These screens illustrate regional preparation contexts. Their labels and explanatory copy are sample sandbox representations.
+These screens illustrate separate preparation contexts. Their labels and explanatory copy are not a verified statement of current legal requirements.
 
-## Working tools and exports
+> 📷 **Full Gallery:** For all workspace captures (GIS parcel map, land search, document vault, mobile viewport, etc.), see the [Complete Screenshot Gallery](docs/SCREENSHOTS.md).
 
-- Case export JSON with submitted fields, evidence metadata, history, payment attempts and outcome.
-- Outcome HTML/JSON clearly marked **DEMO / NOT OFFICIAL / NO LEGAL EFFECT**.
-- Protected sample-file download with SHA-256 metadata.
-- Sandbox receipt JSON and payment-ledger CSV.
-- Audit JSON with chain-verification result and computed role-visible operational reports.
-- Parcel selection from map or accessible list, sample record timeline and schematic SVG export.
-- Area converter, deed/record area discrepancy comparison and user-entered percentage allocation worksheet.
-- Keyword-based service finder; it is not a live AI or legal adviser.
 
-The share worksheet checks that proposed percentages total 100. It does not calculate legal inheritance entitlements. GIS is schematic and cannot verify boundaries. The land passport is sample context, not proof of ownership.
+## Features and page guide
+
+**Status key:** **Local** means a working browser-side interaction; **Preview** means sample data or explanatory UI; **Planned** means a backend, provider or official authorisation is required.
+
+### Shared workspace tools
+
+- Per-page notes with local autosave.
+- Favorite pages and dashboard shortcuts.
+- Page-data JSON exports and a workspace JSON backup download.
+- Area conversion for decimal, acre, hectare and square foot.
+- Global search across pages, services, applications and document names.
+- Dedicated feature search by ID, name, module, priority and traceability fields.
+- Browser back/forward navigation, route titles and direct links.
+- Partial Bangla labels, mobile navigation and keyboard dialog controls.
+
+### Page-by-page matrix
+
+| Workspace / route | What you can explore or do | Boundary |
+| --- | --- | --- |
+| Overview / `#dashboard` | Sample summary, service shortcuts, activity, saved pages and report export | Summary totals remain fixtures |
+| Land search / `#land-search` | Filter sample Dag/Khatian/Mouza records; save searches; normalise Bengali numerals | No registry or official location query |
+| My land / `#my-land` | Passport previews, record-link drafts, local watchlist preparation | No verified title or live change alerts |
+| Services / `#services` | Search/category filters, comparison table and application entry | Official eligibility, fees and requirements unverified |
+| Applications / `#applications` | Create, filter and view persistent local drafts | No government submission or officer decision |
+| Govt land lease / `#land-lease` | Sample lease register, category filter, details and renewal/request preparation | No actual lease grant, renewal or cancellation |
+| Hill Tracts / `#ctg-zone` | Circle selection, regional information and certificate-request preparation | No customary certificate issuance or legal validation |
+| GIS / `#gis` | Select sample parcels, toggle layers, export schematic SVG and print | No real survey accuracy or GIS measurement |
+| Documents / `#documents` | File metadata intake, extension/size checks, filtering and detail previews | No stored file bytes, malware scan, secure vault or official verification |
+| Payments / `#payments` | Sample transaction filters, receipt previews and CSV export | No real charge, refund or reconciliation |
+| Due diligence / `#due-diligence` | Persistent eight-item checklist and export | No ownership, encumbrance or court verification |
+| Assistant / `#ai-assistant` | Predefined guidance, prompts and saved conversation | No live AI model, retrieval or OCR |
+| Cases / `#casebook` | Complaint preparation and reviewable local drafts | Sample register is separate; no complaint is delivered |
+| Appointments / `#appointments` | Preferred-date preparation and local booking drafts | No live slots or confirmed office visit |
+| Notifications / `#notifications` | Sample category filters and persistent mark-all-read | No SMS/email/push provider |
+| Analytics / `#analytics` | Sample charts, report previews and workspace data export | Charts are not live operational statistics |
+| Catalogue / `#feature-catalog` | 460 requirements, filters, incremental results, details and export | Catalogue coverage does not imply implementation |
+| Administration / `#admin` | Operational fixtures and configuration preparation | No authentication, RBAC enforcement or production administration |
+
+### Requirement registry
+
+The source of truth for catalogue entries is [`data/features.json`](e-Bhumi-Frontend/data/features.json). Preserve stable `CORE-###` and `MX-###` identifiers. The [feature inventory](docs/FEATURES.md) lists module counts calculated from the current file.
+
+## App flow
+
+```mermaid
+flowchart TD
+    Landing[Public landing page] --> Dashboard[Citizen dashboard]
+    Landing --> Services[Service directory]
+    Dashboard --> Search[Sample land search]
+    Search --> GIS[Parcel map and context]
+    Dashboard --> Land[Land passport preview]
+    Services --> Form[Prepare application form]
+    Form --> Draft[Save local application draft]
+    Draft --> Applications[My applications]
+    Applications --> Detail[Sample workflow detail]
+    Dashboard --> Documents[Document metadata workspace]
+    Dashboard --> Review[Due-diligence checklist]
+    Dashboard --> Regional[Lease and CHT workspaces]
+    Dashboard --> Support[Complaints and appointment drafts]
+    Dashboard --> Tools[Catalogue, analytics and admin previews]
+    Review --> Export[Download preparation data]
+    Documents --> Export
+    Applications --> Export
+    Export --> Official[User separately consults official authority]
+```
+
+Official consultation is a next step outside this app. The diagram does not imply an integrated official submission or verification service.
+
+For detailed application, document, review and regional journeys, see [App flows](docs/APP_FLOW.md).
+
+## Five-minute walkthrough
+
+1. Start the server and enter the workspace from the landing page.
+2. Open **Land Search**, try sample reference `1842`, and inspect a parcel on the GIS screen.
+3. Open **Land Services**, review a service, and choose **Prepare application**.
+4. Create a draft using sample information. Find it in **My Applications** and reload to check persistence.
+5. Open **Due Diligence**, mark the checks you have reviewed and save a page note.
+6. Use **Export page data** or **Back up workspace**. These downloads remain preparation material.
+7. Browse the **Feature Catalogue** to inspect scope and integration dependencies.
 
 ## Architecture
 
+### What runs today
+
 ```mermaid
 flowchart LR
-    Browser[Landing, login and role portal] --> HTTP[Node HTTP server]
-    HTTP --> Auth[Session, CSRF and role checks]
-    Auth --> Domain[Validated application transitions]
-    Domain --> Catalog[33 service definitions]
-    Domain --> Store[Atomic local JSON store]
-    Domain --> Evidence[Protected sample evidence bytes and hashes]
-    Domain --> Audit[Hash-linked audit events]
-    Domain --> Files[Watermarked downloads]
+    Server[Node static server] --> Landing[index.html and landing.css]
+    Server --> Shell[workspace.html and styles.css]
+    Shell --> App[app.js: routing, rendering and actions]
+    App --> Fixtures[Sample arrays in app.js]
+    App --> Manifest[data/features.json]
+    App <--> Storage[Browser localStorage]
+    App --> Files[JSON, CSV and SVG downloads]
 ```
 
-| Component | Location |
+There is no production API, database, job queue or identity provider in this delivery. The Node server serves files; it does not implement land-service business operations. The architecture diagram describes the present app, not the production roadmap.
+
+### Repository layout
+
+```text
+E-Bhumi/
+├── README.md
+├── VALIDATION.md
+├── docs/
+│   ├── APP_FLOW.md
+│   ├── FEATURES.md
+│   ├── SCREENSHOTS.md
+│   ├── SCREENSHOT_CAPTURE.md
+│   └── screenshots/              22 actual page captures
+└── e-Bhumi-Frontend/
+    ├── index.html                Landing page
+    ├── workspace.html            Workspace shell
+    ├── app.js                    Routes, fixtures, UI and local persistence
+    ├── assets/                   Landing and workspace CSS
+    ├── data/features.json        Requirement registry
+    ├── server.cjs                npm start entry point
+    ├── server.js                 Alternative server retained in source
+    ├── package.json              Start and syntax-check commands
+    ├── run_local.bat
+    ├── run_local.sh
+    └── FEATURE_COVERAGE.md
+```
+
+## Data and persistence
+
+State is stored in localStorage under `ebhumi.workspace.v3`. It can include notes, favorites, workflow drafts, application records, document metadata, diligence checks, saved searches, language, chat and map preferences.
+
+| Data | Behavior |
 | --- | --- |
-| Login UI | `e-Bhumi-Frontend/login.html`, `auth.js` |
-| Role portal | `portal.html`, `portal.js`, `portal.css` |
-| Static/API server | `server-v4.cjs`; launched by `server.cjs` |
-| Domain logic and access rules | `lib/platform.cjs` |
-| Service definitions and role capabilities | `lib/catalog.cjs` |
-| Data store | `e-Bhumi-Frontend/.data/platform.json` created on first run |
-| Requirement registry | `data/features.json` — 460 retained requirements |
-| API lifecycle/security tests | `tests/platform.test.cjs` |
-| Optional browser verification | `tests/browser.cjs` |
+| Browser state | Local to one browser profile and origin |
+| `localhost` versus `127.0.0.1` | Separate storage; use one hostname consistently |
+| Uploaded document | Filename/category metadata only; file contents are not retained |
+| Workspace backup | JSON download; backup import is not implemented |
+| Clear site data | Resets saved work; keep an export first if needed |
+| Role switch/share draft | Demo preparation, not a security or sharing boundary |
 
-The old client-only `app.js` is retired. Existing `/workspace.html` requests enter the authenticated portal. There are no third-party runtime packages.
+No cloud synchronisation, encryption at rest, account recovery or server authorisation is provided. Use sample information. A selected file is not a verified document, and a local status change is not an official decision.
 
-## Data, security and operations
+## Performance approach
 
-- Passwords use salted Node `scrypt`; password hashes are not returned by user-list APIs.
-- Random HttpOnly/SameSite session cookie; eight-hour session duration; sessions are memory-only and end on restart.
-- CSRF token and origin checks on mutations; login attempts are rate limited.
-- Server-side owner and role checks, claim ownership, revision checks and allowed state transitions.
-- Protected evidence endpoints; uploads accept sample TXT/PDF/PNG/JPEG, with size limits and basic format checks.
-- Static serving uses an allowlist; `.data`, server source and library files are not exposed.
-- Atomic JSON write/rename, current-record analytics, audit history and role-change session revocation.
+- No frontend framework or runtime package installation.
+- Workspace renders before the catalogue request completes.
+- Catalogue search text is indexed once instead of rebuilt on every filter operation.
+- Results render incrementally, initially 20 cards rather than the entire catalogue.
+- Delegated actions reduce repeated per-button event bindings.
+- Landing artwork uses CSS geometry instead of large image assets.
 
-This is a local prototype, not a production security certification. The JSON file contains sample evidence and account hashes; it is not encrypted. There is no malware scanner, live NID/OTP verification, external signature, cloud backup, SSO, email reset or production database. It is designed for a single local server process, not multiple concurrent server instances.
+These describe implementation choices. No Lighthouse score, load-time improvement percentage or production performance benchmark is claimed. Fonts follow the existing CSS stack; rendering depends on fonts available to the browser.
 
-To back up local records, stop the server and copy `.data` to a protected local backup. Restore the folder only while the server is stopped. Do not commit or package it with shared source. Fresh deliveries contain no generated user store. Never expose the seeded demo accounts to the public internet.
+## Accessibility and localisation
 
-## Research and scope boundaries
+The UI includes skip links, labelled controls, visible focus, dialog focus containment and return, Escape dismissal, reduced-motion styles and responsive layouts. Mobile tables can scroll horizontally within their containers. The workspace search shortcut is **Ctrl/Cmd + K**.
 
-The official Ministry of Land portal groups mutation, land tax, records/maps, acquisition/requisition, lease/settlement, revenue cases, land information and grievance services. This edition maps those broad categories into local workflows. See [research, sources and gap analysis](docs/BD_LAND_RESEARCH.md).
-
-The supplied screenshots informed land timelines, evidence obligations, discrepancy review, share proposals and assisted digital access. Their style, fee figures, names and claims of official verification were not copied into the application.
-
-The 460-item registry remains a **requirement catalogue**, not a claim that all advanced GIS, AI/OCR, government integration and production-platform capabilities are implemented. [Feature status](docs/FEATURES.md) makes the boundary explicit.
+English is the primary content language. Bangla navigation labels and Bengali numeral handling are partial localisation; the entire app is not translated. A formal WCAG audit, assistive-technology review and comprehensive keyboard testing remain outstanding.
 
 ## Validation
 
 ```bash
+cd e-Bhumi-Frontend
 npm run check
-npm test
 ```
 
-The API suite completes all 33 service types, including files, submission, correct reviewer, approval, optional payment and issued outcome. It also tests mutation correction/hearing, payment failure/retry/replay, ownership/CSRF/origin restrictions, staff registration rejection, stale revisions, account suspension, intake settings, restart persistence and audit-chain integrity.
+The documentation refresh captured the landing page, all 18 workspace routes, mobile views and an application form using installed Chromium. All 18 routes displayed headings, with no uncaught page errors observed during capture. Notes survived a reload; the catalogue displayed 460 entries and an ID filter returned one result. No horizontal page overflow was detected in the two captured mobile entry views.
 
-Browser verification covers all 10 role logins, a full mutation journey through outcome download, citizen tool views, administrator access, auditor chain view and mobile service layout. [Validation report](VALIDATION.md) records the bounded results and [screenshots](docs/SCREENSHOTS.md) show the current platform.
+**Capture boundary:** screenshots were rendered from local files; the browser received the unchanged feature JSON through a local fetch shim because loopback HTTP access was blocked in this tool environment. This validates those renders, not HTTP deployment, production APIs, legal copy or every workflow. See [capture notes](docs/SCREENSHOT_CAPTURE.md) and [validation report](VALIDATION.md).
 
 ## Troubleshooting
 
-| Problem | Action |
+| Symptom | What to check |
 | --- | --- |
-| Cannot log in / API unavailable | Run `npm start`; do not use Python, static hosting or `file://` |
-| Demo staff account is suspended | An active administrator must restore its access |
-| Applicant sees an old status | Open the case again, wait for refresh or reload |
-| Staff sees no request | Check service reviewer role and that the applicant submitted it |
-| Outcome button unavailable | Staff must approve, required sandbox payment must succeed, then staff must issue |
-| Another role opens in the same tab | Sign out; one browser profile shares a session cookie |
-| Port conflict | Set `PORT` before starting the server |
-| Store cannot be read/written | Stop the server, preserve the data file, inspect permissions and restore a known-good backup; do not delete user records |
-| Missing official status or real payment | Not integrated; follow the official source links |
+| `node` is not recognised | Install Node.js 18+ and reopen the terminal |
+| Port 8080 is in use | Stop the existing server, or use `python -m http.server 8081` |
+| Catalogue missing or reduced | Use HTTP, then check that `data/features.json` is served |
+| Saved work seems missing | Check browser profile and hostname; private mode/site-data clearing affects storage |
+| Selected document cannot be reopened | Only its metadata was saved; original file bytes are not stored |
+| A button shows a demo explanation | That action is a preview or requires a future integration |
+| Bangla labels change but body remains English | Detailed translation is incomplete |
 
-## Remaining production work
+## Roadmap
 
-Authorised government integration, current legal/fee validation, real identity verification, reviewed inheritance rules, true GIS/survey data, live appointments, official certificate signatures, real payments/reconciliation callbacks, production database/storage, malware scanning, full Bangla localisation, accessibility audit, deployment hardening and operational disaster recovery remain separate work.
+| Stage | Planned work |
+| --- | --- |
+| Frontend hardening | Split modules, regression tests, complete localisation, accessibility audit |
+| Durable platform | Validated API contracts, authentication, ownership checks, database migrations |
+| Document pipeline | Protected object storage, content inspection, real hashes and audit trails |
+| Official integrations | Authorised registry/GIS adapters, current service requirements and provenance |
+| Transaction services | Reviewed submissions, approved payments, signed callbacks and reconciliation |
+| Citizen support | Provider-backed notifications, complaint delivery and appointment inventory |
+| Assisted intelligence | Source-grounded AI/OCR, consent, human review and evaluation |
+| Production readiness | Security review, monitoring, backup/restore drills and measured performance budgets |
 
-## Project and licensing
+React/TypeScript, PostgreSQL/PostGIS, queues and object storage are possible future architecture choices, not installed parts of this frontend.
 
-Based on the user-supplied `LANDFINAL` project, referencing [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). Source changes are local; no GitHub push or public deployment is included. No license grant was supplied; confirm redistribution rights with the maintainer.
+## Contributing
+
+1. Create a focused branch against the maintained upstream checkout.
+2. Preserve stable catalogue IDs and clearly label fixtures versus working functionality.
+3. Run syntax checks and exercise the affected flow in a browser.
+4. Refresh screenshots when the visible UI changes; keep sample information only.
+5. Update feature boundaries, app flows and validation notes with the change.
+
+Never commit credentials, real identity files or private land records. Report security issues privately to the repository maintainer through an available private channel.
+
+## License and authority
+
+The project references [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). This local edition originated from the supplied ZIP and subsequent local edits; it does not claim to match the latest remote branch. This README update does not push changes to GitHub.
+
+No license grant is included in this delivery; confirm redistribution rights with the maintainer. e-Bhumi is not affiliated with or operated by the Government of Bangladesh. Always confirm official records, current rules and legal requirements with the competent authority.

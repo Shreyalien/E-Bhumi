@@ -1,14 +1,1 @@
-{
-  "name": "e-bhumi-role-platform",
-  "version": "4.0.0",
-  "private": true,
-  "description": "Bangladesh land-service sandbox with server-side role workflows",
-  "scripts": {
-    "start": "node server.cjs",
-    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/catalog.cjs",
-    "test": "node --test tests/platform.test.cjs"
-  },
-  "engines": {
-    "node": ">=18"
-  }
-}
+{"name":"e-bhumi-demo","version":"3.0.0","private":true,"description":"Buildless e-Bhumi land-services preparation demo","scripts":{"start":"node server.cjs","check":"node --check app.js && node --check server.cjs"},"engines":{"node":">=18"}}

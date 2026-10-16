@@ -1,69 +1,133 @@
-# Version 4 screenshot gallery
+# Screenshot gallery
 
-Actual browser renders of the local authenticated platform, 16 October 2026. All information is sample data. Desktop 1440 × 1000; mobile 390 × 844.
+Actual renders of the included source, captured on **16 October 2026**. All records, metrics and statuses shown are demonstration data. Desktop captures use 1440 × 1000; mobile captures use 390 × 844. Most images show the initial viewport rather than the entire page.
 
-## Login and registration
+[Capture method and limitations](SCREENSHOT_CAPTURE.md) · [README](../README.md)
 
-![ Login and registration ](screenshots-v4/login.png)
+## Landing page
 
-## Citizen workspace
+![Landing desktop](screenshots/landing-desktop.png)
 
-![ Citizen workspace ](screenshots-v4/citizen.png)
+## 01. Overview
 
-## Representative workspace
+Route: `workspace.html#dashboard`.
 
-![ Representative workspace ](screenshots-v4/representative.png)
+![Overview](screenshots/dashboard.png)
 
-## Land officer queue overview
+## 02. Land Search
 
-![ Land officer queue overview ](screenshots-v4/officer.png)
+Route: `workspace.html#land-search`.
 
-## Records platform
+![Land Search](screenshots/land-search.png)
 
-![ Records platform ](screenshots-v4/records.png)
+## 03. My Land & Passport
 
-## Surveyor platform
+Route: `workspace.html#my-land`.
 
-![ Surveyor platform ](screenshots-v4/surveyor.png)
+![My Land & Passport](screenshots/my-land.png)
 
-## Registration desk
+## 04. Land Services
 
-![ Registration desk ](screenshots-v4/registrar.png)
+Route: `workspace.html#services`.
 
-## Finance platform
+![Land Services](screenshots/services.png)
 
-![ Finance platform ](screenshots-v4/finance.png)
+## 05. My Applications
 
-## Support platform
+Route: `workspace.html#applications`.
 
-![ Support platform ](screenshots-v4/support.png)
+![My Applications](screenshots/applications.png)
 
-## Administrator platform
+## 06. Govt Land Lease
 
-![ Administrator platform ](screenshots-v4/admin.png)
+Route: `workspace.html#land-lease`.
 
-## Account and access management
+![Govt Land Lease](screenshots/land-lease.png)
 
-![ Account and access management ](screenshots-v4/admin-access.png)
+## 07. Hill Tracts Zone (CHT)
 
-## Auditor platform
+Route: `workspace.html#ctg-zone`.
 
-![ Auditor platform ](screenshots-v4/auditor.png)
+![Hill Tracts Zone (CHT)](screenshots/ctg-zone.png)
 
-## Application evidence step
+## 08. GIS & Parcel Map
 
-![ Application evidence step ](screenshots-v4/evidence-step.png)
+Route: `workspace.html#gis`.
 
-## Submitted request
+![GIS & Parcel Map](screenshots/gis.png)
 
-![ Submitted request ](screenshots-v4/submitted-case.png)
+## 09. Documents Vault
 
-## Completed mutation and downloads
+Route: `workspace.html#documents`.
 
-![ Completed mutation and downloads ](screenshots-v4/completed-outcome.png)
+![Documents Vault](screenshots/documents.png)
 
-## Mobile service directory
+## 10. Payments & Receipts
 
-![ Mobile service directory ](screenshots-v4/mobile-services.png)
+Route: `workspace.html#payments`.
 
-[Capture notes](SCREENSHOT_CAPTURE.md) · [README](../README.md)
+![Payments & Receipts](screenshots/payments.png)
+
+## 11. Due Diligence
+
+Route: `workspace.html#due-diligence`.
+
+![Due Diligence](screenshots/due-diligence.png)
+
+## 12. AI Land Assistant
+
+Route: `workspace.html#ai-assistant`.
+
+![AI Land Assistant](screenshots/ai-assistant.png)
+
+## 13. Cases & Complaints
+
+Route: `workspace.html#casebook`.
+
+![Cases & Complaints](screenshots/casebook.png)
+
+## 14. Appointments & Queue
+
+Route: `workspace.html#appointments`.
+
+![Appointments & Queue](screenshots/appointments.png)
+
+## 15. Notifications
+
+Route: `workspace.html#notifications`.
+
+![Notifications](screenshots/notifications.png)
+
+## 16. Analytics & Reports
+
+Route: `workspace.html#analytics`.
+
+![Analytics & Reports](screenshots/analytics.png)
+
+## 17. Feature Catalogue
+
+Route: `workspace.html#feature-catalog`.
+
+![Feature Catalogue](screenshots/feature-catalog.png)
+
+## 18. Administration
+
+Route: `workspace.html#admin`.
+
+![Administration](screenshots/admin.png)
+
+## Application preparation dialog
+
+The form creates a local draft, not an official submission.
+
+![Application form](screenshots/application-form.png)
+
+## Mobile views
+
+### Landing page
+
+<img src="screenshots/landing-mobile.png" alt="Full mobile landing page" width="320">
+
+### Citizen dashboard
+
+<img src="screenshots/workspace-mobile.png" alt="Mobile citizen dashboard" width="320">
