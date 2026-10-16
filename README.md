@@ -92,7 +92,15 @@ Create a local application draft, attach a land reference and manage preparation
 
 ![Application draft form](docs/screenshots/application-form.png)
 
-> 📷 **Full Gallery:** For all workspace captures (GIS parcel map, land search, government lease, CHT special zone, document vault, mobile viewport, etc.), see the [Complete Screenshot Gallery](docs/SCREENSHOTS.md).
+### Regional and lease views
+
+| Government land lease | Chattogram Hill Tracts workspace |
+| --- | --- |
+| ![Government lease register](docs/screenshots/land-lease.png) | ![CHT workspace](docs/screenshots/ctg-zone.png) |
+
+These screens illustrate separate preparation contexts. Their labels and explanatory copy are not a verified statement of current legal requirements.
+
+> 📷 **Full Gallery:** For all workspace captures (GIS parcel map, land search, document vault, mobile viewport, etc.), see the [Complete Screenshot Gallery](docs/SCREENSHOTS.md).
 
 
 ## Features and page guide
