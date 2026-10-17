@@ -146,11 +146,7 @@ Create a parcel worksheet, separate DEMO and USER_REPORTED facts, connect predec
 
 Link the worksheet to your matching service application to share it with the eligible desk. The assigned reviewer can leave a local note; later edits mark earlier notes for re-review. Save report snapshots with integrity digests and download JSON or printable HTML. Percentages are proposed inputs, not legal inheritance shares or ownership verification.
 
-| Truth Card | Ownership relationship graph |
-| --- | --- |
-| ![Source-aware land facts](docs/screenshots-land/truth-card.png) | ![Interactive ownership relationship worksheet](docs/screenshots-land/ownership-graph.png) |
-
-[Feature depth, screenshot-to-feature mapping and full gallery](docs/LAND_INTELLIGENCE.md). Service Guidance also includes division/district demo office routing and assisted appointment preparation.
+For interactive visual previews and feature depth, see [Land Intelligence Documentation](docs/LAND_INTELLIGENCE.md). Service Guidance also includes division/district demo office routing and assisted appointment preparation.
 
 ### Requirement registry
 
@@ -158,13 +154,7 @@ The source of truth for catalogue entries is [`data/features.json`](e-Bhumi-Fron
 
 ## Research-backed service procedures
 
-The v5.4 workflow engine adds service-specific preparation schedules, required desk checks, phased payment quotes, holding demands and delivery acknowledgement for all 33 new service types. Older saved cases remain compatible. Read the [source register and 33-service matrix](docs/BD_SERVICE_RESEARCH.md) for evidence quality, current-rule gaps and the boundary between local completion and official execution.
-
-![Mutation procedure and research references](docs/screenshots-procedures/mutation-procedure.png)
-
-| Structured land and parties | Local holding and tax demands |
-| --- | --- |
-| ![Land and party schedules](docs/screenshots-procedures/structured-schedules.png) | ![Holding ledger](docs/screenshots-procedures/holdings-demand.png) |
+The v5.4 workflow engine adds service-specific preparation schedules, required desk checks, phased payment quotes, holding demands and delivery acknowledgement for all 33 new service types. Older saved cases remain compatible. The implementation introduces structured land schedules, local holding registries, reasoned desk checks, and phased payment flows. For the full reference register and matrix, see the [Bangladesh Land Service Research Matrix](docs/BD_SERVICE_RESEARCH.md).
 
 ## App flow
 
@@ -373,6 +363,6 @@ Never commit credentials, real identity files or private land records. Report se
 
 ## License and authority
 
-Maintained repository: [Shreyalien/E-Bhumi](https://github.com/Shreyalien/E-Bhumi). This edition builds on the supplied local project and its preserved visual design.
+The project references [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). This edition builds on the supplied local project and its preserved visual design.
 
 No license grant is included in this delivery; confirm redistribution rights with the maintainer. e-Bhumi is not affiliated with or operated by the Government of Bangladesh. Always confirm official records, current rules and legal requirements with the competent authority.
