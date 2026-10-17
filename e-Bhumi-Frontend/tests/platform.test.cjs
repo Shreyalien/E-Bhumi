@@ -2,7 +2,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {createServer}=require('../server-v4.cjs');const {services}=require('../lib/catalog.cjs');
 test('all service lifecycles, permissions, persistence and failure paths',async t=>{
- const testRoot=process.env.EBHUMI_TEST_ROOT||os.tmpdir();fs.mkdirSync(testRoot,{recursive:true});const dir=fs.mkdtempSync(path.join(testRoot,'ebhumi-test-'));let running=createServer({dataDir:dir,seedDemo:false});await new Promise(r=>running.server.listen(0,'127.0.0.1',r));let base='http://127.0.0.1:'+running.server.address().port;
+ const testRoot=process.env.EBHUMI_TEST_ROOT||os.tmpdir();fs.mkdirSync(testRoot,{recursive:true});const dir=fs.mkdtempSync(path.join(testRoot,'ebhumi-test-'));let running=createServer({newWorkflowVersion:1,dataDir:dir,seedDemo:false});await new Promise(r=>running.server.listen(0,'127.0.0.1',r));let base='http://127.0.0.1:'+running.server.address().port;
  t.after(async()=>{if(running.server.listening)await new Promise(r=>running.server.close(r));});
  const accounts={};
  async function request(route,{method='GET',body,who,csrf=true,expect=200,headers={}}={}){const r=await fetch(base+route,{method,headers:{'Content-Type':'application/json',...(who?{Cookie:who.cookie,...(csrf?{'X-CSRF-Token':who.csrf}:{})}:{}),...headers},...(body!==undefined?{body:JSON.stringify(body)}:{})});const data=await r.json();assert.equal(r.status,expect,method+' '+route+': '+JSON.stringify(data));return {data,response:r};}
@@ -99,7 +99,7 @@ test('all service lifecycles, permissions, persistence and failure paths',async 
    await request('/api/users/'+accounts.representative.user.id,{method:'PATCH',who:accounts.admin,body:{role:'representative',active:false}});await request('/api/me',{who:accounts.representative,expect:401});
   });
   await t.test('restart keeps records and invalidates memory-only sessions',async()=>{
-   await new Promise(r=>running.server.close(r));running=createServer({dataDir:dir,seedDemo:false});await new Promise(r=>running.server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+running.server.address().port;await request('/api/me',{who:me,expect:401});const again=await login('citizen');const list=(await request('/api/applications',{who:again})).data.applications;assert.equal(list.filter(a=>a.status==='Completed').length,services.length);
+   await new Promise(r=>running.server.close(r));running=createServer({newWorkflowVersion:1,dataDir:dir,seedDemo:false});await new Promise(r=>running.server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+running.server.address().port;await request('/api/me',{who:me,expect:401});const again=await login('citizen');const list=(await request('/api/applications',{who:again})).data.applications;assert.equal(list.filter(a=>a.status==='Completed').length,services.length);
   });
  }finally{await new Promise(r=>running.server.close(r));/* Test fixture store intentionally retained in OS temp for failure diagnostics. */}
 });

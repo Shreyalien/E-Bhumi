@@ -16,3 +16,7 @@ Government APIs, real payment collection, OTP/NID, official digital signatures, 
 All 18 original citizen navigation options are restored with their dedicated pages. The original Overview composition and font stack are retained. Added 660 demo applications, 1,060 sample files, 24 parcels and persisted preparation preferences. See PRESERVATION.md. No role workflow or catalogue entry was removed.
 
 The separate [Land Intelligence feature guide](LAND_INTELLIGENCE.md) documents the new Truth Card/ownership graph, evidence, timeline, task, report and linked-review module. The original requirement registry IDs and count remain unchanged.
+
+## Version 5.4 researched procedures
+
+All 33 new service types have distinct schedules, desk checks and local artifacts. Filing/decision payment phases, record delivery acknowledgement, owned holding demands, tax Dakhila and quote-revision protection extend the earlier local lifecycle. Twenty-one citizen routes retain all original features and styles. See the [33-service primary-source matrix](BD_SERVICE_RESEARCH.md) for what was researched and which real procedures/integrations remain unimplemented.

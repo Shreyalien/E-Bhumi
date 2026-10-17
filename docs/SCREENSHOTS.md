@@ -91,3 +91,17 @@ Earlier role-platform screenshots remain in screenshots-v4. [Capture method](SCR
 ## Truth Cards, graph and desk review
 
 [Current land intelligence gallery](LAND_INTELLIGENCE.md#gallery) includes source-aware facts, relationship graph, boundaries/timeline, tasks, reports, assigned local review and mobile graph.
+
+## Researched service procedures and holding ledger
+
+![Mutation procedure](screenshots-procedures/mutation-procedure.png)
+
+![Structured land schedules](screenshots-procedures/structured-schedules.png)
+
+![Assigned officer checks](screenshots-procedures/officer-checklist.png)
+
+![Holding demands](screenshots-procedures/holdings-demand.png)
+
+![Local Dakhila](screenshots-procedures/dakhila-outcome.png)
+
+The original 18 sidebar routes, Calculator, Truth Card and Holdings are retained (21 total). [Research matrix](BD_SERVICE_RESEARCH.md).

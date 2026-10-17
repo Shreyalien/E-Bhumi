@@ -2,7 +2,7 @@
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const {createPlatform}=require('./lib/platform.cjs');
 function createServer(options={}){
- const root=__dirname,platform=createPlatform({dataDir:options.dataDir||path.join(root,'.data'),seedDemo:options.seedDemo!==false});
+ const root=__dirname,platform=createPlatform({dataDir:options.dataDir||path.join(root,'.data'),seedDemo:options.seedDemo!==false,newWorkflowVersion:options.newWorkflowVersion});
  const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg'};
  const server=http.createServer((req,res)=>{
   const allowedHost=/^(127\.0\.0\.1|localhost)(:\d+)?$/i.test(req.headers.host||'');if(!allowedHost){res.writeHead(403).end('Local host required');return;}
@@ -13,7 +13,7 @@ function createServer(options={}){
   let name;try{name=decodeURIComponent(url.pathname);}catch{res.writeHead(400).end();return;}
   if(name==='/workspace.html'||name.startsWith('/portal/')){const auth=platform.authenticate(req);if(!auth){res.writeHead(302,{Location:'/login.html'}).end();return;}if(name.startsWith('/portal/')&&name.split('/')[2]!==auth.user.role){res.writeHead(302,{Location:'/portal/'+auth.user.role}).end();return;}name='/portal.html';}
   if(name==='/')name='/index.html';
-  const allowed=['/index.html','/landing.js','/login.html','/portal.js','/workflows.js','/land-intelligence.js','/land-intelligence.css','/auth.js','/portal.css','/citizen.js','/preserved.css','/data/features.json'];
+  const allowed=['/index.html','/landing.js','/login.html','/portal.js','/workflows.js','/land-intelligence.js','/procedures-ui.js','/land-intelligence.css','/auth.js','/portal.css','/citizen.js','/preserved.css','/data/features.json'];
   if(name==='/portal.html'){if(!platform.authenticate(req)){res.writeHead(302,{Location:'/login.html'}).end();return;}}
   else if(!allowed.includes(name)&&!/^\/assets\/[a-zA-Z0-9._-]+$/.test(name)){res.writeHead(404).end('Not found');return;}
   const file=path.resolve(root,'.'+name);if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}

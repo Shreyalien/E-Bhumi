@@ -84,3 +84,9 @@ Demo edition 7 trims only untouched generated records, retaining user changes an
 ## Land intelligence access
 
 Owners create and edit their private worksheet. Linking a matching own application shares its facts/evidence with the service desk only when that desk can read the application. Only the assigned reviewer of an active linked request can add a local review note. Source labels cannot be upgraded to official verification. Every write checks revision; content changes invalidate the freshness of earlier local notes. Snapshots retain their own SHA-256. See [feature depth and reference mapping](LAND_INTELLIGENCE.md).
+
+## Procedure v2 modules
+
+`lib/procedures.cjs` stores dated source metadata and 33 profiles. `lib/procedure-engine.cjs` enforces schedules, ownership, review tasks, phase quotes, holding demands, delivery and artifact integrity. `procedures-ui.js` extends the existing portal without replacing its styles. New server-created applications use v2; saved v1 cases stay readable and executable. No public request can select the legacy mode. Server-only `newWorkflowVersion:1` is an explicit compatibility-test fixture.
+
+The holding ledger is a local object owned by its applicant; finance can assess positive reasoned demands. Payment quotes bind application and demand revisions. Repeated successful payment of the same application phase returns the earlier receipt. Another case cannot pay an already-paid holding demand. Official services are linked reference sites, not integrated endpoints.

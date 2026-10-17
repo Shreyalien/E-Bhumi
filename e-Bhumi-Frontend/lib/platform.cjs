@@ -6,11 +6,12 @@ const hash=v=>crypto.createHash('sha256').update(v).digest('hex');
 const password=(v,salt=crypto.randomBytes(16).toString('hex'))=>({salt,hash:crypto.scryptSync(v,salt,64).toString('hex')});
 const geography=require('./geography.cjs');
 const {seedLandDossiers,handleLandDossiers}=require('./land-dossiers.cjs');
+const {emptyProcedure,seedHoldings,handleProcedureRequest}=require('./procedure-engine.cjs');
 const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v+'T00:00:00Z'))&&new Date(v+'T00:00:00Z').toISOString().slice(0,10)===v;
 const dhakaDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const safeUser=u=>({id:u.id,name:u.name,email:u.email,role:u.role,active:u.active});
 const fail=(status,message)=>{throw Object.assign(new Error(message),{status});};
-function createPlatform({dataDir,seedDemo=true}){
+function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2}){
  fs.mkdirSync(dataDir,{recursive:true});const file=path.join(dataDir,'platform.json');
  let db=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{version:4,users:[],applications:[],documents:[],payments:[],notifications:[],audit:[],settings:{acceptApplications:true,notice:'Local sandbox — sample information only.'}};
  const save=()=>{fs.writeFileSync(file+'.tmp',JSON.stringify(db,null,2));fs.renameSync(file+'.tmp',file);};
@@ -18,26 +19,27 @@ function createPlatform({dataDir,seedDemo=true}){
  if(!db.users.length){for(const role of Object.keys(roles)){db.users.push({id:id('USR'),name:roles[role].split(' / ').at(-1)+' Demo',email:role+'@demo.ebhumi.local',role,active:true,password:password('BhumiDemo!2026'),created:now()});}audit(null,'seed-demo-accounts','system');save();}
  if(seedDemo&&require('./seed-demo.cjs').seedDemo(db,audit))save();
  if(seedDemo&&seedLandDossiers(db,audit))save();
+ if(seedDemo&&seedHoldings(db,audit))save();
  const sessions=new Map(),attempts=new Map();
  const notify=(userId,title,reference)=>db.notifications.push({id:id('NTF'),userId,title,reference,read:false,at:now()});
  const service=id=>services.find(s=>s.id===id)||fail(400,'Unknown service');
  const text=(v,label,max=4000)=>{if(typeof v!=='string'||!v.trim()||v.length>max)fail(400,label+' is required (maximum '+max+' characters).');return v.trim();};
  const canCreate=u=>['citizen','representative'].includes(u.role);
  const canReview=(u,a)=>u.role===service(a.serviceId).reviewer;
- const canRead=(u,a)=>a.ownerId===u.id||(canReview(u,a)&&a.status!=='Draft')||['admin','auditor'].includes(u.role);
+ const canRead=(u,a)=>a.ownerId===u.id||(canReview(u,a)&&!['Draft',...(a.workflowVersion===2?['AwaitingApplicationPayment','ApplicationPaymentFailed']:[])].includes(a.status))||['admin','auditor'].includes(u.role);
  const app=(u,key)=>{const a=db.applications.find(a=>a.id===key);if(!a||!canRead(u,a))fail(404,'Application not found');return a;};
  const history=(a,u,event,note)=>a.history.push({at:now(),actor:u.id,role:u.role,event,note,status:a.status});
  const view=a=>({...a,service:service(a.serviceId),owner:db.users.find(u=>u.id===a.ownerId)?.name,assignee:db.users.find(u=>u.id===a.assignedTo)?.name,documents:a.documentIds.map(key=>{const d=db.documents.find(d=>d.id===key);return d?(({content,...metadata})=>metadata)(d):null}).filter(Boolean),payments:db.payments.filter(p=>p.applicationId===a.id)});
  const validate=(a,complete=false)=>{const s=service(a.serviceId),d=a.details;
-  if(d.region==='CHT'&&['khas','mutation','partition','consolidation'].includes(a.serviceId))fail(400,'Use the separate CHT request for regional review; plains workflows are not automatically applicable.');
-  for(const key of ['applicant','authority','division','district','upazila',...(s.requiresLand?['mouza','khatian','dag','area']:[])])if(complete)text(d[key],key);
+  if(d.region==='CHT'&&['khas','mutation','partition','consolidation',...(a.workflowVersion===2?['inheritance']:[])].includes(a.serviceId))fail(400,'Use the separate CHT request for regional review; plains workflows are not automatically applicable.');
+  for(const key of ['applicant','authority','division','district','upazila',...(a.workflowVersion===2?s.procedure.landFields:s.requiresLand?['mouza','khatian','dag','area']:[])])if(complete)text(d[key],key);
   if(complete&&(!geography[d.division]||!geography[d.division].includes(d.district)))fail(400,'Choose a valid division and matching district');
   if(d.region&&!['Plains','CHT'].includes(d.region))fail(400,'Invalid region');
   if(complete&&!['Self','Authorised representative','Organisation representative'].includes(d.authority))fail(400,'Valid authority required');
   if(complete&&db.users.find(u=>u.id===a.ownerId)?.role==='representative')text(d.principal,'Principal/authorisation reference');
   if(d.area!==undefined&&d.area!==''&&(!Number.isFinite(Number(d.area))||Number(d.area)<=0))fail(400,'Area must be a positive number in decimal.');
   if(complete&&!d.eligibility)fail(400,'Confirm the sandbox eligibility and authority checklist.');
-  for(const f of s.fields){if(complete)text(d[f.key],f.label);if(d[f.key]&&f.options&&!f.options.includes(d[f.key]))fail(400,'Invalid option for '+f.label);if(d[f.key]&&f.type==='date'&&!validDate(d[f.key]))fail(400,'Invalid date');}
+  for(const f of s.fields){if(complete&&!(a.workflowVersion===2&&f.key==='address'&&d.delivery!=='Postal demo'))text(d[f.key],f.label);if(d[f.key]&&f.options&&!f.options.includes(d[f.key]))fail(400,'Invalid option for '+f.label);if(d[f.key]&&f.type==='date'&&!validDate(d[f.key]))fail(400,'Invalid date');}
   if(complete&&s.documents.some(category=>!a.documentIds.some(key=>{const doc=db.documents.find(x=>x.id===key);return doc?.ownerId===a.ownerId&&doc.category===category;})))fail(400,'Attach a sample file for every required evidence category.');
   if(complete&&a.serviceId==='appointment'&&(d.visitDate<dhakaDay()||Date.parse(d.visitDate+'T'+d.slot+':00+06:00')<=Date.now()))fail(400,'Appointment slot must be in the future.');
  };
@@ -71,6 +73,7 @@ function createPlatform({dataDir,seedDemo=true}){
     if(auth)sessions.delete(auth.token);const token=crypto.randomBytes(32).toString('hex'),csrf=crypto.randomBytes(24).toString('hex');sessions.set(token,{userId:found.id,csrf,expires:Date.now()+8*3600000});audit(found,'login',found.id);save();return send(200,{user:safeUser(found),csrf},{'Set-Cookie':`eb_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800`});
    }
    if(route==='/logout'&&method==='POST'){sessions.delete(auth.token);return send(200,{ok:true},{'Set-Cookie':'eb_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0'});}
+   if(handleProcedureRequest({db,user:u,body,method,route,send,save,audit,notify,app,view,service,validate,canReview,fail,id,now,history,reserveAppointment}))return;
    if(handleLandDossiers({db,user:u,body,method,route,url,send,save,audit,notify,canRead,canReview,fail,id,now,validDate,services}))return;
    if(route==='/me'&&method==='GET')return send(200,{user:safeUser(u),csrf:auth.session.csrf,capabilities:capabilities[u.role],settings:db.settings});
    if(route==='/preferences'&&method==='GET')return send(200,{preferences:db.preferences?.[u.id]||{}});
@@ -90,7 +93,7 @@ for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body
    if(route==='/applications'&&method==='GET')return send(200,{applications:db.applications.filter(a=>canRead(u,a)).map(view)});
    if(route==='/applications'&&method==='POST'){
     if(!canCreate(u))fail(403,'Your role cannot create citizen applications');if(!db.settings.acceptApplications)fail(409,'New applications are temporarily paused');
-    const s=service(body.serviceId),a={id:id('EB'),ownerId:u.id,serviceId:s.id,status:'Draft',details:{},documentIds:[],assignedTo:null,history:[],created:now(),updated:now(),revision:1};db.applications.push(a);history(a,u,'created','Draft started');audit(u,'create-draft',a.id);save();return send(201,{application:view(a)});
+    const s=service(body.serviceId),a={workflowVersion:newWorkflowVersion,...(newWorkflowVersion===2?{procedureData:emptyProcedure()}:{}),id:id('EB'),ownerId:u.id,serviceId:s.id,status:'Draft',details:{},documentIds:[],assignedTo:null,history:[],created:now(),updated:now(),revision:1};db.applications.push(a);history(a,u,'created','Draft started');audit(u,'create-draft',a.id);save();return send(201,{application:view(a)});
    }
    if(route==='/appointment-slots'&&method==='GET'){
     const day=url.searchParams.get('date'),office=text(url.searchParams.get('office'),'Office',200);if(!validDate(day)||day<dhakaDay())fail(400,'Choose a current or future date');
@@ -103,7 +106,7 @@ for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body
     const reason=text(body.note,'Reason');
     if(body.action==='cancel'){a.status='Cancelled';delete a.outcome;delete a.hearingAt;history(a,u,'appointment-cancel',reason);}
     else if(body.action==='reschedule'){
-     const candidate={...a,details:{...a.details,visitDate:body.visitDate,slot:body.slot}};validate(candidate,true);reserveAppointment(candidate);a.details=candidate.details;a.status='Submitted';a.assignedTo=null;delete a.outcome;delete a.hearingAt;history(a,u,'appointment-reschedule',reason+'; previous token invalidated; support must confirm again.');
+     const candidate={...a,details:{...a.details,visitDate:body.visitDate,slot:body.slot}};validate(candidate,true);reserveAppointment(candidate);a.details=candidate.details;if(a.workflowVersion===2)a.procedureData.reviewTasks={};a.status='Submitted';a.assignedTo=null;delete a.outcome;delete a.hearingAt;history(a,u,'appointment-reschedule',reason+'; previous token invalidated; support must confirm again.');
     }else fail(400,'Unknown appointment action');
     a.revision++;a.updated=now();notify(u.id,'Appointment '+body.action,a.id);audit(u,'appointment-'+body.action,a.id);save();return send(200,{application:view(a)});
    }

@@ -5,7 +5,7 @@ const {services}=require('../lib/catalog.cjs');
 
 test('appointment capacity, owner reschedule/cancel, token invalidation and permission boundaries',async t=>{
   const root=process.env.EBHUMI_TEST_ROOT||os.tmpdir();fs.mkdirSync(root,{recursive:true});
-  const dir=fs.mkdtempSync(path.join(root,'appointment-'));const {server}=createServer({dataDir:dir,seedDemo:false});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
+  const dir=fs.mkdtempSync(path.join(root,'appointment-'));const {server}=createServer({newWorkflowVersion:1,dataDir:dir,seedDemo:false});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
   const base='http://127.0.0.1:'+server.address().port;
   async function req(route,who,body,status=200,method=body?'POST':'GET'){
     const response=await fetch(base+'/api'+route,{method,headers:{'Content-Type':'application/json',...(who?{Cookie:who.cookie,'X-CSRF-Token':who.csrf}:{})},...(body?{body:JSON.stringify(body)}:{})});const data=await response.json();assert.equal(response.status,status,JSON.stringify(data));return {data,response};
@@ -36,9 +36,9 @@ test('appointment capacity, owner reschedule/cancel, token invalidation and perm
 
 test('compact seed migration removes untouched fixtures, preserves real edits and remains idempotent',()=>{
   const root=process.env.EBHUMI_TEST_ROOT||os.tmpdir();fs.mkdirSync(root,{recursive:true});const dir=fs.mkdtempSync(path.join(root,'compact-seed-'));
-  let run=createServer({dataDir:dir});let db=JSON.parse(fs.readFileSync(run.platform.dataFile));assert.equal(db.applications.length,198);assert.equal(db.documents.length,318);
+  let run=createServer({newWorkflowVersion:1,dataDir:dir});let db=JSON.parse(fs.readFileSync(run.platform.dataFile));assert.equal(db.applications.length,198);assert.equal(db.documents.length,318);
   const original=db.applications[0],legacy={...structuredClone(original),id:'DEMO-LEGACY-UNTOUCHED',revision:1},edited={...structuredClone(original),id:'DEMO-LEGACY-EDITED',revision:2},real={...structuredClone(original),id:'USER-CREATED',demo:false},reconciled={...structuredClone(original),id:'DEMO-RECONCILED',revision:1};
   db.applications.push(legacy,edited,real,reconciled);db.payments.push({id:'PROTECTED',applicationId:reconciled.id,reconciledBy:'real-finance-user'});db.demoEdition=6;run.platform.close();fs.writeFileSync(path.join(dir,'platform.json'),JSON.stringify(db));
-  run=createServer({dataDir:dir});db=JSON.parse(fs.readFileSync(run.platform.dataFile));assert(!db.applications.some(a=>a.id===legacy.id));for(const a of [edited,real,reconciled])assert(db.applications.some(b=>b.id===a.id));assert.equal(db.applications.length,201);assert.equal(db.demoEdition,7);run.platform.close();
-  run=createServer({dataDir:dir});assert.equal(JSON.parse(fs.readFileSync(run.platform.dataFile)).applications.length,201);run.platform.close();
+  run=createServer({newWorkflowVersion:1,dataDir:dir});db=JSON.parse(fs.readFileSync(run.platform.dataFile));assert(!db.applications.some(a=>a.id===legacy.id));for(const a of [edited,real,reconciled])assert(db.applications.some(b=>b.id===a.id));assert.equal(db.applications.length,201);assert.equal(db.demoEdition,7);run.platform.close();
+  run=createServer({newWorkflowVersion:1,dataDir:dir});assert.equal(JSON.parse(fs.readFileSync(run.platform.dataFile)).applications.length,201);run.platform.close();
 });

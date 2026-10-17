@@ -3,7 +3,7 @@
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const {createServer}=require('../server-v4.cjs');const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 (async()=>{
- const dataRoot=process.env.EBHUMI_BROWSER_DATA||path.join(__dirname,'.browser-data');fs.mkdirSync(dataRoot,{recursive:true});const dataDir=fs.mkdtempSync(path.join(dataRoot,'run-'));const {server}=createServer({dataDir,seedDemo:false});await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
+ const dataRoot=process.env.EBHUMI_BROWSER_DATA||path.join(__dirname,'.browser-data');fs.mkdirSync(dataRoot,{recursive:true});const dataDir=fs.mkdtempSync(path.join(dataRoot,'run-'));const {server}=createServer({newWorkflowVersion:1,dataDir,seedDemo:false});await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
  const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_EXECUTABLE?{executablePath:process.env.CHROMIUM_EXECUTABLE}:{})});const errors=[];
  const screenshots=path.resolve(__dirname,'../../docs/screenshots-v4');fs.mkdirSync(screenshots,{recursive:true});
  async function pageFor(){const ctx=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));

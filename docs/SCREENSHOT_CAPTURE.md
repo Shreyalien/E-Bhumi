@@ -16,3 +16,7 @@ tests/preserved-browser.cjs starts an isolated server with the actual additive d
 ## Dedicated workflow checks
 
 Run node tests/workflows-browser.cjs with the same Playwright environment. It verifies payment retry/receipt filtering, all five calculator worksheets, appointment token/calendar and reschedule/cancel, case follow-up drafts and tracked diligence. Download content is captured from actual app-generated Blobs because browser filesystem downloads may be canceled by the sandbox. No request/application state is mocked.
+
+## v5.4 procedure captures
+
+The new default-v2 procedure browser suite covers the full mutation and tax UI and all 33 procedure pages. Captures scroll to the top, blur active controls, wait for transient toasts and disable animations. The preserved route gallery uses distinct query URLs for fresh navigation so each screenshot depicts its named route. Current API result: 49 passing tests. See VALIDATION.md for bounded coverage and source limitations.

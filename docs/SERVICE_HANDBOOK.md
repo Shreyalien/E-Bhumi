@@ -1,12 +1,10 @@
-# Complete sandbox service handbook
+# Sandbox service handbook — v5.4
 
-All services use a shared, validated lifecycle with service-specific information and evidence. The lists below are prototype preparation fields, not a verified official legal checklist. No official fees or statutory deadlines are hardcoded. Non-support services use 100 sandbox units, support services zero; these values are deliberately not official fees.
+Original fields/evidence below are retained. New cases also require the service-specific schedules and review checks in the [33-service research matrix](BD_SERVICE_RESEARCH.md). Those profiles replace the previous common 100-unit fee assumption: mutation has two simulated phases, records have filing checkout, tax pays an owned holding demand, and other desk services use their configured local fixtures. No amount is a live official fee.
 
-## Common applicant process
+Eligibility and source/jurisdiction confirmations → applicant → service details and structured schedules → sample evidence → preflight → applicable filing/payment stage → assigned desk checks → correction/hearing as needed → decision → local artifacts and delivery.
 
-Eligibility confirmation → applicant/authority → location and service information → required-category sample evidence → review/submit → assigned staff review → correction/hearing as needed → approval/rejection → sandbox payment if configured → staff issues outcome.
-
-Sample evidence can be uploaded or generated as TXT from the Evidence step. Only the owner can edit a draft/returned request. A completed file is retained for traceability and cannot be edited.
+Old saved cases keep their previous lifecycle for compatibility.
 
 ## 1. নামজারি / ই-মিউটেশন
 

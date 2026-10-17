@@ -6,7 +6,7 @@
 
 A citizen-first land-service preparation workspace for Bangladesh.
 
-**20 citizen pages (18 preserved + Calculator + Truth Card) · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
+**21 citizen pages (18 preserved + Calculator + Truth Card + Holdings) · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
@@ -27,7 +27,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Item | Current delivery |
 | --- | --- |
 | Entry point | Public landing page with service links and FAQs |
-| Navigation | 20 workspace routes with shareable hash URLs |
+| Navigation | 21 workspace routes with shareable hash URLs |
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no package installation needed |
@@ -86,7 +86,7 @@ To operate a sample process, use an editable draft or submitted case, then sign 
 
 ## Screenshots
 
-Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 20 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
+Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 21 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
 ### Regional and lease views
 
@@ -156,7 +156,19 @@ Link the worksheet to your matching service application to share it with the eli
 
 The source of truth for catalogue entries is [`data/features.json`](e-Bhumi-Frontend/data/features.json). Preserve stable `CORE-###` and `MX-###` identifiers. The [feature inventory](docs/FEATURES.md) lists module counts calculated from the current file.
 
+## Research-backed service procedures
+
+The v5.4 workflow engine adds service-specific preparation schedules, required desk checks, phased payment quotes, holding demands and delivery acknowledgement for all 33 new service types. Older saved cases remain compatible. Read the [source register and 33-service matrix](docs/BD_SERVICE_RESEARCH.md) for evidence quality, current-rule gaps and the boundary between local completion and official execution.
+
+![Mutation procedure and research references](docs/screenshots-procedures/mutation-procedure.png)
+
+| Structured land and parties | Local holding and tax demands |
+| --- | --- |
+| ![Land and party schedules](docs/screenshots-procedures/structured-schedules.png) | ![Holding ledger](docs/screenshots-procedures/holdings-demand.png) |
+
 ## App flow
+
+The following diagram documents the retained v1 case lifecycle. New cases use the service-family diagram below.
 
 ```mermaid
 flowchart TD
@@ -201,6 +213,38 @@ Rejection retains the reason and history. A separate review/appeal-preparation s
 7. Open **Truth Card & Ownership** to edit a sample relationship graph, evidence sources and tasks, then save a preparation report.
 8. Browse the **Feature Catalogue** to inspect scope and integration dependencies.
 
+
+
+## Researched procedure flows — v5.4
+
+New applications use procedure v2. Existing saved/demo applications retain their v1 lifecycle. A caller cannot request v1 through the public API.
+
+```mermaid
+flowchart TD
+    P[Prepare authority, schedules and evidence] --> C[Server completeness check]
+    C --> M{Service family}
+    M -->|Mutation / record request| F[Filing checkout simulation]
+    M -->|Other desk services| Q[Relevant service queue]
+    F --> Q
+    Q --> R[Assigned reviewer records service checks]
+    R --> X{Reasoned decision}
+    X -->|Correction| P
+    X -->|Reject| J[Reason and history retained]
+    X -->|Approve| D[Decision checkout when applicable]
+    D --> O[Issue service artifacts]
+    O -->|Digital| END[Completed local workflow]
+    O -->|Post / collection| A[Dispatch reference and citizen acknowledgement]
+    A --> END
+    M -->|Land tax| H[Owned holding and unpaid demand]
+    H --> T[Demand quote and payment simulation]
+    T --> K[Dakhila and receipt artifacts]
+    K --> END
+    classDef blue fill:#e8f1ff,stroke:#376eb5,color:#17365d;
+    class P,C,M,F,Q,R,X,J,D,O,A,END,H,T,K blue;
+```
+
+Every amount is a test fixture; there is no live government submission or payment. Hearing is conditional, not mandatory for every mutation. Digital copy release still uses the local records desk; there is no official registry lookup.
+
 ## Architecture
 
 The V5 reference's role-based application flow and local server architecture are integrated while retaining this project's existing visual identity and explanatory README structure.
@@ -238,6 +282,9 @@ e-Bhumi-Frontend/
 ├── portal.html, portal.js           Role portal and workflow UI
 ├── land-intelligence.js/css         Truth Card, graph, timeline, tasks and reports
 ├── lib/land-dossiers.cjs            Worksheet validation, policy and snapshots
+├── procedures-ui.js                Service schedules, checks, holdings and phased checkout
+├── lib/procedures.cjs               Dated official references and 33 procedure profiles
+├── lib/procedure-engine.cjs         Validated v2 workflow and holding/demand ledger
 ├── workflows.js                    Payments, cases, appointments and calculators
 ├── citizen.js, preserved.css        Original citizen/lease/CHT presentation
 ├── lib/catalog.cjs                 Service questions, evidence and role mapping
@@ -285,7 +332,7 @@ cd e-Bhumi-Frontend
 npm run check
 ```
 
-The reviewed build passes API lifecycle and regression tests, all 20 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
+The reviewed build passes API lifecycle and regression tests, all 21 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
 
 ## Troubleshooting
 
@@ -326,6 +373,6 @@ Never commit credentials, real identity files or private land records. Report se
 
 ## License and authority
 
-The project references [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). This local edition originated from the supplied ZIP and subsequent local edits; it does not claim to match the latest remote branch. This README update does not push changes to GitHub.
+Maintained repository: [Shreyalien/E-Bhumi](https://github.com/Shreyalien/E-Bhumi). This edition builds on the supplied local project and its preserved visual design.
 
 No license grant is included in this delivery; confirm redistribution rights with the maintainer. e-Bhumi is not affiliated with or operated by the Government of Bangladesh. Always confirm official records, current rules and legal requirements with the competent authority.

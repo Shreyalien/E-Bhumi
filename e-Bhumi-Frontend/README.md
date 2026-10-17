@@ -24,3 +24,5 @@ Reviewed version 5.1 retains the original landing/lease/CHT presentation with th
 Version 5.2 restores the standalone Calculator, adds payable demands and receipt filters, linked case follow-ups, local appointment capacity/reschedule/cancel/token/calendar actions, and trims untouched demo scenarios to 99 per account. See the root README for current screenshots and flow.
 
 Version 5.3 adds Truth Card & Ownership as the twentieth citizen navigation entry. Private parcel worksheets include editable relationship graphs, source-aware evidence, timeline/boundaries, obligations, assigned local desk review and versioned report downloads. Original app/landing fonts, regional styling, translations and theme controls remain. See ../docs/LAND_INTELLIGENCE.md.
+
+Version 5.4 adds default-v2 service procedures for all 33 types, structured schedules, reviewer checks, phased payment quotes, delivery acknowledgement and a private holding/demand/Dakhila ledger (21 citizen routes). Existing saved cases keep their v1 lifecycle. See the [dated source register and service matrix](../docs/BD_SERVICE_RESEARCH.md) and [validation](../VALIDATION.md).

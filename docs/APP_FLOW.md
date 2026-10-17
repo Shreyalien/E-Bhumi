@@ -1,8 +1,8 @@
-# Application flow — v5.2
+# Application flow — v5.4
 
 See the [README lifecycle diagram](../README.md#app-flow) and [per-service handbook](SERVICE_HANDBOOK.md).
 
-## Applicant states
+## Legacy v1 applicant states
 
 Draft → Submitted → UnderReview → CorrectionRequested → owner edits/resubmits → Submitted.
 
@@ -31,3 +31,36 @@ Completed/rejected revenue cases offer a separate review/appeal draft with the s
 ## Truth Card to service handoff
 
 A private parcel worksheet holds facts/sources, proposed relationships, history, boundary references and user tasks. Findings lead to a new linked service draft with parcel context prefilled. The applicant still completes eligibility, service questions and evidence before submission. A draft link does not expose the worksheet to staff. Submitted links follow service-role access, and only the assigned active reviewer can leave a local desk note. Owner edits require re-review of earlier content; unlinking revokes the service desk access. Reports are saved versioned snapshots, not ownership certificates.
+
+
+## Researched procedure flows — v5.4
+
+New applications use procedure v2. Existing saved/demo applications retain their v1 lifecycle. A caller cannot request v1 through the public API.
+
+```mermaid
+flowchart TD
+    P[Prepare authority, schedules and evidence] --> C[Server completeness check]
+    C --> M{Service family}
+    M -->|Mutation / record request| F[Filing checkout simulation]
+    M -->|Other desk services| Q[Relevant service queue]
+    F --> Q
+    Q --> R[Assigned reviewer records service checks]
+    R --> X{Reasoned decision}
+    X -->|Correction| P
+    X -->|Reject| J[Reason and history retained]
+    X -->|Approve| D[Decision checkout when applicable]
+    D --> O[Issue service artifacts]
+    O -->|Digital| END[Completed local workflow]
+    O -->|Post / collection| A[Dispatch reference and citizen acknowledgement]
+    A --> END
+    M -->|Land tax| H[Owned holding and unpaid demand]
+    H --> T[Demand quote and payment simulation]
+    T --> K[Dakhila and receipt artifacts]
+    K --> END
+    classDef blue fill:#e8f1ff,stroke:#376eb5,color:#17365d;
+    class P,C,M,F,Q,R,X,J,D,O,A,END,H,T,K blue;
+```
+
+Every amount is a test fixture; there is no live government submission or payment. Hearing is conditional, not mandatory for every mutation. Digital copy release still uses the local records desk; there is no official registry lookup.
+
+See the [research matrix](BD_SERVICE_RESEARCH.md) for all service profiles and source limitations.
