@@ -9,7 +9,7 @@ flowchart TB
         Auth[Login and registration]
         Citizen[Original citizen navigation and Overview]
         Regional[Original lease and CHT compositions]
-        Roles[Ten account-bound role portals]
+        Roles[23 account-bound role portals]
     end
     subgraph Application
         HTTP[HTTP routing and static allowlist]
@@ -111,3 +111,7 @@ flowchart LR
 ```
 
 [Role matrix](ROLE_WORKFLOWS.md) · [Lease/auction research](BD_LEASE_AUCTION_RESEARCH.md).
+
+## Shared law library and specialist evidence register — v5.6
+
+Twenty-three role portals share lawbook.js and the authenticated law-library API. lib/law-library.cjs holds 33 source guides and validates private preferences. lib/legacy-cases.cjs handles owner evidence preparation and four-desk review; document download policy grants only readable-case attachments. lib/desk-referrals.cjs inserts allowlisted consultation stages into a v2 route, retains a reasoned source reference and returns to the original desk. Existing saved routes are not rewritten. Legacy files and law preferences persist separately from the 33-service application collection.

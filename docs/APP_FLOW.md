@@ -85,3 +85,9 @@ flowchart LR
 ```
 
 [Role matrix](ROLE_WORKFLOWS.md) · [Lease/auction research](BD_LEASE_AUCTION_RESEARCH.md).
+
+## Evidence-preparation flow — v5.6
+
+Draft → Submitted → VP desk claim/checks → Legal coordination claim/checks → DC context review → Records context review → PreparationComplete. Each review can request owner correction; the same desk reviews the resubmission. DC/records require a reported external order or authority reference before forwarding. Owner withdrawal/reopen applies before review or during correction. Completion exports only a labelled preparation report.
+
+The service workflow can insert an allowlisted consultation desk before the current reviewer, then return to that reviewer. It clears active checks/assignment, not prior handoff history. Old desks may monitor but cannot make the current desk's decision.

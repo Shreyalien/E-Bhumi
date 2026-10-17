@@ -26,3 +26,7 @@ Version 5.2 restores the standalone Calculator, adds payable demands and receipt
 Version 5.3 adds Truth Card & Ownership as the twentieth citizen navigation entry. Private parcel worksheets include editable relationship graphs, source-aware evidence, timeline/boundaries, obligations, assigned local desk review and versioned report downloads. Original app/landing fonts, regional styling, translations and theme controls remain. See ../docs/LAND_INTELLIGENCE.md.
 
 Version 5.4 adds default-v2 service procedures for all 33 types, structured schedules, reviewer checks, phased payment quotes, delivery acknowledgement and a private holding/demand/Dakhila ledger (21 citizen routes). Existing saved cases keep their v1 lifecycle. See the [dated source register and service matrix](../docs/BD_SERVICE_RESEARCH.md) and [validation](../VALIDATION.md).
+
+## v5.6
+
+Law library for every role, private source-based vested-property preparation and conditional specialist consultations. [Source register](../docs/LAW_LIBRARY.md), [research implementation](../docs/LEGACY_PROPERTY_RESEARCH.md), [23 role workflows](../docs/ROLE_WORKFLOWS.md). Run npm run check and npm test. Browser checks: tests/lawbook-browser.cjs and existing suites.

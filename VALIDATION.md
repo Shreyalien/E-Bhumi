@@ -38,3 +38,13 @@ The production-default routing suite completes all 33 services with their curren
 `tests/bangla-browser.cjs` verifies Bangla-first landing/login/workspace, English switching and reload, unchanged authority option values, notification SVG/accessible name, union → officer → AC Land handoffs, citizen tracking, all five added role portals and mobile overflow. Other browser suites explicitly choose English to retain translation-path coverage. All six browser suites pass. Service instructions are translated; source titles, research excerpts, codes and user evidence retain their source language. This is interface localization, not automated translation of private material.
 
 A transient Windows file-lock failure appeared under repeated JSON-store writes. Save now retries only EPERM/EACCES/EBUSY rename failures within a bounded 250 ms, retaining atomic replacement. The full routing/API suite passed afterwards. This remains a single-process local store, not production database concurrency control.
+
+## v5.6 law library, roles and research implementation
+
+2026-10-17: npm run check passes; npm test passes **99 tests, 0 failures**. The production routing suite still completes all 33 service workflows with the specialist routes. New API checks cover all-role law access, authenticated access, private reading notes, invalid IDs, foreign evidence rejection, draft evidence privacy, assigned/past specialist access, stale revisions, required external-order reference, correction/resubmission, four-desk completion, report labelling and restart persistence.
+
+The new lawbook browser suite logs in all 23 roles, exercises search/bookmark/read/private notes/reload, completes the four-desk legacy preparation through the UI with vault documents, verifies evidence downloads, sends a ministry consultation and returns to the acquisition desk, checks mobile overflow and captures 10 new screenshots. No page errors. The preserved-browser suite also passes with the original 21 pages plus 3 additive links, unchanged fonts, lease/CHT controls and mobile checks.
+
+The installed local store was backed up before restart. All **203 applications and 318 documents** compare byte-for-byte as parsed JSON with the pre-migration snapshot; the 8 added specialist accounts bring the role count to 23. The local server runs on port 8081. Original assets/styles.css, assets/landing.css, preserved.css, citizen.js and app.js match the previous committed sources.
+
+Legal coverage is a curated 33-source/11-topic library, not an exhaustive A–Z legal consolidation. Official texts open at their source; explanations are reading aids. The shared research's unverified 2026 judgment is not applied as a rule. No government, court, bank or registry integration has been added.

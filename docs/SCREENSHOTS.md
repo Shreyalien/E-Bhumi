@@ -117,3 +117,13 @@ The original 18 sidebar routes, Calculator, Truth Card and Holdings are retained
 ![AC Land ডেস্ক](screenshots-bangla/ac_land-desk-bn.png)
 
 ![নাগরিকের পর্যবেক্ষণ](screenshots-bangla/citizen-monitoring-bn.png)
+
+## v5.6 — আইন ও গবেষণার নতুন দৃশ্য
+
+![পাঠাগার](screenshots-lawbook/law-library-bn.png)
+![পাঠ ও নোট](screenshots-lawbook/law-reader-bn.png)
+![অর্পিত সম্পত্তি](screenshots-lawbook/legacy-preparation-bn.png)
+![দপ্তর](screenshots-lawbook/legacy-vp_officer-bn.png)
+![সম্পন্ন](screenshots-lawbook/legacy-completed-bn.png)
+![মন্ত্রণালয় পরামর্শ](screenshots-lawbook/ministry-consultation-bn.png)
+![মোবাইল](screenshots-lawbook/law-library-mobile.png)

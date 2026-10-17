@@ -8,7 +8,7 @@ Your land. A clearer path.
 
 A citizen-first land-service preparation workspace for Bangladesh.
 
-**21 citizen pages (18 preserved + Calculator + Truth Card + Holdings) · 33 service workflows · 15 role platforms · 460 tracked requirements · Local sandbox**
+**24 citizen routes (21 preserved + Law Library + Vested Property + Role Directory) · 33 service workflows · 23 role platforms · 460 tracked requirements · Local sandbox**
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
@@ -16,13 +16,23 @@ A citizen-first land-service preparation workspace for Bangladesh.
 
 ![বাংলা প্রধান প্রথম পাতা](docs/screenshots-bangla/landing-bn.png)
 
-বাংলা মূল ভাষা; English বাটন থেকে অনুবাদ বেছে নেওয়া যায়। মূল font, landing composition, lease ও CHT নকশা রাখা হয়েছে। নতুন আবেদনের দপ্তরভিত্তিক কাজ জানতে [১৫টি ভূমিকার ম্যাট্রিক্স](docs/ROLE_WORKFLOWS.md) এবং [ইজারা/নিলাম/দরপত্র গবেষণা](docs/BD_LEASE_AUCTION_RESEARCH.md) দেখুন।
+বাংলা মূল ভাষা; English বাটন থেকে অনুবাদ বেছে নেওয়া যায়। মূল font, landing composition, lease ও CHT নকশা রাখা হয়েছে। নতুন আবেদনের দপ্তরভিত্তিক কাজ জানতে [২৩টি ভূমিকার ম্যাট্রিক্স](docs/ROLE_WORKFLOWS.md) এবং [ইজারা/নিলাম/দরপত্র গবেষণা](docs/BD_LEASE_AUCTION_RESEARCH.md) দেখুন।
 
 | নাগরিকের বাংলা কর্মক্ষেত্র | দপ্তরের যাচাই ও handoff |
 | --- | --- |
 | ![নাগরিক](docs/screenshots-bangla/citizen-bn.png) | ![ইউনিয়ন ভূমি ডেস্ক](docs/screenshots-bangla/union_land-desk-bn.png) |
 
 > **Demo status:** e-Bhumi is an independent prototype, not an official Government of Bangladesh service. Land references, geometry, statuses and amounts are illustrative. It does not establish ownership, accept real payments, submit official applications or reserve government appointments.
+
+## আইন, গবেষণা ও দপ্তর — v5.6
+
+সব রোলে **আইন ও বিধির পাঠাগার**: ৩৩ নির্বাচিত সরকারি পাঠ্যসূত্র, ১১ বিষয়, অনুসন্ধান, বুকমার্ক, ব্যক্তিগত নোট ও মূল সরকারি পূর্ণপাঠের link। [পাঠাগার ও উৎস তালিকা](docs/LAW_LIBRARY.md)। এটি সব বাংলাদেশি ভূমি আইন সম্পূর্ণ সংকলিত হওয়ার দাবি নয়।
+
+**অর্পিত সম্পত্তি ও ওয়ারিশ ফাইল**: ঐতিহাসিক গেজেট/তালিকা, পুরোনো→নতুন দাগ, সকল ওয়ারিশ, ইজারা, মামলা, বাহ্যিক আদেশ, vault evidence ও private review। [শেয়ার করা গবেষণার বাস্তবায়ন ও সীমা](docs/LEGACY_PROPERTY_RESEARCH.md)। **২৩ রোল**, service-specific specialist routes, conditional ministry/division/legal consultations with a return to the original desk, and a role directory preserve the previous features and visual design.
+
+| আইন-পাঠাগার | অর্পিত সম্পত্তির প্রস্তুতি |
+| --- | --- |
+| ![পাঠাগার](docs/screenshots-lawbook/law-library-bn.png) | ![অর্পিত সম্পত্তি](docs/screenshots-lawbook/legacy-preparation-bn.png) |
 
 ## Why e-Bhumi?
 
@@ -35,7 +45,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Item | Current delivery |
 | --- | --- |
 | Entry point | Public landing page with service links and FAQs |
-| Navigation | 21 workspace routes with shareable hash URLs |
+| Navigation | 24 workspace routes with shareable hash URLs |
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no package installation needed |
@@ -94,7 +104,7 @@ To operate a sample process, use an editable draft or submitted case, then sign 
 
 ## Screenshots
 
-Workspace screenshots were refreshed on 17 October 2026 from the current source. The Bangla-first landing capture is current; earlier English views are retained for translation/reference. All displayed records are demonstration sample data. For the complete visual gallery of all 21 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
+Workspace screenshots were refreshed on 17 October 2026 from the current source. The Bangla-first landing capture is current; earlier English views are retained for translation/reference. All displayed records are demonstration sample data. For the visual gallery of the preserved 21 workspaces and the new law/research views, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
 ### Regional and lease views
 
@@ -259,9 +269,13 @@ flowchart LR
     Citizen --> Tools["Payments, cases, visits, calculator and Truth Cards"]:::blueBox
     Tools --> API["Node HTTP API"]:::blueServer
     Citizen --> API
+    Staff --> Law["Shared law library and private notes"]:::blueBox
+    Citizen --> Law
+    Law --> API
     Staff --> API
     API --> Guards["Session, CSRF, owner and role checks"]:::blueBox
     Guards --> Workflows["Validated service state transitions"]:::blueBox
+    Workflows --> Legacy["Vested property evidence preparation and consultations"]:::blueData
     Workflows --> Dossiers["Private worksheets and assigned local review"]:::blueData
     Workflows --> Catalogue["33 service definitions"]:::blueData
     Workflows --> Store["Atomic local JSON and sample evidence"]:::blueData
@@ -330,7 +344,7 @@ cd e-Bhumi-Frontend
 npm run check
 ```
 
-The reviewed build passes API lifecycle and regression tests, all 21 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
+The reviewed build passes API lifecycle and regression tests, the preserved citizen route checks and the added law/research checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
 
 ## Troubleshooting
 

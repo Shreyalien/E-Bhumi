@@ -20,3 +20,7 @@ Run node tests/workflows-browser.cjs with the same Playwright environment. It ve
 ## v5.4 procedure captures
 
 The new default-v2 procedure browser suite covers the full mutation and tax UI and all 33 procedure pages. Captures scroll to the top, blur active controls, wait for transient toasts and disable animations. The preserved route gallery uses distinct query URLs for fresh navigation so each screenshot depicts its named route. Current API result: 49 passing tests. See VALIDATION.md for bounded coverage and source limitations.
+
+## v5.6 capture
+
+Run tests/lawbook-browser.cjs with the same optional Playwright environment as the other browser suites. It launches a disposable store and records docs/screenshots-lawbook/*.png. Only synthetic fixtures and the test's DEMO preparation file appear. Library screenshots show 33 reading sources, not 33 full statutes. Existing preserved page screenshots are refreshed by tests/preserved-browser.cjs with the added navigation.
