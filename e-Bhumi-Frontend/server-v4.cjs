@@ -13,7 +13,7 @@ function createServer(options={}){
   let name;try{name=decodeURIComponent(url.pathname);}catch{res.writeHead(400).end();return;}
   if(name==='/workspace.html'||name.startsWith('/portal/')){const auth=platform.authenticate(req);if(!auth){res.writeHead(302,{Location:'/login.html'}).end();return;}if(name.startsWith('/portal/')&&name.split('/')[2]!==auth.user.role){res.writeHead(302,{Location:'/portal/'+auth.user.role}).end();return;}name='/portal.html';}
   if(name==='/')name='/index.html';
-  const allowed=['/index.html','/landing.js','/login.html','/portal.js','/workflows.js','/land-intelligence.js','/procedures-ui.js','/i18n.js','/desk-ui.js','/lawbook.js','/land-intelligence.css','/auth.js','/portal.css','/citizen.js','/preserved.css','/data/features.json'];
+  const allowed=['/index.html','/landing.js','/login.html','/portal.js','/workflows.js','/land-intelligence.js','/procedures-ui.js','/i18n.js','/desk-ui.js','/lawbook.js','/land-intelligence.css','/auth.js','/portal.css','/interface.css','/citizen.js','/preserved.css','/data/features.json'];
   if(name==='/portal.html'){if(!platform.authenticate(req)){res.writeHead(302,{Location:'/login.html'}).end();return;}}
   else if(!allowed.includes(name)&&!/^\/assets\/[a-zA-Z0-9._-]+$/.test(name)){res.writeHead(404).end('Not found');return;}
   const file=path.resolve(root,'.'+name);if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}

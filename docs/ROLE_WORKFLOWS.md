@@ -1,6 +1,6 @@
 # দপ্তরভিত্তিক সেবা পরিচালনা / Role workflows
 
-নতুন আবেদনে ২৩টি ভূমিকার স্থানীয় প্ল্যাটফর্ম ব্যবহৃত হয়। সব দপ্তর সরকারি কর্তৃত্বের simulation; প্রকৃত jurisdiction, notice, delegation বা কমিটির quorum এই তালিকা নির্ধারণ করে না।
+নতুন আবেদনে ২৪টি ভূমিকার স্থানীয় প্ল্যাটফর্ম ব্যবহৃত হয়। সব দপ্তর সরকারি কর্তৃত্বের simulation; প্রকৃত jurisdiction, notice, delegation বা কমিটির quorum এই তালিকা নির্ধারণ করে না।
 
 ## ভূমিকা ও প্রবেশ
 
@@ -29,6 +29,7 @@
 | পার্বত্য ভূমি সমন্বয় / CHT liaison desk | cht_liaison@demo.ebhumi.local |
 | মন্ত্রণালয় সমন্বয় / Ministry consultation desk | ministry_officer@demo.ebhumi.local |
 | বিভাগীয় সমন্বয় / Divisional consultation desk | divisional_officer@demo.ebhumi.local |
+| আপিল প্রস্তুতি ডেস্ক / Appeals preparation desk | appeals_officer@demo.ebhumi.local |
 
 ডেমো পাসওয়ার্ড: `BhumiDemo!2026`। সাধারণ নিবন্ধন থেকে কেবল নাগরিক/প্রতিনিধি তৈরি হয়। কর্মকর্তা তৈরির অধিকার প্রশাসকের। সরকারি পাসওয়ার্ড বা আসল পরিচয় ব্যবহার করবেন না। একই browser profile-এর tab-গুলো একই session cookie ব্যবহার করে; একাধিক ভূমিকা একসঙ্গে পরীক্ষায় আলাদা browser profile/private context ব্যবহার করুন।
 
@@ -56,7 +57,7 @@
 | হুকুমদখল সংক্রান্ত আবেদন | ভূমি অধিগ্রহণ শাখা / Land acquisition desk → জেলা প্রশাসন / DC land desk |
 | ভূমি রাজস্ব বিবিধ মামলা | ভূমি কর্মকর্তা / Land officer → সহকারী কমিশনার (ভূমি) / AC Land desk |
 | রিভিউ আবেদন | ভূমি কর্মকর্তা / Land officer → সহকারী কমিশনার (ভূমি) / AC Land desk |
-| আপিল আবেদন | ভূমি কর্মকর্তা / Land officer → জেলা প্রশাসন / DC land desk |
+| আপিল আবেদন | ভূমি কর্মকর্তা / Land officer → আইনগত সমন্বয় / Legal coordination desk → আপিল প্রস্তুতি ডেস্ক / Appeals preparation desk |
 | রেন্ট সার্টিফিকেট মামলা | ভূমি কর্মকর্তা / Land officer → সহকারী কমিশনার (ভূমি) / AC Land desk |
 | জরিপ আপত্তি / আপিল প্রস্তুতি | সার্ভেয়ার / Surveyor → কানুনগো / Technical records desk → সেটেলমেন্ট কর্মকর্তা / Settlement desk |
 | সীমানা ও মাঠ জরিপ | সার্ভেয়ার / Surveyor → কানুনগো / Technical records desk |
@@ -103,4 +104,8 @@
 | নামজারি / ই-মিউটেশন | কানুনগো / Technical records desk |
 | ওয়ারিশসূত্রে নামজারি | কানুনগো / Technical records desk, আইনগত সমন্বয় / Legal coordination desk |
 
-অর্পিত সম্পত্তি শাখা ও আইনগত সমন্বয়ের নিজস্ব private preparation register আছে। আইন-পাঠাগার সব রোলে। Courts/tribunals, Ministry statutory approvals, payment providers, identity services, CHT traditional/regional bodies and requesting agencies retain their real-world authority; local desk labels do not replace them. Representative with organisation authority supports agency preparation. These 23 are application permission groups, not an exhaustive national civil-service organogram. Exact office/territory delegation, appellate forum and live identity verification require production configuration.
+অর্পিত সম্পত্তি শাখা ও আইনগত সমন্বয়ের নিজস্ব private preparation register আছে। আইন-পাঠাগার সব রোলে। Courts/tribunals, Ministry statutory approvals, payment providers, identity services, CHT traditional/regional bodies and requesting agencies retain their real-world authority; local desk labels do not replace them. Representative with organisation authority supports agency preparation. These 24 are application permission groups, not an exhaustive national civil-service organogram. Exact office/territory delegation, appellate forum and live identity verification require production configuration.
+
+## v5.7 ডেস্ক ও ভাষা
+
+আপিল প্রস্তুতির বিশেষায়িত ডেস্ক যুক্ত হয়েছে; ২৪ permission group-এর display descriptions বাংলায়/English-এ পাওয়া যায়। VP/legal/DC/records এবং oversight dashboard-এ readable legacy-file register-এর link ও active count আছে। আদালত/ট্রাইব্যুনালের আইনগত এখতিয়ার সৃষ্টি করা হয়নি। আপিলের source ও boundary: [coverage audit](BD_COVERAGE_AUDIT_v5.7.md)।

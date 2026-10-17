@@ -13,6 +13,7 @@ test('all-role law library and private evidence preparation with guarded special
  assert.equal((await req('/law-library',other)).d.preferences.notes.vested,undefined);
  assert.equal((await req('/law-library',citizen)).d.preferences.notes.vested,'<script>private</script>');
  await req('/legacy-cases',users.admin,'POST',{},403);
+ await req('/settings',users.admin,'PATCH',{acceptApplications:false,notice:'Paused for local test'});await req('/legacy-cases',citizen,'POST',{},409);await req('/settings',users.admin,'PATCH',{acceptApplications:true,notice:'Reopened after local test'});
  const document=(await req('/documents',citizen,'POST',{name:'legacy-evidence.txt',category:'Historical source',content:Buffer.from('DEMO independent legacy evidence').toString('base64')},201)).d.document;
  let a=(await req('/legacy-cases',citizen,'POST',{},201)).d.case;
  const patch=async details=>(await req('/legacy-cases/'+a.id,citizen,'PATCH',{revision:a.revision,details})).d.case;

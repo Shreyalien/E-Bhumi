@@ -24,3 +24,7 @@ The new default-v2 procedure browser suite covers the full mutation and tax UI a
 ## v5.6 capture
 
 Run tests/lawbook-browser.cjs with the same optional Playwright environment as the other browser suites. It launches a disposable store and records docs/screenshots-lawbook/*.png. Only synthetic fixtures and the test's DEMO preparation file appear. Library screenshots show 33 reading sources, not 33 full statutes. Existing preserved page screenshots are refreshed by tests/preserved-browser.cjs with the added navigation.
+
+## v5.7 interface and role audit
+
+tests/interface-browser.cjs writes docs/screenshots-interface/ at 985×524 and mobile sizes, plus login, English reference and application-form captures. tests/locale-audit.cjs traverses each role's advertised menu routes with a disposable store, writes a configurable locale report and fails on page/layout issues. PLAYWRIGHT_MODULE, CHROMIUM_EXECUTABLE, EBHUMI_BROWSER_DATA and the same real-server Node bridge settings as other tests are supported. No actual user store is used for screenshots.

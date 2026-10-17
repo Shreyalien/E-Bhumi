@@ -30,3 +30,7 @@ Version 5.4 adds default-v2 service procedures for all 33 types, structured sche
 ## v5.6
 
 Law library for every role, private source-based vested-property preparation and conditional specialist consultations. [Source register](../docs/LAW_LIBRARY.md), [research implementation](../docs/LEGACY_PROPERTY_RESEARCH.md), [23 role workflows](../docs/ROLE_WORKFLOWS.md). Run npm run check and npm test. Browser checks: tests/lawbook-browser.cjs and existing suites.
+
+## v5.7.0
+
+Bangla copy and translation coverage, upright notification bell, tablet layout, 24 role portals, specialist appeals preparation and expanded private workspace export. See [localization review](../docs/LOCALIZATION_v5.7.md) and [BD coverage audit](../docs/BD_COVERAGE_AUDIT_v5.7.md). Optional browser commands: npm run test:interface and npm run test:locale, using the same Playwright environment as the existing browser scripts.

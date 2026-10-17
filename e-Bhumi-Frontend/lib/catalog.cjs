@@ -1,7 +1,7 @@
 'use strict';
 // These are local simulation workflows, not official service specifications or fees.
 const roles={citizen:'নাগরিক / Citizen',representative:'অনুমোদিত প্রতিনিধি / Representative',officer:'ভূমি কর্মকর্তা / Land officer',records:'রেকর্ড অফিস / Records officer',surveyor:'সার্ভেয়ার / Surveyor',registrar:'দলিল ডেস্ক / Registration desk',finance:'হিসাব ও পেমেন্ট / Finance',support:'সহায়তা ডেস্ক / Support',admin:'প্রশাসক / Administrator',auditor:'নিরীক্ষক / Auditor'};
-const sources={portal:'https://land.gov.bd/',mutation:'https://mutation.land.gov.bd/nirdeshika',tax:'https://ldtax.gov.bd/',records:'https://land.gov.bd/',cases:'https://case.land.gov.bd/',deeds:'https://registration.gov.bd/',acquisition:'https://land.gov.bd/'};
+const sources={portal:'https://land.gov.bd/',mutation:'https://mutation.land.gov.bd/nirdeshika',tax:'https://ldtax.gov.bd/',records:'https://land.gov.bd/',cases:'https://case.land.gov.bd/',deeds:'https://registration.gov.bd/',acquisition:'https://larms.land.gov.bd/',appeals:'https://lab.gov.bd/',maps:'https://map.land.gov.bd/',integrated:'https://lsg-portal.land.gov.bd/'};
 const f=(key,label,type='text',options)=>({key,label,type,...(options?{options}:{})});
 const rows=[
 ['mutation','নামজারি / ই-মিউটেশন','Mutation after transfer','Mutation','officer','mutation',['দলিলের sample copy','পূর্ব খতিয়ানের sample copy'],[f('deed','দলিল নম্বর / Deed reference'),f('transferDate','হস্তান্তরের তারিখ / Transfer date','date'),f('transferType','হস্তান্তরের ধরন','select',['Purchase','Gift','Exchange','Court order'])],'Update a sample land-reference holding after a transfer. Compare the deed chain, applicant authority, record and area before a simulated decision.','নামজারি খতিয়ান ও DCR — DEMO'],

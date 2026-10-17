@@ -469,6 +469,37 @@ const entries=[
     "coverage": "পূর্বে যাচাইকৃত সরকারি নির্দেশিকা; মূল নথির প্রযোজ্যতা ও নতুন সংস্করণ মিলিয়ে নিন।"
   }
 ];
+entries.push(...[
+  {
+    "id": "appeal-rules-2025",
+    "title": "ভূমি আপিল বোর্ড বিধিমালা, ২০২৫",
+    "en": "Land Appeal Board Rules 2025",
+    "category": "আপিল ও পুনর্বিবেচনা",
+    "type": "বিধিমালা",
+    "url": "https://www.dpp.gov.bd/upload_file/gazettes/57288_41476.pdf",
+    "note": "১৭ এপ্রিল ২০২৫-এর সরকারি গেজেটে প্রকাশিত বিধিমালা। পুরোনো ১৯৯০ সালের ওয়েব নির্দেশিকাকে একমাত্র বর্তমান বিধি ধরে নেবেন না; মূল গেজেট, সংশোধনী ও উপযুক্ত ফোরাম মিলিয়ে নিন। অ্যাপ বোর্ডে সরকারি মামলা দায়ের বা বিচার করে না।",
+    "serviceIds": [
+      "appeal",
+      "review"
+    ],
+    "checked": "2026-10-17",
+    "coverage": "সরকারি গেজেটের পাঠ-সহায়িকা; সময়সীমা বা এখতিয়ার স্বয়ংক্রিয় নির্ধারণ নয়।"
+  },
+  {
+    "id": "appeal-board-scope",
+    "title": "ভূমি আপিল বোর্ডের কার্যাবলী",
+    "en": "Land Appeal Board functions",
+    "category": "আপিল ও পুনর্বিবেচনা",
+    "type": "সরকারি নির্দেশিকা",
+    "url": "https://minland.gov.bd/pages/static-pages/694032e535ce18e1c0564036",
+    "note": "বোর্ডের বিষয়ভিত্তিক কাজের সরকারি পরিচিতি। ওয়েব পাতার পুরোনো বিধিমালার উল্লেখের সঙ্গে ২০২৫ গেজেট এবং পরবর্তী পরিবর্তন মিলিয়ে পড়ুন। সব ধরনের দেওয়ানি বা অর্পিত সম্পত্তির মামলা এই বোর্ডের মামলা নয়।",
+    "serviceIds": [
+      "appeal"
+    ],
+    "checked": "2026-10-17",
+    "coverage": "বিষয়ভিত্তিক পরিচিতি; নির্দিষ্ট মামলার আইনগত ফোরাম নিশ্চিত করতে হবে।"
+  }
+]);
 function handleLawLibrary(c){const {db,user:u,route,method,body,send,save,fail,audit}=c;if(!route.startsWith('/law-library'))return false;
  const ids=new Set(entries.map(e=>e.id));
  if(route==='/law-library'&&method==='GET'){send(200,{entries,checked:'2026-10-17',preferences:db.lawPreferences?.[u.id]||{bookmarks:[],read:[],notes:{}}});return true;}
