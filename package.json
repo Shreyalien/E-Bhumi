@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node server.cjs",
     "build": "node scripts/vercel-build.cjs",
-    "check": "node --check lib/hosted-state.cjs && npm --prefix e-Bhumi-Frontend run check",
-    "test": "node --test tests/hosted-state.test.cjs && npm --prefix e-Bhumi-Frontend test"
+    "check": "node --check lib/hosted-state.cjs && npm --prefix ebhumi-platform run check",
+    "test": "node --test tests/hosted-state.test.cjs && npm --prefix ebhumi-platform test"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.2"

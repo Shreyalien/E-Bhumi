@@ -82,7 +82,7 @@ node server.cjs
 Or from the frontend directory:
 
 ```bash
-cd e-Bhumi-Frontend
+cd ebhumi-platform
 npm start
 ```
 
@@ -96,7 +96,7 @@ Open **[http://127.0.0.1:8080](http://127.0.0.1:8080)**.
 | Feature Catalogue | `http://127.0.0.1:8080/workspace.html#feature-catalog` |
 | Role Portals & Desks | `http://127.0.0.1:8080/login.html` |
 
-**Windows:** double-click `e-Bhumi-Frontend/run_local.bat`. **Linux/macOS:** run `sh run_local.sh` from that folder. This authenticated edition requires Node; static-only serving cannot run the API.
+**Windows:** double-click `ebhumi-platform/run_local.bat`. **Linux/macOS:** run `sh run_local.sh` from that folder. This authenticated edition requires Node; static-only serving cannot run the API.
 
 Use HTTP for normal use. Opening HTML directly with `file://` may prevent the full feature JSON from loading. The included server listens on `127.0.0.1`; it is a local development server, not a production service.
 
@@ -180,7 +180,7 @@ For interactive visual previews and feature depth, see [Land Intelligence Docume
 
 ### Requirement registry
 
-The source of truth for catalogue entries is [`data/features.json`](e-Bhumi-Frontend/data/features.json). Preserve stable `CORE-###` and `MX-###` identifiers. The [feature inventory](docs/FEATURES.md) lists module counts calculated from the current file.
+The source of truth for catalogue entries is [`data/features.json`](ebhumi-platform/data/features.json). Preserve stable `CORE-###` and `MX-###` identifiers. The [feature inventory](docs/FEATURES.md) lists module counts calculated from the current file.
 
 ## Research-backed service procedures
 
@@ -292,7 +292,7 @@ The landing design, original font stack, lease register/cards and CHT circle/wor
 There is no authorised government API, real payment provider, legally valid certificate service, live GIS dataset or production identity integration. The reference's 460 entries remain a requirements catalogue rather than an implementation claim.
 
 ```text
-e-Bhumi-Frontend/
+ebhumi-platform/
 ├── index.html, assets/landing.css    Existing landing appearance
 ├── login.html, auth.js              Account login and safe route return
 ├── portal.html, portal.js           Role portal and workflow UI
@@ -315,7 +315,7 @@ e-Bhumi-Frontend/
 
 ## Data and persistence
 
-Locally, accounts, application histories, uploaded sample bytes, hashes, payments and notifications are stored in `e-Bhumi-Frontend/.data/platform.json`. On Vercel, the hosted demo uses shared **private Vercel Blob storage**, with separate preview and production state. Local private data is excluded from deployment and is never automatically imported. Drafts and preparation preferences belong to an authenticated account. See [deployment and persistence](docs/VERCEL_DEPLOYMENT.md) for configuration, commands and operating limits.
+Locally, accounts, application histories, uploaded sample bytes, hashes, payments and notifications are stored in `ebhumi-platform/.data/platform.json`. On Vercel, the hosted demo uses shared **private Vercel Blob storage**, with separate preview and production state. Local private data is excluded from deployment and is never automatically imported. Drafts and preparation preferences belong to an authenticated account. See [deployment and persistence](docs/VERCEL_DEPLOYMENT.md) for configuration, commands and operating limits.
 
 Sessions use an HttpOnly/SameSite cookie, with Secure enabled on hosted HTTPS. Local sessions end on server restart; hosted sessions persist across workers and redeployments until expiry or logout. Passwords use salted scrypt. Mutation APIs enforce CSRF/origin checks, object ownership, review role and revision. This remains a sandbox: the shared JSON adapter is not a transactional database for substantial traffic, and there is no malware scanner or external identity verification.
 
@@ -344,7 +344,7 @@ Native Bangla is the primary default interface, with comprehensive English local
 ## Validation
 
 ```bash
-cd e-Bhumi-Frontend
+cd ebhumi-platform
 npm run check
 npm test
 ```

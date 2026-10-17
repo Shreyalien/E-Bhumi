@@ -6,8 +6,8 @@
   "outputDirectory": "public",
   "functions": {
     "api/index.js": {
-      "includeFiles": "e-Bhumi-Frontend/**",
-      "excludeFiles": "e-Bhumi-Frontend/{.data,tests}/**",
+      "includeFiles": "ebhumi-platform/**",
+      "excludeFiles": "ebhumi-platform/{.data,tests}/**",
       "maxDuration": 30
     }
   },

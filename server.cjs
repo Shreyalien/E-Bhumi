@@ -1,6 +1,6 @@
 'use strict';
 const path = require('node:path');
-const serverMod = require('./e-Bhumi-Frontend/server-v4.cjs');
+const serverMod = require('./ebhumi-platform/server-v4.cjs');
 const createServer = serverMod.createServer || serverMod?.default?.createServer || (typeof serverMod === 'function' ? serverMod : null);
 
 let appInstance = null;
