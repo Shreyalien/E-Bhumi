@@ -55,8 +55,10 @@ function handleProcedureRequest(ctx){
  const quote=phase=>{
   const expected=['AwaitingApplicationPayment','ApplicationPaymentFailed'].includes(a.status)?'filing':['AwaitingPayment','PaymentFailed'].includes(a.status)?'decision':null;if(!expected||phase&&phase!==expected)fail(409,'No payable demand for this phase');
   let amount=expected==='filing'?p.filingFee:p.decisionFee,holding;
+  const postalCharge=expected==='filing'&&a.details.delivery==='Postal demo'?(p.postalFee||0):0;
+  amount+=postalCharge;
   if(p.autoTax){const result=getDemand();amount=result.demand.amount;holding={id:result.h.id,demandId:result.demand.id,revision:result.demand.revision,year:result.demand.year};}
-  const value={applicationId:a.id,phase:expected,amount,currency:'SANDBOX_BDT',applicationRevision:a.revision,...(holding?{holding}:{}),label:expected==='filing'?(p.family==='mutation'?'Application / notice simulation':'Record request checkout simulation'):p.autoTax?'Local holding demand':p.family==='mutation'?'Post-decision DCR simulation':'Local service demand',mode:'No real money / not a live official fee quote'};return {...value,digest:hash(value)};
+  const value={applicationId:a.id,phase:expected,amount,postalCharge,currency:'SANDBOX_BDT',applicationRevision:a.revision,...(holding?{holding}:{}),label:expected==='filing'?(p.family==='mutation'?'Application / notice simulation':'Record request checkout simulation'):p.autoTax?'Local holding demand':p.family==='mutation'?'Post-decision DCR simulation':'Local service demand',mode:'No real money / not a live official fee quote'};return {...value,digest:hash(value)};
  };
  const issue=(actor,n)=>{
   if(s.id==='holding'&&db.holdings.some(h=>h.ownerId===a.ownerId&&h.reference===a.details.holding))fail(409,'This holding reference already exists; use the existing holding workspace');

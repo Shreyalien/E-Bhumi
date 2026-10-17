@@ -1,3 +1,7 @@
+# Final review — v5.8.0, 18 October 2026
+
+The release passed 101 existing lifecycle/security cases and four hosted-state/terrain/postal-fee cases. Browser validation covered all 24 role portals and the new GIS/terrain/export/mobile scenarios. `docs/screenshots-final/` contains current sample-data renders used by the README. See [final research and verification](docs/FINAL_REVIEW_v5.8.md) for official-source scope and reproducible commands. Historical validation notes below describe earlier builds.
+
 # Validation — v5.5, 17 October 2026
 
 ## Automated checks

@@ -11,6 +11,7 @@ const {handleLawLibrary}=require('./law-library.cjs');
 const {handleLegacyCases,canReadLegacy}=require('./legacy-cases.cjs');
 const {seedLandDossiers,handleLandDossiers}=require('./land-dossiers.cjs');
 const {emptyProcedure,seedHoldings,handleProcedureRequest}=require('./procedure-engine.cjs');
+const {handleTerrainRequest}=require('./terrain-engine.cjs');
 const {currentDesk,createDeskWorkflow,desks,deskProcedure}=require('./desk-routing.cjs');
 const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v+'T00:00:00Z'))&&new Date(v+'T00:00:00Z').toISOString().slice(0,10)===v;
 const dhakaDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -85,6 +86,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
    if(handleLegacyCases({db,user:u,body,method,route,send,save,audit,notify,fail,id,now,validDate}))return;
    if(handleProcedureRequest({db,user:u,body,method,route,send,save,audit,notify,app,view,service,validate,canReview,fail,id,now,history,reserveAppointment}))return;
    if(handleLandDossiers({db,user:u,body,method,route,url,send,save,audit,notify,canRead,canReview,fail,id,now,validDate,services}))return;
+   if(handleTerrainRequest({req,res,method,route,body,send,fail}))return;
    if(route==='/me'&&method==='GET')return send(200,{user:safeUser(u),csrf:auth.session.csrf,capabilities:capabilities[u.role],settings:db.settings});
    if(route==='/preferences'&&method==='GET')return send(200,{preferences:{language:'bn',...(db.preferences?.[u.id]||{})}});
    if(route==='/preferences'&&method==='PATCH'){

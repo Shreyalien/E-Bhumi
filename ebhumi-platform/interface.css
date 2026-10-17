@@ -8,3 +8,234 @@ header .brand small{display:block;margin:5px 0 0;font-size:9px;line-height:1.5;l
 @media(max-width:600px){.topbar .global-search{width:32px;flex:0 0 32px}.topbar .top-logout{padding:7px;font-size:10px}.main .topbar{gap:5px}.topbar .top-actions{gap:4px}.topbar .language-toggle{white-space:nowrap}.topbar .notification-button{flex-basis:32px;width:32px;height:32px}body>header{padding:16px}.brand small{max-width:185px}.main .progress-steps{max-width:100%}}
 
 .version-label{font-size:10px;opacity:.75;white-space:nowrap}.auth-card>.version-label{display:block;margin-top:18px}
+
+/* Existing typography and page composition remain in the original stylesheets. */
+/* Color Variant System: Default / Padma Green (পদ্মা সবুজ) */
+:root,
+[data-color-variant="padma"] {
+  --color-brand-primary: #1b5e48;
+  --color-brand-hover: #134736;
+  --color-brand-subtle: #eaf4ef;
+  --color-brand-border: #bcd9cb;
+}
+
+
+/* Color Variant: Meghna Indigo (মেঘনা নীল) */
+[data-color-variant="meghna"] {
+  --color-brand-primary: #1a4971;
+  --color-brand-hover: #123554;
+  --color-brand-subtle: #e8f1f8;
+  --color-brand-border: #b8d4ea;
+}
+[data-color-variant="meghna"]:not([data-theme="dark"]) {
+  --green: #1a4971;
+  --green-2: #225e91;
+  --mint: #e8f1f8;
+}
+[data-color-variant="meghna"] .btn.primary {
+  background: #1a4971 !important;
+  border-color: #1a4971 !important;
+}
+[data-color-variant="meghna"] .btn.primary:hover {
+  background: #123554 !important;
+}
+[data-color-variant="meghna"] .sidebar,
+[data-color-variant="meghna"] aside {
+  background: #0f263b !important;
+}
+[data-color-variant="meghna"] .sidebar .workspace-switch,
+[data-color-variant="meghna"] .role-panel {
+  background: #193852 !important;
+}
+
+/* Color Variant: Sundarban Clay (সুন্দরবন মৃত্তিকা) */
+[data-color-variant="sundarban"] {
+  --color-brand-primary: #7d4323;
+  --color-brand-hover: #5f3117;
+  --color-brand-subtle: #f9f2ec;
+  --color-brand-border: #e6cdbd;
+}
+[data-color-variant="sundarban"]:not([data-theme="dark"]) {
+  --green: #7d4323;
+  --green-2: #9e562d;
+  --mint: #f9f2ec;
+}
+[data-color-variant="sundarban"] .btn.primary {
+  background: #7d4323 !important;
+  border-color: #7d4323 !important;
+}
+[data-color-variant="sundarban"] .btn.primary:hover {
+  background: #5f3117 !important;
+}
+[data-color-variant="sundarban"] .sidebar,
+[data-color-variant="sundarban"] aside {
+  background: #381f12 !important;
+}
+[data-color-variant="sundarban"] .sidebar .workspace-switch,
+[data-color-variant="sundarban"] .role-panel {
+  background: #4d2b1a !important;
+}
+
+/* Color Variant: Surma Slate (সুরমা স্লেট) */
+[data-color-variant="surma"] {
+  --color-brand-primary: #334155;
+  --color-brand-hover: #1e293b;
+  --color-brand-subtle: #f1f5f9;
+  --color-brand-border: #cbd5e1;
+}
+[data-color-variant="surma"]:not([data-theme="dark"]) {
+  --green: #334155;
+  --green-2: #475569;
+  --mint: #f1f5f9;
+}
+[data-color-variant="surma"] .btn.primary {
+  background: #334155 !important;
+  border-color: #334155 !important;
+}
+[data-color-variant="surma"] .btn.primary:hover {
+  background: #1e293b !important;
+}
+[data-color-variant="surma"] .sidebar,
+[data-color-variant="surma"] aside {
+  background: #182230 !important;
+}
+[data-color-variant="surma"] .sidebar .workspace-switch,
+[data-color-variant="surma"] .role-panel {
+  background: #253346 !important;
+}
+
+/* Dark Mode Overrides for Variants */
+[data-theme="dark"][data-color-variant="meghna"] {
+  --green: #4da1db;
+  --green-2: #6cb3e6;
+  --paper: #0e1e2d;
+  --canvas: #09131d;
+  --line: #1d354a;
+}
+[data-theme="dark"][data-color-variant="sundarban"] {
+  --green: #df8855;
+  --green-2: #ea9e72;
+  --paper: #281810;
+  --canvas: #1a0f0a;
+  --line: #422a1e;
+}
+[data-theme="dark"][data-color-variant="surma"] {
+  --green: #38bdf8;
+  --green-2: #60a5fa;
+  --paper: #1e293b;
+  --canvas: #0f172a;
+  --line: #334155;
+}
+
+/* Color Variant Switcher Dropdown in Topbar */
+.color-variant-select {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line, #dce7e1);
+  background: #ffffff;
+  color: var(--ink, #173d33);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  max-width: 155px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23556660' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  background-size: 11px;
+  padding-right: 22px;
+}
+[data-theme="dark"] .color-variant-select {
+  background-color: #152e25;
+  border-color: #22443a;
+  color: #e3ede6;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ec2b3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+.color-variant-select:hover {
+  border-color: var(--green, #1d5b47);
+}
+.color-variant-select:focus-visible {
+  outline: 2px solid var(--green, #1d5b47);
+  outline-offset: 2px;
+}
+
+/* Motion & Animation Refinements */
+.card, .panel, .service-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease !important;
+}
+.card:hover, .service-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+.btn {
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.16s ease,
+              box-shadow 0.16s ease !important;
+}
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+dialog[open] {
+  animation: dialogFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes dialogFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.toast:not([hidden]) {
+  animation: toastFloat 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes toastFloat {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .color-variant-select {
+    max-width: 105px;
+    font-size: 10px;
+    padding-left: 6px;
+    padding-right: 18px;
+  }
+}
+@media (max-width: 600px) {
+  .color-variant-select {
+    max-width: 82px;
+    height: 32px;
+    font-size: 9px;
+    padding-left: 4px;
+    padding-right: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Leaflet GIS Map styling */
+#leafletMap {
+  min-height: 380px;
+  background: var(--paper, #fbfdfc);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+}
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.5;
+}

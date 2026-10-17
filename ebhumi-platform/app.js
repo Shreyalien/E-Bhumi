@@ -148,7 +148,7 @@
 
   function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function title(id){const n=nav.find(x=>x.id===id);return n?(state.lang==='bn'?(bn[id]||n.label):n.label):id;}
-  function toast(message, detail=''){const el=document.createElement('div');el.className='toast';el.innerHTML=`${esc(message)}${detail?`<small>${esc(detail)}</small>`:''}`;$('#toastRegion').append(el);setTimeout(()=>el.remove(),3500);}
+  function toast(message, detail=''){const el=document.createElement('div');el.className='toast';el.innerHTML=`${esc(message)}${detail?`<small>${esc(detail)}</small>`:''}`;$('#toastRegion').append(el);if(typeof gsap!=='undefined'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){gsap.killTweensOf(el);gsap.fromTo(el,{y:14,opacity:0,scale:0.96},{y:0,opacity:1,scale:1,duration:0.25,ease:'power2.out',clearProps:'transform'});setTimeout(()=>{gsap.to(el,{y:-8,opacity:0,duration:0.2,ease:'power2.in',onComplete:()=>el.remove()});},3000);}else{setTimeout(()=>el.remove(),3500);}}
   function setPage(id){if(!nav.some(n=>n.id===id)) id='dashboard'; if(location.hash.slice(1)!==id) history.pushState(null,'','#'+id); state.page=id;renderNav();renderPage();$('#crumbCurrent').textContent=title(id);$('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
 
   function renderNav(){
@@ -325,9 +325,71 @@
     </section>`;
   }
 
+  let _leafletMapInstance = null, _leafletPolygons = {};
+  function initLeafletMap(containerId = 'leafletMap') {
+    const container = document.getElementById(containerId);
+    if (!container || typeof L === 'undefined') return;
+    if (container._leaflet_id && _leafletMapInstance) {
+      setTimeout(() => _leafletMapInstance.invalidateSize(), 100);
+      return;
+    }
+    try {
+      const map = L.map(containerId, {
+        center: [23.7848, 90.3348],
+        zoom: 16,
+        zoomControl: true,
+        attributionControl: true
+      });
+      _leafletMapInstance = map;
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors | e-Bhumi GIS'
+      }).addTo(map);
+
+      const parcelDefs = [
+        { id: 'DAG-1842', coords: [[23.7850, 90.3330], [23.7855, 90.3345], [23.7848, 90.3350], [23.7842, 90.3335]], color: '#2d6a4f', name: 'DAG-1842', area: '12.50 decimal' },
+        { id: 'DAG-1843', coords: [[23.7855, 90.3345], [23.7860, 90.3360], [23.7852, 90.3365], [23.7848, 90.3350]], color: '#1d4ed8', name: 'DAG-1843', area: '8.00 decimal' },
+        { id: 'DAG-1844', coords: [[23.7842, 90.3335], [23.7848, 90.3350], [23.7840, 90.3355], [23.7835, 90.3338]], color: '#b45309', name: 'DAG-1844', area: '10.25 decimal' },
+        { id: 'DAG-1845', coords: [[23.7848, 90.3350], [23.7852, 90.3365], [23.7845, 90.3370], [23.7840, 90.3355]], color: '#047857', name: 'DAG-1845', area: '6.75 decimal' }
+      ];
+
+      _leafletPolygons = {};
+      parcelDefs.forEach(p => {
+        const isSel = p.id === state.selectedParcel;
+        const poly = L.polygon(p.coords, {
+          color: p.color,
+          fillColor: p.color,
+          fillOpacity: isSel ? 0.65 : 0.28,
+          weight: isSel ? 3 : 1.5
+        }).addTo(map);
+
+        poly.bindPopup(`
+          <div style="font-family:'Hind Siliguri','Plus Jakarta Sans',sans-serif;font-size:13px;line-height:1.5;">
+            <b style="font-size:14px;color:#173e33">${p.name}</b><br>
+            <span>মৌজা: আমিন বাজার (Savar)</span><br>
+            <span>পরিমাপ: <b>${p.area}</b></span><br>
+            <div style="margin-top:6px;"><button class="btn small primary" data-action="select-parcel" data-id="${p.id}">সিলেক্ট করুন ↗</button></div>
+          </div>
+        `);
+
+        poly.on('click', () => {
+          state.selectedParcel = p.id;
+          renderPage();
+          toast('Parcel selected', `${p.id} is illustrative demo geometry.`);
+        });
+
+        _leafletPolygons[p.id] = poly;
+      });
+
+      setTimeout(() => map.invalidateSize(), 150);
+    } catch (err) {
+      console.warn('Leaflet initialization notice:', err);
+    }
+  }
+
   function gisPage(){
     const currentParcel = parcels.find(p => p[1] === state.selectedParcel) || parcels[0];
-    return `${heading('GEOSPATIAL WORKSPACE','GIS & cadastral map','Explore illustrative parcel boundaries, switch map layers, and inspect parcel references.',`<button class="btn" data-action="measure">⌁ Measure</button><button class="btn" data-action="export-map">↓ Export map</button>`)}
+    return `${heading('GEOSPATIAL WORKSPACE','GIS & cadastral map','Explore illustrative parcel boundaries, switch map layers, and inspect parcel references.',`<button class="btn" data-action="measure">⌁ Measure</button><button class="btn primary" data-action="hill-terrain">⛰️ Hill 3D Area</button><button class="btn" data-action="export-map">↓ Export map</button>`)}
     ${demoBanner()}
     <div class="toolbar">
       <label class="field-search"><span>⌕</span><input id="mapSearch" placeholder="Search Dag (e.g. DAG-1842), Mouza…" value="${esc(state.selectedParcel)}"/></label>
@@ -335,7 +397,8 @@
       <button class="btn primary" data-action="locate-map">⌖ Locate</button>
     </div>
     <div class="map-layout">
-      <div class="map-canvas ${!state.layerState.parcels?'hide-parcels ':''}${!state.layerState.roads?'hide-roads ':''}${!state.layerState.water?'hide-water ':''}${!state.layerState.labels?'hide-labels ':''}" id="mapCanvas">
+      <div id="leafletMap" style="height:480px; width:100%; border-radius:12px; margin-bottom:14px; border:1px solid var(--line); z-index:1; overflow:hidden;"></div>
+      <div class="map-canvas ${!state.layerState.parcels?'hide-parcels ':''}${!state.layerState.roads?'hide-roads ':''}${!state.layerState.water?'hide-water ':''}${!state.layerState.labels?'hide-labels ':''}" id="mapCanvas" style="display:none">
         <div class="map-river"></div>
         <div class="map-road road-a"></div>
         <div class="map-road road-b"></div>
@@ -368,6 +431,7 @@
           <div class="feature-meta">
             <button class="btn small" data-action="measure">⌁ Measure area</button>
             <button class="btn small" data-action="coordinates">⌖ Coordinates</button>
+            <button class="btn small primary" data-action="hill-terrain">⛰️ Hill 3D Area</button>
             <button class="btn small" data-action="print-map">▤ Print map</button>
             <button class="btn small" data-action="save-map">♡ Save view</button>
           </div>
@@ -3476,7 +3540,7 @@
       ${stat('Open complaints','02','⚑','1|awaiting response','warning')}
       ${stat('Resolved','04','✓','This quarter|demo')}
       ${stat('Escalated','01','↗','Review|service timeline','warning')}
-      ${stat('Saved Land Cases', String((local.landCases||[]).length).padStart(2,'0'),'📁','Preparation|case files','positive')}
+      ${stat('Saved Land Cases', String((local.landCases||[]).length).padStart(2,'0'),'▤','Preparation|case files','positive')}
     </div>
     ${renderSavedLandCasesSection()}
     <section class="panel">${panelHead('Support case register','Case records shown here are illustrative complaints and grievances.')}
@@ -3694,14 +3758,14 @@
     <div class="feature-list">
       <article class="feature-card"><div class="feature-symbol">⌁</div><div><h3>Tea garden lease (e.g. Sylhet division)</h3><p>Long-term government leases, commonly for 30+ years, with annual lease rent and periodic renewal review by the Deputy Commissioner (Lease) office. Sylhet and Moulvibazar hold most of Bangladesh's tea-garden leaseholds.</p></div></article>
       <article class="feature-card"><div class="feature-symbol">⌂</div><div><h3>Khas land bandobasto</h3><p>Allotment of government khas (vacant) agricultural or homestead land to landless and eligible families, subject to upazila/district land office verification and conditions against transfer.</p></div></article>
-      <article class="feature-card"><div class="feature-symbol">🏭</div><div><h3>Industrial / commercial lease</h3><p>Government land leased to private or public entities for industrial, commercial, or institutional use, under fixed-term agreements with defined rent and renewal conditions.</p></div></article>
+      <article class="feature-card"><div class="feature-symbol"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 20h20"></path><path d="M6 20V8l4 4V8l4 4V4h6v16"></path></svg></div><div><h3>Industrial / commercial lease</h3><p>Government land leased to private or public entities for industrial, commercial, or institutional use, under fixed-term agreements with defined rent and renewal conditions.</p></div></article>
     </div>
     <section class="panel"><div class="warning-panel">This workspace organises lease and settlement information only. It does not grant, renew, or cancel an actual government lease. Confirm current rules, rent schedules, and application forms with the Deputy Commissioner (Lease), Ministry of Land, and the relevant Hill/Tea District administration.</div></section>`;
   }
 
   function ctgZonePage(){
     const active = chtCircles.find(c=>c.id===(state.ctgCircle||'ranga')) || chtCircles[0];
-    return `${heading('SPECIAL ADMINISTRATIVE ZONE','Chattogram Hill Tracts (CHT) land zone','Rangamati, Bandarban and Khagrachhari follow a separate customary land-governance structure under the CHT Regulation 1900 and the 1997 CHT Accord, distinct from the plains RS/BS Khatian system used elsewhere in this platform.',`<button class="btn" data-action="ctg-guide">ⓘ CHT land guidance</button><button class="btn primary" data-action="ctg-certificate">＋ Request customary land certificate</button>`)}
+    return `${heading('SPECIAL ADMINISTRATIVE ZONE','Chattogram Hill Tracts (CHT) land zone','Rangamati, Bandarban and Khagrachhari follow a separate customary land-governance structure under the CHT Regulation 1900 and the 1997 CHT Accord, distinct from the plains RS/BS Khatian system used elsewhere in this platform.',`<button class="btn" data-action="ctg-guide">ⓘ CHT land guidance</button><button class="btn" data-action="hill-terrain">⛰️ Hill 3D Area & Slope</button><button class="btn primary" data-action="ctg-certificate">＋ Request customary land certificate</button>`)}
     ${demoBanner()}
     <div class="warning-panel" style="margin-bottom:18px"><b>Important:</b> In the CHT, land transactions generally require endorsement by the Mouza Headman, approval by the Circle Chief, and are subject to Hill District Council authority — outside the national Khatian/RS record system used in the plains. This workspace is informational only.</div>
     <div class="toolbar">${chtCircles.map(c=>`<button class="btn ${active.id===c.id?'primary':''}" data-action="ctg-select-circle" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>
@@ -3755,6 +3819,16 @@
     document.title = title(state.page) + ' | e-Bhumi';
     bindPageInputs();
     if(local.read) $$('.notice-bullet').forEach(n=>n.style.background='#c4cec8');
+    if(state.page === 'gis') setTimeout(() => initLeafletMap('leafletMap'), 50);
+    animateWorkspaceContent();
+  }
+
+  function animateWorkspaceContent(){
+    if(typeof gsap==='undefined'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const items = $$('#pageContent .panel, #pageContent .card, #pageContent .stat-card, #pageContent .data-table');
+    if(items.length){
+      gsap.fromTo(items,{opacity:0.35,y:8},{opacity:1,y:0,duration:0.25,stagger:0.03,ease:'power1.out',clearProps:'transform,opacity'});
+    }
   }
 
   function bindPageInputs(){
@@ -3917,7 +3991,7 @@
       return {
         text: `সুপারিশকৃত সরকারি সেবা: ${s.name} (${s.authority})\n\nকেন এই সেবা: ${routed.rationale}\n\nঅফিসিয়াল পোর্টাল: ${s.officialPortalUrl || 'সংশ্লিষ্ট কার্যালয়'}\n\nকরণীয়:\n${routed.nextSteps.map((st, i) => `${i+1}. ${st}`).join('\n')}\n\n${routed.guardrail}`,
         html: `<div class="chat-router-card">
-          <div class="chat-router-badge">⚡ R&amp;D Feature #71: AI Service Router</div>
+          <div class="chat-router-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> R&amp;D Feature #71: AI Service Router</div>
           <h4 style="margin:4px 0 2px;font-size:13.5px;color:#184236">${esc(s.name)}</h4>
           <div style="font-size:11.5px;color:#3d6555;margin-bottom:6px"><strong>দায়িত্বপ্রাপ্ত কর্তৃপক্ষ:</strong> ${esc(s.authority)}</div>
           ${portalHtml}
@@ -3931,10 +4005,10 @@
             </ol>
           </div>
           <div style="font-size:10px;color:#7e958a;margin-top:8px;border-top:1px dashed #d5e4db;padding-top:6px">
-            🔒 ${esc(routed.guardrail)}
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> ${esc(routed.guardrail)}
           </div>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn small primary" data-action="router-open-case" data-category="${esc(s.categoryKey)}" data-problem="${esc(q)}">📁 এই সমস্যার Land Case তৈরি করুন</button>
+            <button class="btn small primary" data-action="router-open-case" data-category="${esc(s.categoryKey)}" data-problem="${esc(q)}">এই সমস্যার Land Case তৈরি করুন</button>
             <button class="btn small" data-action="open-service-router" data-problem="${esc(q)}">বিস্তারিত রাউটার খুলুন ↗</button>
           </div>
         </div>`
@@ -3943,7 +4017,7 @@
       return {
         text: `স্পষ্টীকরণ প্রয়োজন: ${routed.rationale}\n\n${routed.clarification.question}\n${routed.clarification.options.map((o, i) => `${i+1}. ${o.text}`).join('\n')}`,
         html: `<div class="chat-router-card" style="border-color:#f1cfa0;background:#fffdfa">
-          <div class="chat-router-badge" style="background:#fff1dc;color:#875416">⚠️ R&amp;D Feature #71: স্পষ্টীকরণ প্রয়োজন</div>
+          <div class="chat-router-badge" style="background:#fff1dc;color:#875416"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> R&amp;D Feature #71: স্পষ্টীকরণ প্রয়োজন</div>
           <p style="margin:6px 0;font-size:12px;color:#704e1b">${esc(routed.rationale)}</p>
           <strong style="display:block;font-size:12px;color:#184236;margin-top:6px">${esc(routed.clarification.question)}</strong>
           <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">
@@ -3955,7 +4029,7 @@
       return {
         text: `${routed.rationale}\n\nপরামর্শ:\n${routed.nextSteps.map((st, i) => `${i+1}. ${st}`).join('\n')}\n\n${routed.guardrail}`,
         html: `<div class="chat-router-card" style="border-color:#d7e2dc;background:#fafbfb">
-          <div class="chat-router-badge" style="background:#edf2ef;color:#4c675b">ℹ️ R&amp;D Feature #71: সেবা মেলেনি</div>
+          <div class="chat-router-badge" style="background:#edf2ef;color:#4c675b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> R&amp;D Feature #71: সেবা মেলেনি</div>
           <p style="margin:6px 0;font-size:12px;color:#456356">${esc(routed.rationale)}</p>
           <div style="font-size:11.5px;color:#284a3d;margin-top:6px">
             <strong>পরামর্শ:</strong>
@@ -3964,7 +4038,7 @@
             </ul>
           </div>
           <div style="font-size:10px;color:#7e958a;margin-top:8px;border-top:1px dashed #d5e4db;padding-top:6px">
-            🔒 ${esc(routed.guardrail)}
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> ${esc(routed.guardrail)}
           </div>
         </div>`
       };
@@ -3987,13 +4061,29 @@
     $('#modalBackdrop').hidden = false;
     const focus = $('#modalBody input, #modalBody select, #modalBody textarea, #modalBody button');
     if(focus) focus.focus();
+    if(typeof gsap!=='undefined'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const m=$('.modal');
+      if(m)gsap.fromTo(m,{opacity:0,scale:0.96,y:10},{opacity:1,scale:1,y:0,duration:0.24,ease:'power2.out',clearProps:'transform'});
+    }
   }
 
   let modalReturnFocus;
   function closeModal(){
-    $('#modalBackdrop').hidden = true;
-    $('.modal')?.classList.remove('case-builder-modal');
-    modalReturnFocus?.focus();
+    const bd=$('#modalBackdrop');
+    if(!bd||bd.hidden)return;
+    const m=$('.modal');
+    if(typeof gsap!=='undefined'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&m){
+      gsap.to(m,{opacity:0,scale:0.97,y:6,duration:0.16,ease:'power2.in',onComplete:()=>{
+        bd.hidden=true;
+        m.classList.remove('case-builder-modal');
+        gsap.set(m,{clearProps:'all'});
+        modalReturnFocus?.focus();
+      }});
+    }else{
+      bd.hidden=true;
+      m?.classList.remove('case-builder-modal');
+      modalReturnFocus?.focus();
+    }
   }
 
   function modalForm(fields, submitLabel='Save'){
@@ -4484,6 +4574,11 @@
         openModal('CHT land guidance', `<div class="activity-list">${[['Separate system','CHT land is largely governed by the CHT Regulation 1900 and the 1997 CHT Accord, not the plains RS/BS Khatian system.'],['Mouza Headman','First point of contact for local land record and customary endorsement.'],['Circle Chief','Endorses matters within Chakma, Bomang or Mong Circle jurisdiction.'],['Hill District Council','Regional authority for Rangamati, Bandarban or Khagrachhari.'],['Always confirm officially','This workspace is informational; it does not replace the Headman, Circle or Council process.']].map(x=>`<div class="activity-item"><div class="activity-icon">◭</div><div class="activity-copy"><b>${x[0]}</b><p>${x[1]}</p></div></div>`).join('')}</div>`, 'CHT GUIDANCE');
         break;
 
+      case 'hill-terrain':
+        openModal('পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষক', typeof renderHillTerrainHTML === 'function' ? renderHillTerrainHTML() : '<p>Loading engine...</p>', 'TOPOGRAPHIC TERRAIN ENGINE');
+        if (typeof attachHillTerrainListeners === 'function') attachHillTerrainListeners();
+        break;
+
       case 'close-modal':
         closeModal();
         break;
@@ -4676,6 +4771,7 @@
         <button class="btn" data-action="export-page">Export page data</button>
         <button class="btn" data-action="backup-workspace">Back up workspace</button>
         <button class="btn" data-action="unit-converter">Area converter</button>
+        <button class="btn primary" data-action="hill-terrain">⛰️ Hill 3D Area & Slope</button>
         <a class="btn" href="index.html">Visit landing page ↗</a>
       </div>
       ${rows.length ? `<h3>Saved local drafts</h3>${rows.map(w => `<article class="local-draft"><strong>${esc(w.id)} · ${esc(w.title)}</strong><p>${esc(Object.entries(w.data).map(([k,v]) => k + ': ' + v).join(' · '))}</p><button class="btn small" data-action="delete-workflow" data-id="${esc(w.id)}">Delete draft</button></article>`).join('')}` : ''}
@@ -4806,6 +4902,11 @@
         downloadFile('ebhumi-workspace-backup.json', localStorage.getItem(storageKey) || '{}', 'application/json');
         return true;
 
+      case 'hill-terrain':
+        openModal('পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষক', typeof renderHillTerrainHTML === 'function' ? renderHillTerrainHTML() : '<p>Loading engine...</p>', 'TOPOGRAPHIC TERRAIN ENGINE');
+        if (typeof attachHillTerrainListeners === 'function') attachHillTerrainListeners();
+        return true;
+
       case 'unit-converter':
         openModal('Land area converter', `<div class="form-grid">
           <div class="form-field"><label for="areaValue">Area (nonnegative)</label><input id="areaValue" type="number" min="0" step="any" value="1"></div>
@@ -4850,11 +4951,43 @@
 
   document.addEventListener('change', e => {
     if (e.target.id === 'areaUnit') updateArea();
+    if (e.target.id === 'colorVariantSelect') {
+      const v = e.target.value;
+      localStorage.setItem('ebhumi_color_variant', v);
+      document.documentElement.setAttribute('data-color-variant', v);
+      if (typeof toast === 'function') toast(v === 'padma' ? 'পদ্মা সবুজ থিম' : v === 'meghna' ? 'মেঘনা নীল থিম' : v === 'sundarban' ? 'সুন্দরবন মৃত্তিকা থিম' : 'সুরমা স্লেট থিম', 'Color variant active');
+    }
   });
 
+  const THEME_SUN_SVG = '<svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+  const THEME_MOON_SVG = '<svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
   document.addEventListener('click', e => {
+    if (e.target.closest('#themeToggle')) {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      else document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('ebhumi_theme', next);
+      const b = $('#themeToggle');
+      if (b) b.innerHTML = next === 'dark' ? THEME_SUN_SVG : THEME_MOON_SVG;
+      if (typeof toast === 'function') toast(next === 'dark' ? 'Dark mode enabled' : 'Light mode enabled');
+    }
     if (e.target.closest('[data-action],#languageToggle')) setTimeout(persist, 0);
   });
+
+  try {
+    const savedTheme = localStorage.getItem('ebhumi_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      const b = $('#themeToggle');
+      if (b) b.innerHTML = THEME_SUN_SVG;
+    }
+    const savedVariant = localStorage.getItem('ebhumi_color_variant') || 'padma';
+    document.documentElement.setAttribute('data-color-variant', savedVariant);
+    const vSel = $('#colorVariantSelect');
+    if (vSel) vSel.value = savedVariant;
+  } catch {}
 
   window.addEventListener('popstate', () => {
     state.page = nav.some(n => n.id === location.hash.slice(1)) ? location.hash.slice(1) : 'dashboard';

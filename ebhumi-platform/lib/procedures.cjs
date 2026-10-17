@@ -1,5 +1,5 @@
 'use strict';
-const RESEARCH_DATE='2026-10-17';
+const RESEARCH_DATE='2026-10-18';
 const sources={
   mutation:{title:'E-mutation applicant guidance',url:'https://mutation.land.gov.bd/nirdeshika',access:'Indexed official text; direct page returned 403',scope:'Application preparation and filing payment; verify current portal before real use'},
   stages:{title:'E-mutation stages',url:'https://mutation.land.gov.bd/namjari-steps',access:'Indexed official text',scope:'Tracking, decision and Khatian/DCR retrieval'},
@@ -64,5 +64,11 @@ const rows=[
  ['acquisition-proposal','acquisition','mouza,dag,area','plots,parties','Review agency/project authority|Review proposed schedule and supporting plan|Confirm current prescribed forms and approval route','Agency proposal review',['laws','acquisition2026']]
 ];
 const profiles=Object.fromEntries(rows.map(([id,family,land,data,tasks,outputs,sourceIds])=>[id,{id,version:2,researchDate:RESEARCH_DATE,family,landFields:land?land.split(','):[],structured:data?data.split(','):[],reviewTasks:tasks.split('|').map((label,i)=>({id:'review-'+(i+1),label})),outputs:outputs.split('|'),sourceIds,researchLevel:['acquisition','regional','lease','settlement','information'].includes(family)?'Local authority / current-rule confirmation required':'Official service-family mapping',filingFee:family==='mutation'?70:family==='records'?100:0,decisionFee:family==='mutation'?1100:['records','support','holding','objection'].includes(family)?0:100,delivery:['eporcha','mouza-map'].includes(id),autoTax:id==='land-tax',note:'All execution and amounts here are local simulations. A completed record does not submit to, collect for, or update a government system.'}]));
+for(const [id,p]of Object.entries(profiles)){
+ if(id==='mouza-map')p.filingFee=520;
+ if(id==='eporcha')p.postalFee=40;
+ if(id==='mouza-map')p.postalFee=110;
+ p.guidance=require('./research-2026-10-18.json').filter(e=>e.serviceIds.includes(id)).map(e=>({title:e.title,note:e.note,url:e.url,checked:e.checked}));
+}
 function procedureFor(id){return profiles[id];}
 module.exports={sources,profiles,procedureFor,RESEARCH_DATE};

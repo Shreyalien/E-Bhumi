@@ -1,14 +1,15 @@
 {
   "name": "e-bhumi-role-platform",
-  "version": "5.7.0",
+  "version": "5.8.0",
   "private": true,
   "description": "Bangladesh land-service sandbox with server-side role workflows",
   "scripts": {
     "start": "node server.cjs",
-    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/request-security.cjs && node --check lib/catalog.cjs && node --check citizen.js && node --check lib/seed-demo.cjs && node --check lib/geography.cjs && node --check workflows.js && node --check land-intelligence.js && node --check lib/land-dossiers.cjs && node --check procedures-ui.js && node --check lib/procedures.cjs && node --check lib/procedure-engine.cjs && node --check app.js && node --check i18n.js && node --check desk-ui.js && node --check lib/desk-routing.cjs && node --check lawbook.js && node --check lib/law-library.cjs && node --check lib/legacy-cases.cjs && node --check lib/desk-referrals.cjs && node --check tests/interface-browser.cjs && node --check tests/locale-audit.cjs && node --check tests/vercel.test.cjs",
+    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/terrain-engine.cjs && node --check lib/request-security.cjs && node --check lib/catalog.cjs && node --check citizen.js && node --check lib/seed-demo.cjs && node --check lib/geography.cjs && node --check workflows.js && node --check land-intelligence.js && node --check lib/land-dossiers.cjs && node --check procedures-ui.js && node --check lib/procedures.cjs && node --check lib/procedure-engine.cjs && node --check app.js && node --check i18n.js && node --check desk-ui.js && node --check lib/desk-routing.cjs && node --check lawbook.js && node --check lib/law-library.cjs && node --check lib/legacy-cases.cjs && node --check lib/desk-referrals.cjs && node --check tests/interface-browser.cjs && node --check tests/locale-audit.cjs && node --check tests/vercel.test.cjs && node --check hill-terrain.js && node --check tests/release-browser.cjs",
     "test": "node --test tests/platform.test.cjs tests/preserved.test.cjs tests/workflows.test.cjs tests/land-dossiers.test.cjs tests/procedures.test.cjs tests/service-router.test.cjs tests/routing.test.cjs tests/lawbook.test.cjs tests/vercel.test.cjs",
     "test:interface": "node tests/interface-browser.cjs",
-    "test:locale": "node tests/locale-audit.cjs"
+    "test:locale": "node tests/locale-audit.cjs",
+    "test:release-browser": "node tests/release-browser.cjs"
   },
   "engines": {
     "node": ">=18"
