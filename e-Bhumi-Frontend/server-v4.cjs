@@ -3,7 +3,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const {createPlatform}=require('./lib/platform.cjs');
 const {allowedHost:hostAllowed}=require('./lib/request-security.cjs');
 function createServer(options={}){
- const root=__dirname,platform=createPlatform({dataDir:options.dataDir||(process.env.VERCEL?path.join('/tmp','.data'):path.join(root,'.data')),seedDemo:options.seedDemo!==false,newWorkflowVersion:options.newWorkflowVersion,deskRouting:options.deskRouting});
+ const root=__dirname,platform=createPlatform({dataDir:options.dataDir||(process.env.VERCEL?path.join('/tmp','.data'):path.join(root,'.data')),seedDemo:options.seedDemo!==false,newWorkflowVersion:options.newWorkflowVersion,deskRouting:options.deskRouting,memoryOnly:options.memoryOnly,initialState:options.initialState,sessionState:options.sessionState,attemptState:options.attemptState});
  const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg'};
  const server=http.createServer((req,res)=>{
   const host=req.headers.host||'';const allowedHost=hostAllowed(host);if(!allowedHost){res.writeHead(403).end('Local host required');return;}

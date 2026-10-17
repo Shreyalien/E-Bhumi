@@ -16,10 +16,10 @@ const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.is
 const dhakaDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const safeUser=u=>({id:u.id,name:u.name,email:u.email,role:u.role,active:u.active});
 const fail=(status,message)=>{throw Object.assign(new Error(message),{status});};
-function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=true}){
- fs.mkdirSync(dataDir,{recursive:true});const file=path.join(dataDir,'platform.json');
- let db=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{version:4,users:[],applications:[],documents:[],payments:[],notifications:[],audit:[],settings:{acceptApplications:true,notice:process.env.VERCEL?'Hosted demo — temporary instance data and sessions; resets may occur. Use sample information only.':'Local sandbox — sample information only.'}};
- const save=()=>{fs.writeFileSync(file+'.tmp',JSON.stringify(db,null,2));for(let attempt=0;;attempt++){try{fs.renameSync(file+'.tmp',file);break;}catch(e){if(!['EPERM','EACCES','EBUSY'].includes(e.code)||attempt>=4)throw e;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,25*(attempt+1));}}};
+function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=true,memoryOnly=false,initialState,sessionState=[],attemptState=[]}){
+ if(!memoryOnly)fs.mkdirSync(dataDir,{recursive:true});const file=path.join(dataDir,'platform.json');
+ let db=initialState?structuredClone(initialState):!memoryOnly&&fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{version:4,users:[],applications:[],documents:[],payments:[],notifications:[],audit:[],settings:{acceptApplications:true,notice:process.env.VERCEL?(process.env.BLOB_READ_WRITE_TOKEN?'Hosted demo — shared private storage. Use sample information only.':'Hosted demo — temporary instance data and sessions; resets may occur. Use sample information only.'):'Local sandbox — sample information only.'}};
+ const save=()=>{if(memoryOnly)return;fs.writeFileSync(file+'.tmp',JSON.stringify(db,null,2));for(let attempt=0;;attempt++){try{fs.renameSync(file+'.tmp',file);break;}catch(e){if(!['EPERM','EACCES','EBUSY'].includes(e.code)||attempt>=4)throw e;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,25*(attempt+1));}}};
  const audit=(user,event,resource,details={})=>{const previous=db.audit.at(-1)?.hash||'GENESIS';const row={id:id('AUD'),at:now(),actor:user?.id||'system',role:user?.role||'system',event,resource,details,previous};row.hash=hash(JSON.stringify(row));db.audit.push(row);};
  if(!db.users.length){for(const role of Object.keys(roles)){db.users.push({id:id('USR'),name:roles[role].split(' / ').at(-1)+' Demo',email:role+'@demo.ebhumi.local',role,active:true,password:password('BhumiDemo!2026'),created:now()});}audit(null,'seed-demo-accounts','system');save();}
  if(seedDemo&&require('./seed-demo.cjs').seedDemo(db,audit))save();
@@ -27,7 +27,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
  if(seedDemo&&seedHoldings(db,audit))save();
  if(seedDemo){let added=false;for(const role of Object.keys(desks)){if(db.users.some(u=>u.email===role+'@demo.ebhumi.local'))continue;db.users.push({id:id('USR'),name:desks[role],email:role+'@demo.ebhumi.local',role,active:true,password:password('BhumiDemo!2026'),created:now()});added=true;}if(added){audit(null,'seed-new-desk-accounts','system');save();}}
  if(!db.uiLanguageEdition){db.preferences=db.preferences||{};for(const user of db.users)db.preferences[user.id]={...(db.preferences[user.id]||{}),language:'bn'};db.uiLanguageEdition=1;audit(null,'bangla-default-migration','system');save();}
- const sessions=new Map(),attempts=new Map();
+ const sessions=new Map(sessionState.filter(([,s])=>s.expires>Date.now())),attempts=new Map(attemptState.filter(([,a])=>a.until>Date.now()).slice(-2000));
  const notify=(userId,title,reference)=>db.notifications.push({id:id('NTF'),userId,title,reference,read:false,at:now()});
  const service=id=>services.find(s=>s.id===id)||fail(400,'Unknown service');
  const text=(v,label,max=4000)=>{if(typeof v!=='string'||!v.trim()||v.length>max)fail(400,label+' is required (maximum '+max+' characters).');return v.trim();};
@@ -65,7 +65,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
     if(!publicRoute&&req.headers['x-csrf-token']!==auth.session.csrf)fail(403,'Invalid CSRF token');
     let raw='',size=0;for await(const chunk of req){size+=chunk.length;if(size>3*1024*1024)fail(413,'Request too large');raw+=chunk;}try{body=JSON.parse(raw||'{}');}catch{fail(400,'Invalid JSON');}if(!body||typeof body!=='object'||Array.isArray(body))fail(400,'JSON object required');
    }
-   if(route==='/catalog'&&method==='GET')return send(200,{roles,services,capabilities,mode:'sandbox',deployment:{environment:process.env.VERCEL?'vercel':'local',persistence:process.env.VERCEL?'temporary-instance':'local-disk',sessions:'instance-memory'},version:require('../package.json').version,reviewed:'2026-10-17'});
+   if(route==='/catalog'&&method==='GET')return send(200,{roles,services,capabilities,mode:'sandbox',deployment:{environment:process.env.VERCEL?'vercel':'local',persistence:process.env.VERCEL?(process.env.BLOB_READ_WRITE_TOKEN?'shared-private-blob':'temporary-instance'):'local-disk',sessions:process.env.VERCEL&&process.env.BLOB_READ_WRITE_TOKEN?'shared-private-blob':'instance-memory'},version:require('../package.json').version,reviewed:'2026-10-17'});
    if(route==='/register'&&method==='POST'){
     const email=text(body.email,'Email',160).toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail(400,'Valid email required');
     const name=text(body.name,'Display name',80),pwd=text(body.password,'Password',128);if(pwd.length<12)fail(400,'Use at least 12 characters');
@@ -190,6 +190,6 @@ for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body
    fail(404,'API route not found');
   }catch(e){send(e.status||500,{error:e.status?e.message:'Server error. Check local server logs.'});if(!e.status)console.error(e);}
  }
- return {api,authenticate,roles,close(){sessions.clear();},dataFile:file};
+ return {api,authenticate,roles,snapshot:()=>({db:structuredClone(db),sessions:[...sessions],attempts:[...attempts]}),close(){sessions.clear();},dataFile:file};
 }
 module.exports={createPlatform};

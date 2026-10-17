@@ -257,8 +257,6 @@ flowchart TD
     H --> T[Demand quote and payment simulation]
     T --> K[Dakhila and receipt artifacts]
     K --> END
-    classDef blue fill:#e8f1ff,stroke:#376eb5,color:#17365d;
-    class P,C,M,F,Q,R,X,J,D,O,A,END,H,T,K blue;
 ```
 
 Every amount is a test fixture; there is no live government submission or payment. Hearing is conditional, not mandatory for every mutation. Digital copy release still uses the local records desk; there is no official registry lookup.
@@ -269,28 +267,24 @@ The V5 reference's role-based application flow and local server architecture are
 
 ```mermaid
 flowchart LR
-    classDef blueBox fill:#e8f0fe,stroke:#1a73e8,stroke-width:1.5px,color:#174ea6,font-weight:600;
-    classDef blueServer fill:#d2e3fc,stroke:#185abc,stroke-width:2px,color:#174ea6,font-weight:600;
-    classDef blueData fill:#e8f0fe,stroke:#4285f4,stroke-width:1.5px,color:#174ea6;
-
-    Public["Existing landing page"]:::blueBox --> Login["Role login"]:::blueBox
-    Login --> Citizen["Original citizen shell and overview"]:::blueBox
-    Login --> Staff["Separate staff and oversight portals"]:::blueBox
-    Citizen --> Tools["Payments, cases, visits, calculator and Truth Cards"]:::blueBox
-    Tools --> API["Node HTTP API"]:::blueServer
+    Public["Existing landing page"] --> Login["Role login"]
+    Login --> Citizen["Original citizen shell and overview"]
+    Login --> Staff["Separate staff and oversight portals"]
+    Citizen --> Tools["Payments, cases, visits, calculator and Truth Cards"]
+    Tools --> API["Node HTTP API"]
     Citizen --> API
-    Staff --> Law["Shared law library and private notes"]:::blueBox
+    Staff --> Law["Shared law library and private notes"]
     Citizen --> Law
     Law --> API
     Staff --> API
-    API --> Guards["Session, CSRF, owner and role checks"]:::blueBox
-    Guards --> Workflows["Validated service state transitions"]:::blueBox
-    Workflows --> Legacy["Vested property evidence preparation and consultations"]:::blueData
-    Workflows --> Dossiers["Private worksheets and assigned local review"]:::blueData
-    Workflows --> Catalogue["33 service definitions"]:::blueData
-    Workflows --> Store["Atomic local JSON and sample evidence"]:::blueData
-    Workflows --> Audit["Hash-linked events and notifications"]:::blueData
-    Workflows --> Output["Watermarked sandbox outcomes"]:::blueData
+    API --> Guards["Session, CSRF, owner and role checks"]
+    Guards --> Workflows["Validated service state transitions"]
+    Workflows --> Legacy["Vested property evidence preparation and consultations"]
+    Workflows --> Dossiers["Private worksheets and assigned local review"]
+    Workflows --> Catalogue["33 service definitions"]
+    Workflows --> Store["Atomic local JSON and sample evidence"]
+    Workflows --> Audit["Hash-linked events and notifications"]
+    Workflows --> Output["Watermarked sandbox outcomes"]
 ```
 
 The landing design, original font stack, lease register/cards and CHT circle/workflow composition are preserved. Their controls now connect to tracked applications. [Architecture blueprint](docs/ARCHITECTURE.md) documents the actual modules and boundaries; [application flow](docs/APP_FLOW.md) describes states and role handoffs.
@@ -321,9 +315,9 @@ e-Bhumi-Frontend/
 
 ## Data and persistence
 
-Accounts, application histories, uploaded sample bytes, hashes, payments and notifications are stored in `e-Bhumi-Frontend/.data/platform.json` (or `/tmp/.data/platform.json` in serverless cloud environments). Drafts and preparation preferences belong to an authenticated account. The store is created on first startup; it is excluded from Git and static file serving.
+Locally, accounts, application histories, uploaded sample bytes, hashes, payments and notifications are stored in `e-Bhumi-Frontend/.data/platform.json`. On Vercel, the hosted demo uses shared **private Vercel Blob storage**, with separate preview and production state. Local private data is excluded from deployment and is never automatically imported. Drafts and preparation preferences belong to an authenticated account. See [deployment and persistence](docs/VERCEL_DEPLOYMENT.md) for configuration, commands and operating limits.
 
-Sessions use an HttpOnly/SameSite cookie and end on server restart. Passwords use salted scrypt. Mutation APIs enforce CSRF/origin checks, object ownership, review role and revision. This is a single-process sandbox, not a certified production platform; the JSON store is not encrypted and there is no malware scanner or external identity verification.
+Sessions use an HttpOnly/SameSite cookie, with Secure enabled on hosted HTTPS. Local sessions end on server restart; hosted sessions persist across workers and redeployments until expiry or logout. Passwords use salted scrypt. Mutation APIs enforce CSRF/origin checks, object ownership, review role and revision. This remains a sandbox: the shared JSON adapter is not a transactional database for substantial traffic, and there is no malware scanner or external identity verification.
 
 The demo citizen and representative each receive sample requests per service. Fresh stores contain pre-configured demo scenarios, sample evidence files and parcels. User-created, edited or finance-reconciled requests and saved preferences remain persistent. Restarting does not duplicate fixtures. Newly registered accounts have private, initially empty workspaces.
 
@@ -361,11 +355,12 @@ The reviewed build passes API lifecycle and regression tests, the preserved citi
 
 | Symptom | What to check |
 | --- | --- |
-| `node` is not recognised | Install Node.js 18+ and reopen the terminal |
+| `node` is not recognised | Install Node.js 24 and reopen the terminal |
 | Port 8080 is in use | Stop the existing server, or start with `PORT=8081 node server.cjs` |
 | Catalogue missing or reduced | Use HTTP, then check that `data/features.json` is served |
-| Saved work seems missing | Check browser profile and hostname; private mode/site-data clearing affects storage |
-| Selected document cannot be reopened | Only its metadata was saved; original file bytes are not stored |
+| Saved work seems missing | Confirm the account and environment: local, preview and production stores are separate |
+| Hosted login or save returns 503 | Check the private Blob connection/token, account quota and Vercel runtime logs; retry after the storage issue is resolved |
+| Selected document cannot be reopened | Check its owner and evidence-vault entry; uploaded sample bytes are stored privately |
 | A button shows a demo explanation | That action is a preview or requires a future integration |
 | Interface language does not switch | Ensure JavaScript is enabled and check the top language selector toggle |
 
