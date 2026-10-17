@@ -18,9 +18,6 @@ A citizen-first land-service preparation workspace for Bangladesh.
 
 বাংলা মূল ভাষা; English বাটন থেকে অনুবাদ বেছে নেওয়া যায়। মূল font, landing composition, lease ও CHT নকশা রাখা হয়েছে। নতুন আবেদনের দপ্তরভিত্তিক কাজ জানতে [২৪টি ভূমিকার ম্যাট্রিক্স](docs/ROLE_WORKFLOWS.md) এবং [ইজারা/নিলাম/দরপত্র গবেষণা](docs/BD_LEASE_AUCTION_RESEARCH.md) দেখুন।
 
-| নাগরিকের বাংলা কর্মক্ষেত্র | দপ্তরের যাচাই ও handoff |
-| --- | --- |
-| ![নাগরিক](docs/screenshots-bangla/citizen-bn.png) | ![ইউনিয়ন ভূমি ডেস্ক](docs/screenshots-bangla/union_land-desk-bn.png) |
 
 > **Demo status:** e-Bhumi is an independent prototype, not an official Government of Bangladesh service. Land references, geometry, statuses and amounts are illustrative. It does not establish ownership, accept real payments, submit official applications or reserve government appointments.
 
@@ -30,15 +27,11 @@ A citizen-first land-service preparation workspace for Bangladesh.
 
 **অর্পিত সম্পত্তি ও ওয়ারিশ ফাইল**: ঐতিহাসিক গেজেট/তালিকা, পুরোনো→নতুন দাগ, সকল ওয়ারিশ, ইজারা, মামলা, বাহ্যিক আদেশ, vault evidence ও private review। [শেয়ার করা গবেষণার বাস্তবায়ন ও সীমা](docs/LEGACY_PROPERTY_RESEARCH.md)। **২৪ রোল**, service-specific specialist routes, conditional ministry/division/legal consultations with a return to the original desk, and a role directory preserve the previous features and visual design.
 
-| আইন-পাঠাগার | অর্পিত সম্পত্তির প্রস্তুতি |
-| --- | --- |
-| ![পাঠাগার](docs/screenshots-lawbook/law-library-bn.png) | ![অর্পিত সম্পত্তি](docs/screenshots-lawbook/legacy-preparation-bn.png) |
 
 ## বাংলা অভিজ্ঞতা — v5.7.0
 
 আপনার ছয়টি browser মন্তব্য অনুযায়ী বাংলা landing/login copy, সবুজ headline emphasis, সোজা notification bell ও tablet header ঠিক করা হয়েছে। বাংলা menu/actions/placeholders/errors আরও বিস্তৃত; English switch-এ মূল লেখা ফিরে আসে। **২৪ role / ৩৪৩ page-view audit**, 390px/985px layout ও সম্পূর্ণ সেবার regression checks আছে। [বাংলা অভিজ্ঞতা ও screenshots](docs/LOCALIZATION_v5.7.md) · [সরকারি সূত্রে ভূমিসেবার coverage এবং বাকি সংযোগ](docs/BD_COVERAGE_AUDIT_v5.7.md)।
 
-![বাংলা landing](docs/screenshots-interface/landing-985-bn.png)
 
 ## Why e-Bhumi?
 
