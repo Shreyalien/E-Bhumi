@@ -88,40 +88,17 @@ To operate a sample process, use an editable draft or submitted case, then sign 
 
 Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 19 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
-### Citizen dashboard
-
-Sample metrics, land passport, recent activity and service shortcuts in one overview.
-
-![Citizen dashboard](docs/screenshots-preserved/dashboard.png)
-
-### Application preparation
-
-Complete a five-step application, attach sample evidence, submit to its role queue and track correction, payment and delivery.
-
-![Application draft form](docs/screenshots-v4/evidence-step.png)
-
 ### Regional and lease views
 
 | Government land lease | Chattogram Hill Tracts workspace |
 | --- | --- |
 | ![Government lease register](docs/screenshots-preserved/land-lease.png) | ![CHT workspace](docs/screenshots-preserved/ctg-zone.png) |
 
-These screens illustrate separate preparation contexts. Their labels and explanatory copy are not a verified statement of current legal requirements.
+These screens illustrate regional preparation contexts. Their labels and explanatory copy are sample sandbox representations.
 
 > 📷 **Full Gallery:** For all workspace captures (GIS parcel map, land search, document vault, mobile viewport, etc.), see the [Complete Screenshot Gallery](docs/SCREENSHOTS.md).
 
 
-### Payments, case work and visits
-
-| Payments & receipts | Cases & complaints |
-| --- | --- |
-| ![Payable demands and transaction history](docs/screenshots-preserved/payments.png) | ![Case preparation and register](docs/screenshots-preserved/casebook.png) |
-| Pay an approved demand, retry a failure and export receipts. | Follow evidence, hearings and decisions; prepare a linked review or appeal. |
-
-| Appointments & queue | Land Calculator |
-| --- | --- |
-| ![Appointment requests and actions](docs/screenshots-preserved/appointments.png) | ![Land preparation calculators](docs/screenshots-preserved/calculator.png) |
-| Support-issued demo token, calendar export, reschedule and cancellation. | Area, discrepancy, proposed shares, custom units and budget worksheets. |
 
 ## Features and page guide
 

@@ -11,7 +11,7 @@ function createServer(options={}){
   if(url.pathname.startsWith('/api/')){platform.api(req,res,url);return;}
   if(req.method!=='GET'){res.writeHead(405).end();return;}
   let name;try{name=decodeURIComponent(url.pathname);}catch{res.writeHead(400).end();return;}
-  if(name==='/workspace.html'||name.startsWith('/portal/')){let auth=platform.authenticate(req);if(!auth){if(name==='/workspace.html'||name==='/portal/citizen'||name==='/portal/'||name==='/portal'){const citizenUser=platform.db.users.find(u=>u.email==='citizen@demo.ebhumi.local');if(citizenUser){const s=platform.createSession(citizenUser);res.setHeader('Set-Cookie',`session=${s.id}; Path=/; HttpOnly; SameSite=Lax`);res.writeHead(302,{Location:'/portal/citizen#dashboard'}).end();return;}}res.writeHead(302,{Location:'/login.html'}).end();return;}if(name.startsWith('/portal/')&&name.split('/')[2]!==auth.user.role){res.writeHead(302,{Location:'/portal/'+auth.user.role}).end();return;}name='/portal.html';}
+  if(name==='/workspace.html'||name.startsWith('/portal/')){const auth=platform.authenticate(req);if(!auth){res.writeHead(302,{Location:'/login.html'}).end();return;}if(name.startsWith('/portal/')&&name.split('/')[2]!==auth.user.role){res.writeHead(302,{Location:'/portal/'+auth.user.role}).end();return;}name='/portal.html';}
   if(name==='/')name='/index.html';
   const allowed=['/index.html','/landing.js','/login.html','/portal.js','/workflows.js','/auth.js','/portal.css','/citizen.js','/preserved.css','/data/features.json'];
   if(name==='/portal.html'){if(!platform.authenticate(req)){res.writeHead(302,{Location:'/login.html'}).end();return;}}
