@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "e-bhumi",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "e-Bhumi-Frontend/**",
+      "memory": 1024,
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index.js"
+    }
+  ]
+}
