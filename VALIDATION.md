@@ -2,7 +2,7 @@
 
 ## Automated checks
 
-npm run check passes all runtime module syntax checks. npm test passes **49 tests, zero failures** across five API suites.
+npm run check passes all runtime module syntax checks. npm test passes **61 tests, zero failures** across five API suites and the upstream service-router unit suite.
 
 - Default production creation uses procedure v2 for all 33 services. Each journey is tested through evidence, acknowledgements, required schedules, submission, relevant filing/payment phase, review checks, decision, output artifacts and delivery acknowledgement.
 - Mutation filing failure/retry, correction without another filing charge, post-decision DCR payment and per-phase idempotence are covered.
@@ -25,7 +25,7 @@ No uncaught page errors were observed in passing runs. The older four fixtures e
 
 ## Preservation and local run
 
-Original assets/styles.css, assets/landing.css, preserved.css, citizen.js and legacy app.js have no changes in this revision. Existing original menu entries and Calculator/Truth Card remain; Holdings is additive. The blue architecture style remains, with a new family-specific flow diagram and current screenshots.
+The procedure implementation preserves the original font stack, landing CSS, preserved.css and citizen.js. The upstream Record Reconciliation and Service Router commits were merged without conflicts, retaining their additive styles and legacy app.js work. Their 12 router unit checks also pass. Existing original menu entries and Calculator/Truth Card remain; Holdings is additive. The blue architecture style remains, with a new family-specific flow diagram and current screenshots.
 
 The live local store was backed up before restart. Its **201 existing applications, including 3 non-demo records**, retained IDs, states and revisions. Four private sample holdings were added without generating more applications. Server serves the updated code at port 8081.
 

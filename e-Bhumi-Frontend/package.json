@@ -5,8 +5,8 @@
   "description": "Bangladesh land-service sandbox with server-side role workflows",
   "scripts": {
     "start": "node server.cjs",
-    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/catalog.cjs && node --check citizen.js && node --check lib/seed-demo.cjs && node --check lib/geography.cjs && node --check workflows.js && node --check land-intelligence.js && node --check lib/land-dossiers.cjs && node --check procedures-ui.js && node --check lib/procedures.cjs && node --check lib/procedure-engine.cjs",
-    "test": "node --test tests/platform.test.cjs tests/preserved.test.cjs tests/workflows.test.cjs tests/land-dossiers.test.cjs tests/procedures.test.cjs"
+    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/catalog.cjs && node --check citizen.js && node --check lib/seed-demo.cjs && node --check lib/geography.cjs && node --check workflows.js && node --check land-intelligence.js && node --check lib/land-dossiers.cjs && node --check procedures-ui.js && node --check lib/procedures.cjs && node --check lib/procedure-engine.cjs && node --check app.js",
+    "test": "node --test tests/platform.test.cjs tests/preserved.test.cjs tests/workflows.test.cjs tests/land-dossiers.test.cjs tests/procedures.test.cjs tests/service-router.test.cjs"
   },
   "engines": {
     "node": ">=18"
