@@ -26,6 +26,8 @@ Thumbs.db
 *.sln
 *.sw?
 .vercel
+ 
 .data/
 **/tests/hosted-*/
 public/
+.env*
