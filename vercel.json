@@ -1,14 +1,20 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": null,
+  "buildCommand": "node scripts/vercel-build.cjs",
+  "outputDirectory": "public",
   "functions": {
-    "server.cjs": {
+    "api/index.js": {
       "includeFiles": "e-Bhumi-Frontend/**",
-      "maxDuration": 15
+      "excludeFiles": "e-Bhumi-Frontend/{.data,tests}/**",
+      "maxDuration": 30
     }
   },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/server.cjs"
+      "destination": "/api/index"
     }
   ]
 }

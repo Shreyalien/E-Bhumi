@@ -1,0 +1,14 @@
+{
+  "name": "e-bhumi-deployment",
+  "version": "5.7.1",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "node server.cjs",
+    "build": "node scripts/vercel-build.cjs",
+    "check": "npm --prefix e-Bhumi-Frontend run check",
+    "test": "npm --prefix e-Bhumi-Frontend test"
+  }
+}

@@ -1,0 +1,18 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {allowedHost,requestOrigin}=require('../lib/request-security.cjs');
+test('deployment host and origin policy',()=>{
+ assert(allowedHost('127.0.0.1:8081',false));assert(!allowedHost('attacker-vercel.example',false));assert(!allowedHost('example.vercel.app.evil.test',false));assert(!allowedHost('user@example.com',true));assert(!allowedHost('example.com/path',true));assert(allowedHost('e-bhumi-xi.vercel.app',true));assert(allowedHost('land.example.org',true));
+ assert.equal(requestOrigin({headers:{host:'localhost:8081','x-forwarded-proto':'https'}},false),'http://localhost:8081');assert.equal(requestOrigin({headers:{host:'e-bhumi-xi.vercel.app'}},true),'https://e-bhumi-xi.vercel.app');
+});
+test('hosted HTTPS login, CSRF, protected routes and runtime assets',async t=>{
+ const previous=process.env.VERCEL;process.env.VERCEL='1';const root=process.env.EBHUMI_TEST_ROOT||__dirname;fs.mkdirSync(root,{recursive:true});const dataDir=fs.mkdtempSync(path.join(root,'hosted-'));const {server}=require('../server-v4.cjs').createServer({dataDir,seedDemo:false});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(async()=>{await new Promise(r=>server.close(r));if(previous===undefined)delete process.env.VERCEL;else process.env.VERCEL=previous;});const base='http://127.0.0.1:'+server.address().port,host='e-bhumi-xi.vercel.app';
+ const call=(url,options={})=>new Promise((resolve,reject)=>{const request=require('node:http').request(base+url,{method:options.method||'GET',headers:{Host:host,...options.headers}},response=>{const chunks=[];response.on('data',chunk=>chunks.push(chunk));response.on('end',()=>resolve(new Response(Buffer.concat(chunks),{status:response.statusCode,headers:response.headers})));});request.on('error',reject);request.end(options.body);});
+ for(const asset of ['/','/index.html','/login.html','/i18n.js','/portal.js','/interface.css','/assets/landing.css','/data/features.json'])assert.equal((await call(asset)).status,200,asset);
+ assert.equal((await call('/portal/citizen')).status,302);assert.equal((await call('/api/me')).status,401);
+ for(const secret of ['/.data/platform.json','/e-Bhumi-Frontend/.data/platform.json','/e-Bhumi-Frontend/lib/platform.cjs','/.env','/server.cjs','/package.json'])assert.equal((await call(secret)).status,404,secret);
+ const credentials={email:'citizen@demo.ebhumi.local',password:'BhumiDemo!2026'};const login=origin=>call('/api/login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(credentials)});
+ assert.equal((await login('http://'+host)).status,403);assert.equal((await login('https://evil.example')).status,403);const r=await login('https://'+host);assert.equal(r.status,200);const {csrf}=await r.json(),cookie=r.headers.get('set-cookie');assert(cookie.includes('Secure'));assert(cookie.includes('HttpOnly'));assert(cookie.includes('SameSite=Strict'));
+ assert.equal((await call('/api/me',{headers:{Cookie:cookie.split(';')[0]}})).status,200);assert.equal((await call('/portal/citizen',{headers:{Cookie:cookie.split(';')[0]}})).status,200);
+ const submit=headers=>call('/api/applications',{method:'POST',headers:{Cookie:cookie.split(';')[0],Origin:'https://'+host,'Content-Type':'application/json',...headers},body:JSON.stringify({serviceId:'mutation'})});assert.equal((await submit({})).status,403);const a=await submit({'X-CSRF-Token':csrf});assert.equal(a.status,201);assert.equal((await a.json()).application.status,'Draft');const c=await(await call('/api/catalog')).json();assert.equal(c.deployment.persistence,'temporary-instance');assert.equal(Object.keys(c.roles).length,24);
+});

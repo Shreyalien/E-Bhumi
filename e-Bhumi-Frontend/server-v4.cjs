@@ -1,11 +1,12 @@
 'use strict';
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const {createPlatform}=require('./lib/platform.cjs');
+const {allowedHost:hostAllowed}=require('./lib/request-security.cjs');
 function createServer(options={}){
  const root=__dirname,platform=createPlatform({dataDir:options.dataDir||(process.env.VERCEL?path.join('/tmp','.data'):path.join(root,'.data')),seedDemo:options.seedDemo!==false,newWorkflowVersion:options.newWorkflowVersion,deskRouting:options.deskRouting});
  const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg'};
  const server=http.createServer((req,res)=>{
-  const host=req.headers.host||'';const allowedHost=/^(127\.0\.0\.1|localhost)(:\d+)?$/i.test(host)||host.endsWith('.vercel.app')||host.includes('vercel')||Boolean(process.env.VERCEL);if(!allowedHost){res.writeHead(403).end('Local host required');return;}
+  const host=req.headers.host||'';const allowedHost=hostAllowed(host);if(!allowedHost){res.writeHead(403).end('Local host required');return;}
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','DENY');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'");
   let url;try{url=new URL(req.url,'http://'+req.headers.host);}catch{res.writeHead(400).end();return;}
   if(url.pathname.startsWith('/api/')){platform.api(req,res,url);return;}

@@ -5,6 +5,7 @@ const now=()=>new Date().toISOString(),id=p=>p+'-'+crypto.randomBytes(8).toStrin
 const hash=v=>crypto.createHash('sha256').update(v).digest('hex');
 const password=(v,salt=crypto.randomBytes(16).toString('hex'))=>({salt,hash:crypto.scryptSync(v,salt,64).toString('hex')});
 const geography=require('./geography.cjs');
+const {requestOrigin}=require('./request-security.cjs');
 const {handleDeskReferral}=require('./desk-referrals.cjs');
 const {handleLawLibrary}=require('./law-library.cjs');
 const {handleLegacyCases,canReadLegacy}=require('./legacy-cases.cjs');
@@ -17,7 +18,7 @@ const safeUser=u=>({id:u.id,name:u.name,email:u.email,role:u.role,active:u.activ
 const fail=(status,message)=>{throw Object.assign(new Error(message),{status});};
 function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=true}){
  fs.mkdirSync(dataDir,{recursive:true});const file=path.join(dataDir,'platform.json');
- let db=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{version:4,users:[],applications:[],documents:[],payments:[],notifications:[],audit:[],settings:{acceptApplications:true,notice:'Local sandbox — sample information only.'}};
+ let db=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):{version:4,users:[],applications:[],documents:[],payments:[],notifications:[],audit:[],settings:{acceptApplications:true,notice:process.env.VERCEL?'Hosted demo — temporary instance data and sessions; resets may occur. Use sample information only.':'Local sandbox — sample information only.'}};
  const save=()=>{fs.writeFileSync(file+'.tmp',JSON.stringify(db,null,2));for(let attempt=0;;attempt++){try{fs.renameSync(file+'.tmp',file);break;}catch(e){if(!['EPERM','EACCES','EBUSY'].includes(e.code)||attempt>=4)throw e;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,25*(attempt+1));}}};
  const audit=(user,event,resource,details={})=>{const previous=db.audit.at(-1)?.hash||'GENESIS';const row={id:id('AUD'),at:now(),actor:user?.id||'system',role:user?.role||'system',event,resource,details,previous};row.hash=hash(JSON.stringify(row));db.audit.push(row);};
  if(!db.users.length){for(const role of Object.keys(roles)){db.users.push({id:id('USR'),name:roles[role].split(' / ').at(-1)+' Demo',email:role+'@demo.ebhumi.local',role,active:true,password:password('BhumiDemo!2026'),created:now()});}audit(null,'seed-demo-accounts','system');save();}
@@ -59,12 +60,12 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
    if(!u&&!publicRoute)fail(401,'Please log in.');
    if(!['GET','POST','PATCH'].includes(method))fail(405,'Method not allowed');
    let body={};if(method!=='GET'){
-    if(req.headers.origin&&req.headers.origin!=='http://'+req.headers.host)fail(403,'Origin denied');
+    if(req.headers.origin&&req.headers.origin!==requestOrigin(req))fail(403,'Origin denied');
     if(!String(req.headers['content-type']).startsWith('application/json'))fail(415,'JSON content type required');
     if(!publicRoute&&req.headers['x-csrf-token']!==auth.session.csrf)fail(403,'Invalid CSRF token');
     let raw='',size=0;for await(const chunk of req){size+=chunk.length;if(size>3*1024*1024)fail(413,'Request too large');raw+=chunk;}try{body=JSON.parse(raw||'{}');}catch{fail(400,'Invalid JSON');}if(!body||typeof body!=='object'||Array.isArray(body))fail(400,'JSON object required');
    }
-   if(route==='/catalog'&&method==='GET')return send(200,{roles,services,capabilities,mode:'sandbox',version:require('../package.json').version,reviewed:'2026-10-17'});
+   if(route==='/catalog'&&method==='GET')return send(200,{roles,services,capabilities,mode:'sandbox',deployment:{environment:process.env.VERCEL?'vercel':'local',persistence:process.env.VERCEL?'temporary-instance':'local-disk',sessions:'instance-memory'},version:require('../package.json').version,reviewed:'2026-10-17'});
    if(route==='/register'&&method==='POST'){
     const email=text(body.email,'Email',160).toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail(400,'Valid email required');
     const name=text(body.name,'Display name',80),pwd=text(body.password,'Password',128);if(pwd.length<12)fail(400,'Use at least 12 characters');
@@ -76,7 +77,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
     const email=String(body.email||'').toLowerCase().trim(),key=req.socket.remoteAddress+':'+email;let bucket=attempts.get(key);if(!bucket||bucket.until<Date.now())bucket={count:0,until:Date.now()+60000};bucket.count++;attempts.set(key,bucket);if(bucket.count>12)fail(429,'Too many login attempts; wait one minute');
     const found=db.users.find(x=>x.email===email&&x.active);const digest=password(String(body.password||''),found?.password.salt||'dummy').hash;
     if(!found||!crypto.timingSafeEqual(Buffer.from(digest,'hex'),Buffer.from(found.password.hash,'hex')))fail(401,'Invalid credentials');
-    if(auth)sessions.delete(auth.token);const token=crypto.randomBytes(32).toString('hex'),csrf=crypto.randomBytes(24).toString('hex');sessions.set(token,{userId:found.id,csrf,expires:Date.now()+8*3600000});audit(found,'login',found.id);save();return send(200,{user:safeUser(found),csrf},{'Set-Cookie':`eb_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800`});
+    if(auth)sessions.delete(auth.token);const token=crypto.randomBytes(32).toString('hex'),csrf=crypto.randomBytes(24).toString('hex');sessions.set(token,{userId:found.id,csrf,expires:Date.now()+8*3600000});audit(found,'login',found.id);save();return send(200,{user:safeUser(found),csrf},{'Set-Cookie':`eb_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${process.env.VERCEL?'; Secure':''}`});
    }
    if(route==='/logout'&&method==='POST'){sessions.delete(auth.token);return send(200,{ok:true},{'Set-Cookie':'eb_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0'});}
    if(handleDeskReferral({db,user:u,body,method,route,send,save,audit,notify,fail,app,canReview,view,now}))return;
