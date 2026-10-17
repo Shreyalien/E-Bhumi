@@ -105,3 +105,15 @@ Earlier role-platform screenshots remain in screenshots-v4. [Capture method](SCR
 ![Local Dakhila](screenshots-procedures/dakhila-outcome.png)
 
 The original 18 sidebar routes, Calculator, Truth Card and Holdings are retained (21 total). [Research matrix](BD_SERVICE_RESEARCH.md).
+
+## বাংলা প্রধান কর্মক্ষেত্র ও দপ্তরের যাত্রা
+
+![প্রথম পাতা](screenshots-bangla/landing-bn.png)
+
+![নাগরিকের কর্মক্ষেত্র](screenshots-bangla/citizen-bn.png)
+
+![দপ্তরের যাচাই](screenshots-bangla/union_land-desk-bn.png)
+
+![AC Land ডেস্ক](screenshots-bangla/ac_land-desk-bn.png)
+
+![নাগরিকের পর্যবেক্ষণ](screenshots-bangla/citizen-monitoring-bn.png)

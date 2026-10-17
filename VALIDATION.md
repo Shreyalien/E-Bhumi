@@ -1,8 +1,8 @@
-# Validation — v5.4, 17 October 2026
+# Validation — v5.5, 17 October 2026
 
 ## Automated checks
 
-npm run check passes all runtime module syntax checks. npm test passes **61 tests, zero failures** across five API suites and the upstream service-router unit suite.
+npm run check passes all runtime module syntax checks. npm test passes **98 tests, zero failures** across six API suites and the upstream service-router unit suite.
 
 - Default production creation uses procedure v2 for all 33 services. Each journey is tested through evidence, acknowledgements, required schedules, submission, relevant filing/payment phase, review checks, decision, output artifacts and delivery acknowledgement.
 - Mutation filing failure/retry, correction without another filing charge, post-decision DCR payment and per-phase idempotence are covered.
@@ -27,6 +27,14 @@ No uncaught page errors were observed in passing runs. The older four fixtures e
 
 The procedure implementation preserves the original font stack, landing CSS, preserved.css and citizen.js. The upstream Record Reconciliation and Service Router commits were merged without conflicts, retaining their additive styles and legacy app.js work. Their 12 router unit checks also pass. Existing original menu entries and Calculator/Truth Card remain; Holdings is additive. The blue architecture style remains, with a new family-specific flow diagram and current screenshots.
 
-The live local store was backed up before restart. Its **201 existing applications, including 3 non-demo records**, retained IDs, states and revisions. Four private sample holdings were added without generating more applications. Server serves the updated code at port 8081.
+The live local store was backed up before restart. Its **203 existing applications, including 5 non-demo records**, retained IDs, states and revisions. Four private sample holdings were added without generating more applications. Server serves the updated code at port 8081.
 
 This is scenario-based local verification, not a guarantee of zero defects or production/legal certification. Official government submissions, NID, real gateways, registry updates, lawful decisions and operational office/courier work are not connected. See [source register and procedure boundaries](docs/BD_SERVICE_RESEARCH.md).
+
+## v5.5 routing and language checks
+
+The production-default routing suite completes all 33 services with their current desk roles, verifies intermediate approval rejection, required handoff checks, prior-desk monitoring without mutation, next-role notification and full payment/output paths. The earlier single-desk v2 fixtures explicitly select `deskRouting:false` for compatibility coverage; production creation defaults to routed cases.
+
+`tests/bangla-browser.cjs` verifies Bangla-first landing/login/workspace, English switching and reload, unchanged authority option values, notification SVG/accessible name, union → officer → AC Land handoffs, citizen tracking, all five added role portals and mobile overflow. Other browser suites explicitly choose English to retain translation-path coverage. All six browser suites pass. Service instructions are translated; source titles, research excerpts, codes and user evidence retain their source language. This is interface localization, not automated translation of private material.
+
+A transient Windows file-lock failure appeared under repeated JSON-store writes. Save now retries only EPERM/EACCES/EBUSY rename failures within a bounded 250 ms, retaining atomic replacement. The full routing/API suite passed afterwards. This remains a single-process local store, not production database concurrency control.

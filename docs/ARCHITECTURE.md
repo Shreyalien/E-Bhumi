@@ -90,3 +90,24 @@ Owners create and edit their private worksheet. Linking a matching own applicati
 `lib/procedures.cjs` stores dated source metadata and 33 profiles. `lib/procedure-engine.cjs` enforces schedules, ownership, review tasks, phase quotes, holding demands, delivery and artifact integrity. `procedures-ui.js` extends the existing portal without replacing its styles. New server-created applications use v2; saved v1 cases stay readable and executable. No public request can select the legacy mode. Server-only `newWorkflowVersion:1` is an explicit compatibility-test fixture.
 
 The holding ledger is a local object owned by its applicant; finance can assess positive reasoned demands. Payment quotes bind application and demand revisions. Repeated successful payment of the same application phase returns the earlier receipt. Another case cannot pay an already-paid holding demand. Official services are linked reference sites, not integrated endpoints.
+
+## Bangla-first interface and role handoffs — v5.5
+
+`i18n.js` retains English interface source text and offers a persisted language switch; new interface defaults to Bangla. It does not translate evidence, input values, reference table cells or user notes. Select option values remain stable even when labels change. A one-time language migration sets existing accounts to Bangla while retaining other preferences; later language choices persist. `desk-ui.js` adds the route timeline and notification bell/count. Original font and layout styles are preserved.
+
+`lib/desk-routing.cjs` defines 33 configurable local route examples and intermediate desk checks. New cases snapshot their route. Current role controls mutation; completed desks retain monitoring access. Forward records checks and reason, clears assignment and notifies the next role. Only the final desk may approve/reject. These checks complement the existing phase payment and artifact engine. The waterbody route models an upazila example and does not infer legal authority for every notice.
+
+```mermaid
+flowchart LR
+    C[নাগরিকের আবেদন] --> F[প্রযোজ্য filing payment]
+    F --> U[ইউনিয়ন / প্রথম desk]
+    U --> V[যাচাই ও কারণসহ সুপারিশ]
+    V --> N[পরবর্তী desk ও নতুন assignment]
+    N --> A[শেষ desk-এর সিদ্ধান্ত]
+    A --> O[ফি / নমুনা নথি / ডেলিভারি]
+    C -. অগ্রগতি পর্যবেক্ষণ .-> O
+    classDef blue fill:#e8f1ff,stroke:#376eb5,color:#17365d;
+    class C,F,U,V,N,A,O blue;
+```
+
+[Role matrix](ROLE_WORKFLOWS.md) · [Lease/auction research](BD_LEASE_AUCTION_RESEARCH.md).

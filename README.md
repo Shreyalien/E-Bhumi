@@ -2,17 +2,25 @@
 
 # e-Bhumi
 
-### Your land. A clearer path.
+### আপনার জমি। সহজতর ভূমিসেবার পথ।
+
+Your land. A clearer path.
 
 A citizen-first land-service preparation workspace for Bangladesh.
 
-**21 citizen pages (18 preserved + Calculator + Truth Card + Holdings) · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
+**21 citizen pages (18 preserved + Calculator + Truth Card + Holdings) · 33 service workflows · 15 role platforms · 460 tracked requirements · Local sandbox**
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
 </div>
 
-![e-Bhumi landing page — desktop](docs/screenshots/landing-desktop.png)
+![বাংলা প্রধান প্রথম পাতা](docs/screenshots-bangla/landing-bn.png)
+
+বাংলা মূল ভাষা; English বাটন থেকে অনুবাদ বেছে নেওয়া যায়। মূল font, landing composition, lease ও CHT নকশা রাখা হয়েছে। নতুন আবেদনের দপ্তরভিত্তিক কাজ জানতে [১৫টি ভূমিকার ম্যাট্রিক্স](docs/ROLE_WORKFLOWS.md) এবং [ইজারা/নিলাম/দরপত্র গবেষণা](docs/BD_LEASE_AUCTION_RESEARCH.md) দেখুন।
+
+| নাগরিকের বাংলা কর্মক্ষেত্র | দপ্তরের যাচাই ও handoff |
+| --- | --- |
+| ![নাগরিক](docs/screenshots-bangla/citizen-bn.png) | ![ইউনিয়ন ভূমি ডেস্ক](docs/screenshots-bangla/union_land-desk-bn.png) |
 
 > **Demo status:** e-Bhumi is an independent prototype, not an official Government of Bangladesh service. Land references, geometry, statuses and amounts are illustrative. It does not establish ownership, accept real payments, submit official applications or reserve government appointments.
 
@@ -78,7 +86,7 @@ Use HTTP for normal use. Opening HTML directly with `file://` may prevent the fu
 
 ## Role login and demo evaluation
 
-Open /login.html and choose a demo role. The local demo password is `BhumiDemo!2026`. Emails follow `<role>@demo.ebhumi.local` for citizen, representative, officer, records, surveyor, registrar, finance, support, admin and auditor.
+Open /login.html and choose a demo role. The local demo password is `BhumiDemo!2026`. Emails follow `<role>@demo.ebhumi.local` for citizen, representative, officer, records, surveyor, registrar, finance, support, admin, auditor, union_land, ac_land, uno, dc and lease_committee.
 
 Citizens and representatives can register; administrators provision staff. One browser profile shares one session cookie, so use separate profiles/private contexts for simultaneous role evaluation. Public registration cannot select a staff role. All original 18 citizen navigation entries remain visible, with private citizen settings under Administration.
 
@@ -86,7 +94,7 @@ To operate a sample process, use an editable draft or submitted case, then sign 
 
 ## Screenshots
 
-Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 21 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
+Workspace screenshots were refreshed on 17 October 2026 from the current source. The Bangla-first landing capture is current; earlier English views are retained for translation/reference. All displayed records are demonstration sample data. For the complete visual gallery of all 21 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
 ### Regional and lease views
 

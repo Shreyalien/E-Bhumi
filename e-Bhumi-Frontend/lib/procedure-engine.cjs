@@ -1,6 +1,7 @@
 'use strict';
 const crypto=require('node:crypto');
 const {profiles,sources,RESEARCH_DATE}=require('./procedures.cjs');
+const {currentDesk,deskProcedure}=require('./desk-routing.cjs');
 const hash=v=>crypto.createHash('sha256').update(JSON.stringify(v)).digest('hex');
 const emptyProcedure=()=>({acknowledgements:{},plots:[],records:[],parties:[],heirs:[],reviewTasks:{},messages:[]});
 function seedHoldings(db,audit){
@@ -21,7 +22,7 @@ function normalizeData(input,fail){
  return {plots,records,parties,heirs,acknowledgements:{sourceRead:ack.sourceRead===true,jurisdiction:ack.jurisdiction===true}};
 }
 function procedurePreflight(a,s,db){
- const p=profiles[s.id],data=a.procedureData||emptyProcedure(),missing=[];
+ const p=deskProcedure(a,profiles[s.id]),data=a.procedureData||emptyProcedure(),missing=[];
  if(!data.acknowledgements.sourceRead)missing.push('Read the service procedure and source limitations');if(!data.acknowledgements.jurisdiction)missing.push('Confirm the proposed jurisdiction / authority context');
  for(const key of p.structured){if(key==='sheets'){if(!data.records.length||data.records.some(r=>!r.sheet))missing.push('Add at least one Mouza map / sheet request');}else if(key==='records'){if(!data.records.length||data.records.some(r=>!r.khatian))missing.push('Add at least one survey / Khatian record request');}else if(!data[key]?.length)missing.push('Add the required '+key+' schedule');}
  if(p.structured.includes('plots')&&data.plots.length){if(data.plots.some(r=>r.mouza!==a.details.mouza))missing.push('Keep requested plots within the supplied Mouza context');const total=data.plots.reduce((n,r)=>n+r.requestedArea,0);if(a.details.area&&Math.abs(total-Number(a.details.area))>.000001)missing.push('Main requested area must equal the structured plot total');}
@@ -43,7 +44,8 @@ function handleProcedureRequest(ctx){
  }
  const match=route.match(/^\/applications\/([^/]+)(?:\/(procedure|preflight|review-task|payment-quote|message|verify-outcome|action))?$/);
  let a;if(match){a=app(u,match[1]);if(a.workflowVersion!==2)return false;}else if(route==='/payments'&&method==='POST'){a=app(u,body.applicationId);if(a.workflowVersion!==2)return false;}else return false;
- const s=service(a.serviceId),p=profiles[s.id],data=a.procedureData||(a.procedureData=emptyProcedure());
+ const s=service(a.serviceId),p=deskProcedure(a,profiles[s.id]),data=a.procedureData||(a.procedureData=emptyProcedure());
+ const notifyDesk=()=>{const role=currentDesk(a,s.reviewer);for(const person of db.users.filter(person=>person.active&&person.role===role))notify(person.id,'নতুন কাজ / New task: '+s.name,a.id);};
  const owner=()=>{if(a.ownerId!==u.id)fail(403,'Only the application owner can do this');};
  const revision=()=>{if(body.revision!==a.revision)fail(409,'Application changed; reload before acting');};
  const assigned=()=>{if(!canReview(u,a)||a.assignedTo!==u.id)fail(403,'Assigned service reviewer required');};
@@ -82,14 +84,14 @@ function handleProcedureRequest(ctx){
   const q=quote(body.phase);if(body.quoteDigest!==q.digest)fail(409,'Payment quote changed; reopen checkout');
   const payment={id:id('PAY'),applicationId:a.id,ownerId:a.ownerId,phase:q.phase,amount:q.amount,currency:q.currency,status:body.result==='success'?'Successful':'Failed',receipt:id('DEMO-RECEIPT'),at:now(),reconciled:false};
   const demand=p.autoTax?getDemand():null;db.payments.push(payment);
-  if(body.result==='fail')a.status=q.phase==='filing'?'ApplicationPaymentFailed':'PaymentFailed';else if(q.phase==='filing'){a.status='Submitted';a.submittedAt=now();}else{a.status='ReadyForDelivery';if(p.autoTax){data.reviewTasks=Object.fromEntries(p.reviewTasks.map(t=>[t.id,{result:'done',note:'Server checked owned holding, unpaid demand and successful local payment; not an official verification',by:'local-holding-ledger',role:'system',at:now()}]));demand.demand.paid=true;demand.demand.paymentId=payment.id;demand.demand.revision++;demand.h.revision++;issue('local-holding-ledger','Dakhila generated from the successful local holding payment');a.status='Completed';}}
+  if(body.result==='fail')a.status=q.phase==='filing'?'ApplicationPaymentFailed':'PaymentFailed';else if(q.phase==='filing'){a.status='Submitted';a.submittedAt=now();notifyDesk();}else{a.status='ReadyForDelivery';if(p.autoTax){data.reviewTasks=Object.fromEntries(p.reviewTasks.map(t=>[t.id,{result:'done',note:'Server checked owned holding, unpaid demand and successful local payment; not an official verification',by:'local-holding-ledger',role:'system',at:now()}]));demand.demand.paid=true;demand.demand.paymentId=payment.id;demand.demand.revision++;demand.h.revision++;issue('local-holding-ledger','Dakhila generated from the successful local holding payment');a.status='Completed';}}
   notify(a.ownerId,'Sandbox '+q.phase+' payment '+payment.status,a.id);send(201,{payment,application:commit('payment-'+q.phase,payment.status+'; no real money')});return true;
  }
  if(match?.[2]==='action'&&method==='POST'){
   revision();const action=body.action;
   if(action==='submit'){
    owner();if(!['Draft','CorrectionRequested'].includes(a.status))fail(409,'Cannot submit from this stage');validate(a,true);const missing=procedurePreflight(a,s,db);if(missing.length)fail(400,missing.join('; '));if(s.id==='appointment')reserveAppointment(a);data.reviewTasks={};a.assignedTo=null;
-   const filingPaid=db.payments.some(pay=>pay.applicationId===a.id&&pay.phase==='filing'&&pay.status==='Successful');a.status=p.filingFee&&!filingPaid?'AwaitingApplicationPayment':p.autoTax?'AwaitingPayment':'Submitted';if(a.status==='Submitted')a.submittedAt=now();notify(a.ownerId,'Application: '+a.status,a.id);
+   const filingPaid=db.payments.some(pay=>pay.applicationId===a.id&&pay.phase==='filing'&&pay.status==='Successful');a.status=p.filingFee&&!filingPaid?'AwaitingApplicationPayment':p.autoTax?'AwaitingPayment':'Submitted';if(a.status==='Submitted'){a.submittedAt=now();notifyDesk();}notify(a.ownerId,'Application: '+a.status,a.id);
   }else if(action==='withdraw'){
    owner();if(!['Draft','Submitted','CorrectionRequested','AwaitingApplicationPayment','ApplicationPaymentFailed'].includes(a.status))fail(409,'Cannot withdraw from this stage');a.status='Withdrawn';
   }else if(action==='acknowledge-delivery'){
@@ -98,11 +100,14 @@ function handleProcedureRequest(ctx){
    if(!canReview(u,a))fail(403,'This service belongs to another desk');if(a.assignedTo&&a.assignedTo!==u.id)fail(403,'Assigned to another reviewer');if(!['Submitted','ReadyForDelivery'].includes(a.status))fail(409,'No claimable work');a.assignedTo=u.id;if(a.status==='Submitted')a.status='UnderReview';
   }else{
    assigned();const reason=note();
-   if(action==='correction'){if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Not under active review');a.status='CorrectionRequested';}
-   else if(action==='hearing'){if(a.status!=='UnderReview')fail(409,'Not under active review');if(typeof body.hearingAt!=='string'||!Number.isFinite(Date.parse(body.hearingAt))||Date.parse(body.hearingAt)<Date.now())fail(400,'Choose a future hearing time');a.hearingAt=body.hearingAt;a.status='HearingScheduled';}
-   else if(action==='reject'){if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Not under active review');a.status='Rejected';}
+   if(action==='forward'){
+    if(!a.deskWorkflow||a.deskWorkflow.index>=a.deskWorkflow.stages.length-1)fail(409,'No next desk');if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Active review required');if(p.reviewTasks.some(t=>data.reviewTasks[t.id]?.result!=='done'))fail(409,'Complete desk review checks before forwarding');
+    a.deskWorkflow.completed.push({index:a.deskWorkflow.index,role:currentDesk(a,s.reviewer),by:u.id,at:now(),note:reason,checks:structuredClone(data.reviewTasks)});a.deskWorkflow.index++;a.status='Submitted';a.assignedTo=null;data.reviewTasks={};delete a.hearingAt;notifyDesk();
+   }else if(action==='correction'){if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Not under active review');a.status='CorrectionRequested';}
+   else if(action==='hearing'){if(a.deskWorkflow&&a.deskWorkflow.index<a.deskWorkflow.stages.length-1)fail(403,'Final decision desk required to schedule a hearing');if(a.status!=='UnderReview')fail(409,'Not under active review');if(typeof body.hearingAt!=='string'||!Number.isFinite(Date.parse(body.hearingAt))||Date.parse(body.hearingAt)<Date.now())fail(400,'Choose a future hearing time');a.hearingAt=body.hearingAt;a.status='HearingScheduled';}
+   else if(action==='reject'){if(a.deskWorkflow&&a.deskWorkflow.index<a.deskWorkflow.stages.length-1)fail(403,'Only the final desk may reject; record a finding and forward or request correction');if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Not under active review');a.status='Rejected';}
    else if(action==='approve'){
-    if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Not under active review');const incomplete=p.reviewTasks.filter(t=>data.reviewTasks[t.id]?.result!=='done');if(incomplete.length)fail(409,'Complete the service review checks: '+incomplete.map(t=>t.label).join('; '));a.status=p.decisionFee?'AwaitingPayment':'ReadyForDelivery';
+    if(a.deskWorkflow&&a.deskWorkflow.index<a.deskWorkflow.stages.length-1)fail(409,'Only the final desk may decide; forward after checks');if(!['UnderReview','HearingScheduled'].includes(a.status))fail(409,'Not under active review');const incomplete=p.reviewTasks.filter(t=>data.reviewTasks[t.id]?.result!=='done');if(incomplete.length)fail(409,'Complete the service review checks: '+incomplete.map(t=>t.label).join('; '));a.status=p.decisionFee?'AwaitingPayment':'ReadyForDelivery';
    }else if(action==='issue'){
     if(a.status!=='ReadyForDelivery')fail(409,'Approval/payment is incomplete');if(p.reviewTasks.some(t=>data.reviewTasks[t.id]?.result!=='done'))fail(409,'Service review checks are incomplete');
     const delivery=p.delivery?a.details.delivery:'Digital demo';if(delivery!=='Digital demo'&&(typeof body.deliveryReference!=='string'||!body.deliveryReference.trim()||body.deliveryReference.length>200))fail(400,'Enter a local dispatch / collection reference');issue(u.id,reason);a.status=delivery==='Postal demo'?'DeliveryInTransit':delivery==='Office collection demo'?'ReadyForCollection':'Completed';if(a.status!=='Completed')a.delivery={channel:delivery,reference:body.deliveryReference,preparedAt:now(),scope:'Local fulfilment simulation; no courier or office contacted'};
