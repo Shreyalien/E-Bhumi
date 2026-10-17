@@ -74,7 +74,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
     const user={id:id('USR'),name,email,role:body.role,active:true,password:password(pwd),created:now()};db.users.push(user);audit(user,'register',user.id);save();return send(201,{user:safeUser(user)});
    }
    if(route==='/login'&&method==='POST'){
-    const email=String(body.email||'').toLowerCase().trim(),key=req.socket.remoteAddress+':'+email;let bucket=attempts.get(key);if(!bucket||bucket.until<Date.now())bucket={count:0,until:Date.now()+60000};bucket.count++;attempts.set(key,bucket);if(bucket.count>12)fail(429,'Too many login attempts; wait one minute');
+    const email=String(body.email||'').toLowerCase().trim(),key=(req.socket?.remoteAddress||'serverless')+':'+email;let bucket=attempts.get(key);if(!bucket||bucket.until<Date.now())bucket={count:0,until:Date.now()+60000};bucket.count++;attempts.set(key,bucket);if(bucket.count>12)fail(429,'Too many login attempts; wait one minute');
     const found=db.users.find(x=>x.email===email&&x.active);const digest=password(String(body.password||''),found?.password.salt||'dummy').hash;
     if(!found||!crypto.timingSafeEqual(Buffer.from(digest,'hex'),Buffer.from(found.password.hash,'hex')))fail(401,'Invalid credentials');
     if(auth)sessions.delete(auth.token);const token=crypto.randomBytes(32).toString('hex'),csrf=crypto.randomBytes(24).toString('hex');sessions.set(token,{userId:found.id,csrf,expires:Date.now()+8*3600000});audit(found,'login',found.id);save();return send(200,{user:safeUser(found),csrf},{'Set-Cookie':`eb_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${process.env.VERCEL?'; Secure':''}`});
