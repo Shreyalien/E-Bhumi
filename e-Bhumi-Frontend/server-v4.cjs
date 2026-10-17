@@ -21,4 +21,4 @@ function createServer(options={}){
  });server.on('close',()=>platform.close());return {server,platform};
 }
 if(require.main===module){const {server}=createServer();server.listen(Number(process.env.PORT)||8080,'127.0.0.1',()=>console.log('e-Bhumi role platform: http://127.0.0.1:'+(process.env.PORT||8080)));}
-module.exports={createServer};
+module.exports={createServer,default:{createServer}};
