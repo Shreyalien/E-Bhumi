@@ -85,8 +85,10 @@
 
   const docs = [
     ['DOC-0081','RS Khatian reference','Land record','Verified','green','12 Oct 2026'],
-    ['DOC-0079','Tax receipt · demo','Payment receipt','Verified','green','10 Oct 2026'],
+    ['DOC-0082','Mutation Porcha · demo','Land record','Verified','green','05 Jun 2025'],
     ['DOC-0072','Deed scan · sample','Uploaded document','Needs review','amber','08 Oct 2026'],
+    ['DOC-0083','Historical deed · sample','Uploaded document','Needs review','amber','18 Mar 1985'],
+    ['DOC-0079','Tax receipt · demo','Payment receipt','Verified','green','10 Oct 2026'],
     ['DOC-0065','Applicant identity checklist','Checklist','Draft','gray','04 Oct 2026']
   ];
 
@@ -173,7 +175,7 @@
   }
 
   function docRows(items=docs){
-    return items.map(d=>`<tr><td class="table-primary">${esc(d[0])}</td><td><strong>${esc(d[1])}</strong></td><td>${esc(d[2])}</td><td><span class="pill ${d[4]}">${esc(d[3])}</span></td><td>${esc(d[5])}</td><td><button class="table-actions" data-action="document-detail" data-id="${esc(d[0])}">Open ↗</button></td></tr>`).join('');
+    return items.map(d=>`<tr><td class="table-primary">${esc(d[0])}</td><td><strong>${esc(d[1])}</strong></td><td>${esc(d[2])}</td><td><span class="pill ${d[4]}">${esc(d[3])}</span></td><td>${esc(d[5])}</td><td><button class="table-actions" data-action="document-detail" data-id="${esc(d[0])}">Open ↗</button><button class="table-actions" data-action="document-compare" data-id="${esc(d[0])}" style="margin-left:7px;color:#185343;font-weight:700" title="অন্য নথির সাথে তথ্য তুলনা করুন">⚖ Reconcile</button></td></tr>`).join('');
   }
 
   function paymentRows(items=payments){
@@ -366,8 +368,17 @@
   }
 
   function documentsPage(){
-    return `${heading('SECURE DOCUMENTS','Documents vault','Organise uploaded evidence, service-generated files, receipts, and document verification status.',`<button class="btn" data-action="document-guidance">Document checklist</button><button class="btn primary" data-action="upload-document">↑ Upload document</button>`)}
+    return `${heading('SECURE DOCUMENTS','Documents vault','Organise uploaded evidence, service-generated files, receipts, and document verification status.',`<button class="btn" data-action="start-reconciliation">⚖ নথিপত্র তুলনা (Reconcile #55)</button><button class="btn" data-action="document-guidance">Document checklist</button><button class="btn primary" data-action="upload-document">↑ Upload document</button>`)}
     ${demoBanner()}
+    <div class="reconcile-promo">
+      <div class="reconcile-promo-icon">⚖</div>
+      <div class="reconcile-promo-text">
+        <span class="eyebrow" style="color:#2a6552;margin-bottom:3px">R&amp;D FEATURE #55 · DETERMINISTIC RECONCILIATION</span>
+        <h3 style="margin:0 0 4px;font-size:15px;color:#173d35">Record Reconciliation Engine (দলিল ও খতিয়ান গরমিল নিরূপণ)</h3>
+        <p style="margin:0;font-size:12px;color:#5a7368;line-height:1.5">যেকোনো দুটি দলিল বা খতিয়ানের তথ্য (মালিকের নাম, দাগ, খতিয়ান, মৌজা, জমির পরিমাণ ও একক) পাশাপাশি রেখে অমিল ও অসঙ্গতি নিরূপণ করুন। ফলাফল সরাসরি Land Case ফাইলে সংরক্ষণ করতে পারবেন।</p>
+      </div>
+      <button class="btn primary" data-action="start-reconciliation" style="white-space:nowrap">⚖ নথিপত্র তুলনা শুরু করুন →</button>
+    </div>
     <div class="stats-grid">
       ${stat('Stored documents',String(docs.length).padStart(2,'0'),'▧','Across|4 categories')}
       ${stat('Verified',String(docs.filter(d=>d[4]==='green').length).padStart(2,'0'),'✓','Verified|by platform')}
@@ -808,20 +819,23 @@
     { title: 'অস্পষ্ট ইনপুট (Clarification Test)', text: 'আমার জমি নিয়ে সমস্যা হচ্ছে।' }
   ];
 
-  function startLandCaseBuilder(initialText = ''){
+  function startLandCaseBuilder(initialText = '', options = {}){
+    const catKey = options.categoryKey || (initialText ? classifyLandIssue(initialText).categoryKey : 'other');
+    const cat = LAND_CASE_CATEGORIES[catKey] || LAND_CASE_CATEGORIES.other;
     caseWizardState = {
-      step: 1,
+      step: options.step || 1,
       description: initialText || '',
-      categoryKey: 'other',
-      category: '',
-      confidence: 'low',
+      categoryKey: catKey,
+      category: options.category || cat.title,
+      confidence: options.confidence || (catKey !== 'other' ? 'high' : 'low'),
       isVague: false,
       ambiguousMatches: [],
       showCategoryGrid: false,
-      clarificationAnswer: '',
-      linkedParcel: '',
-      checklist: [],
-      notes: '',
+      clarificationAnswer: options.clarificationAnswer || '',
+      linkedParcel: options.linkedParcel || '',
+      checklist: options.checklist || getSuggestedChecklist(catKey),
+      notes: options.notes || '',
+      reconciliation: options.reconciliation || null,
       savedCaseId: null
     };
 
@@ -1269,6 +1283,7 @@
           checklist: JSON.parse(JSON.stringify(caseWizardState.checklist)),
           notes: caseWizardState.notes || '',
           nextSteps: getSuggestedNextSteps(caseWizardState.categoryKey, caseWizardState.checklist),
+          reconciliation: caseWizardState.reconciliation || null,
           isDemo: true
         };
 
@@ -1334,7 +1349,10 @@
                 const verify = (c.checklist || []).filter(i => i.status === 'verify').length;
                 return `<tr>
                   <td class="table-primary"><strong>${esc(c.id)}</strong></td>
-                  <td><strong>${esc(c.category)}</strong></td>
+                  <td>
+                    <strong>${esc(c.category)}</strong>
+                    ${c.reconciliation ? `<br/><span class="reconcile-case-badge ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? 'warning' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? 'success' : 'info'}">⚖ ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? 'গরমিল চিহ্নিত' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? 'মিল রয়েছে' : 'যাচাই প্রয়োজন'}</span>` : ''}
+                  </td>
                   <td>${esc(c.linkedParcel || 'নির্দিষ্ট জমি নেই')}</td>
                   <td>${esc(c.created)}</td>
                   <td>
@@ -1404,6 +1422,27 @@
           <p style="font-size:11.5px;color:#456657;margin:2px 0 0">${esc(c.clarificationAnswer)}</p>
         </div>
       ` : ''}
+
+      ${c.reconciliation ? `
+        <div style="margin-top:16px;background:#f6faf8;border:1.5px solid #c2e2d2;border-radius:12px;padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <strong style="font-size:11.5px;color:#184236">⚖ R&amp;D Feature #55 · সংযুক্ত গরমিল রিপোর্ট</strong>
+            <span class="pill ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? 'amber' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? 'green' : 'blue'}">
+              ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? '⚠️ গরমিল চিহ্নিত' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? '✓ মিল রয়েছে' : 'ℹ অপর্যাপ্ত তথ্য'}
+            </span>
+          </div>
+          <p style="font-size:11px;color:#355a49;margin:0 0 8px;line-height:1.5">${esc(c.reconciliation.explanation)}</p>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="btn small" data-action="reconcile-view-attached" data-case-id="${esc(c.id)}">সম্পূর্ণ বিশ্লেষণ রিপোর্ট দেখুন ↗</button>
+            <small style="color:#779183;font-size:9.5px">নথি: ${esc(c.reconciliation.docA?.id || 'Doc A')} বনাম ${esc(c.reconciliation.docB?.id || 'Doc B')}</small>
+          </div>
+        </div>
+      ` : `
+        <div style="margin-top:14px;border:1px dashed #dce7df;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+          <small style="color:#638072;font-size:10.5px">এই কেসে নথিপত্রের গরমিল পরীক্ষা করতে চান?</small>
+          <button type="button" class="btn small" data-action="start-reconciliation" data-case-id="${esc(c.id)}">⚖ নথিপত্র গরমিল পরীক্ষা করুন</button>
+        </div>
+      `}
 
       <div style="margin-top:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -1478,6 +1517,1103 @@
     toast('Land Case মুছে ফেলা হয়েছে', 'কেস ফাইলটি অপসারিত হয়েছে।');
   }
 
+  /* ==========================================================================
+     R&D Feature #55: Record Reconciliation Engine
+     Deterministic document & record comparison engine.
+     Normalizes formatting, Bangla/English numerals, and whitespace.
+     Unit-aware area comparison with conversion caution.
+     Missing fields tolerance (does not treat missing as mismatch).
+     Citizen-friendly Bangla explanations & next steps.
+     ========================================================================== */
+
+  const DEMO_DOCUMENT_RECORDS = {
+    'DOC-0081': {
+      id: 'DOC-0081',
+      title: 'RS Khatian reference (আরএস খতিয়ান নং ৭৩১)',
+      docType: 'খতিয়ান / পর্চা (Khatian Record)',
+      provenance: 'verified-source',
+      provenanceLabel: 'সরকারি রেকর্ডরুম সার্টিফাইড নকল',
+      sourceRef: 'সাভার উপজেলা ভূমি রেকর্ডরুম · বালাম ৪২, পৃষ্ঠা ১৫',
+      date: '12 Oct 2026',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'RS',
+        area: '12.50 decimal',
+        date: '12 Oct 2026'
+      }
+    },
+    'DOC-0072': {
+      id: 'DOC-0072',
+      title: 'Deed scan · sample (সাব-কবলা দলিল নং ৫৪২১/২০২৪)',
+      docType: 'সাব-কবলা দলিল (Sub-Kabala Deed)',
+      provenance: 'AI-extracted-unverified',
+      provenanceLabel: 'নমুনা স্ক্যান থেকে এক্সট্র্যাক্টকৃত (যাচাইহীন)',
+      sourceRef: 'সাভার সাব-রেজিস্ট্রি অফিস · দলিল নং ৫৪২১',
+      date: '14 Feb 2024',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'RS',
+        area: '10.00 decimal', // Area mismatch with DOC-0081 (12.50 vs 10.00)
+        date: '14 Feb 2024'
+      }
+    },
+    'DOC-0082': {
+      id: 'DOC-0082',
+      title: 'Mutation Porcha · demo (নামজারি পর্চা নং ৯২০/১)',
+      docType: 'নামজারি খতিয়ান (Mutation Khatian)',
+      provenance: 'verified-source',
+      provenanceLabel: 'ই-নামজারি ডিজিটাল রেকর্ড',
+      sourceRef: 'ই-নামজারি সিস্টেম · জোত নং ৯২০/১',
+      date: '05 Jun 2025',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'RS',
+        area: '12.50 decimal', // Exact match with DOC-0081
+        date: '05 Jun 2025'
+      }
+    },
+    'DOC-0083': {
+      id: 'DOC-0083',
+      title: 'Historical deed · sample (১৯৮৫ সালের বায়া দলিল)',
+      docType: 'বায়া দলিল (Historical Deed)',
+      provenance: 'sample/demo',
+      provenanceLabel: 'ঐতিহাসিক দলিল নমুনা (ডেমো)',
+      sourceRef: 'পারিবারিক বায়া দলিল রেকর্ড',
+      date: '18 Mar 1985',
+      fields: {
+        party: 'মরহুম রমিজ উদ্দিন',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'SA',
+        area: '২ কাঠা ৪ ছটাক', // Incompatible regional units
+        date: '18 Mar 1985'
+      }
+    },
+    'DOC-0079': {
+      id: 'DOC-0079',
+      title: 'Tax receipt · demo (ভূমি উন্নয়ন কর দাখিলা)',
+      docType: 'কর দাখিলা (Tax Receipt)',
+      provenance: 'sample/demo',
+      provenanceLabel: 'ভূমি কর পোর্টাল ডেমো দাখিলা',
+      sourceRef: 'ইউনিয়ন ভূমি অফিস · দাখিলা রসিদ নং ৯৮৩',
+      date: '10 Oct 2026',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: '', // Missing survey type
+        area: '12.50 decimal',
+        date: '10 Oct 2026'
+      }
+    },
+    'DOC-0065': {
+      id: 'DOC-0065',
+      title: 'Applicant identity checklist (পরিচয় ও এনআইডি)',
+      docType: 'নাগরিক চেকলিস্ট (Citizen Identity Checklist)',
+      provenance: 'user-provided',
+      provenanceLabel: 'নাগরিকের প্রদত্ত তথ্য',
+      sourceRef: 'নাগরিকের নিজ ঘোষণাপত্র ও এনআইডি কপি',
+      date: '04 Oct 2026',
+      fields: {
+        party: 'আব্দুল করিম শেখ', // Spelling variation
+        mouza: '',
+        dag: '',
+        khatian: '',
+        surveyType: '',
+        area: '',
+        date: '04 Oct 2026'
+      }
+    }
+  };
+
+  const RECONCILIATION_PRESETS = [
+    {
+      key: 'area-mismatch',
+      title: '⚠️ কেস ১: জমির পরিমাপে গরমিল (Area Discrepancy)',
+      desc: 'আরএস খতিয়ান (১২.৫০ শতক) বনাম সাব-কবলা দলিল (১০.০০ শতক) — ২.৫০ শতকের অমিল',
+      docA: 'DOC-0081',
+      docB: 'DOC-0072'
+    },
+    {
+      key: 'exact-match',
+      title: '✓ কেস ২: অবিকল মিল (Exact Match)',
+      desc: 'আরএস খতিয়ান (৭৩১) বনাম ই-নামজারি পর্চা (৯২০/১) — সকল ফিল্ড সঙ্গতিপূর্ণ',
+      docA: 'DOC-0081',
+      docB: 'DOC-0082'
+    },
+    {
+      key: 'incompatible-units',
+      title: '❓ কেস ৩: পরিমাপের অসম একক (Incompatible Units)',
+      desc: 'আরএস খতিয়ান (১২.৫০ শতক) বনাম প্রাচীন দলিল (২ কাঠা ৪ ছটাক) — একক রূপান্তর যাচাই প্রয়োজন',
+      docA: 'DOC-0081',
+      docB: 'DOC-0083'
+    },
+    {
+      key: 'missing-fields',
+      title: '✎ কেস ৪: অনুপস্থিত তথ্য ও নামের বানান তফাত (Missing Fields & Spelling)',
+      desc: 'আরএস খতিয়ান (সম্পূর্ণ) বনাম নাগরিক পরিচয়পত্র (অনুপস্থিত দাগ/খতিয়ান এবং নামের পদবি পার্থক্য)',
+      docA: 'DOC-0081',
+      docB: 'DOC-0065'
+    }
+  ];
+
+  function normalizeDigits(str) {
+    if (str == null) return '';
+    return String(str).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  }
+
+  function normalizeRecordText(str) {
+    if (str == null) return '';
+    return normalizeDigits(String(str))
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toLowerCase();
+  }
+
+  function parseAreaField(raw) {
+    if (!raw || !String(raw).trim()) return { raw: '', num: null, unit: '', reliable: false, empty: true };
+    const text = normalizeRecordText(raw);
+    const numMatch = text.match(/[-+]?[0-9]*\.?[0-9]+/);
+    if (!numMatch) {
+      return { raw, num: null, unit: 'unknown', reliable: false, empty: false, reason: 'কোনো বৈধ সংখ্যাসূচক মান পাওয়া যায়নি' };
+    }
+    const num = parseFloat(numMatch[0]);
+
+    // Check for regional or unstandardized local units
+    if (/কাঠা|katha|বিঘা|bigha|ছটাক|chatak|কানি|kani|গণ্ডা|gonda|পাখি|pakhi/.test(text)) {
+      return {
+        raw,
+        num,
+        unit: 'regional',
+        reliable: false,
+        empty: false,
+        reason: 'আঞ্চলিক পরিমাপের একক (কাঠা/ছটাক/কানি) — স্থানীয় মৌজার সরকারি রূপান্তর অনুপাত ব্যতীত সরাসরি মেলানো ঝুঁকিপূর্ণ'
+      };
+    }
+
+    // Standard decimal / শতাংশ / শতক
+    if (/decimal|শতাংশ|শতক|ডিসিমেল|শতকরা/.test(text) || (!/acre|একর|sqft|বর্গফুট/.test(text) && numMatch)) {
+      return { raw, num: num, unit: 'decimal', reliable: true, empty: false };
+    }
+
+    // Acre / একর (1 acre = 100 decimal)
+    if (/acre|একর/.test(text)) {
+      return { raw, num: num * 100, unit: 'decimal', reliable: true, empty: false, convertedFrom: 'acre' };
+    }
+
+    // Sq ft / বর্গফুট (1 decimal = 435.6 sq ft)
+    if (/sqft|sq\s*ft|square\s*feet|বর্গফুট|বর্গ\s*ফুট/.test(text)) {
+      return { raw, num: Number((num / 435.6).toFixed(2)), unit: 'decimal', reliable: true, empty: false, convertedFrom: 'sqft' };
+    }
+
+    return { raw, num: num, unit: 'unknown', reliable: false, empty: false, reason: 'অনির্ধারিত একক' };
+  }
+
+  function getDocumentRecord(id) {
+    if (DEMO_DOCUMENT_RECORDS[id]) {
+      return JSON.parse(JSON.stringify(DEMO_DOCUMENT_RECORDS[id]));
+    }
+    const d = docs.find(x => x[0] === id);
+    if (d) {
+      return {
+        id: d[0],
+        title: `${d[1]} (${d[0]})`,
+        docType: d[2] || 'নথি (Document)',
+        provenance: d[4] === 'green' ? 'verified-source' : 'sample/demo',
+        provenanceLabel: d[4] === 'green' ? 'যাচাইকৃত নথি' : 'নমুনা নথি (ডেমো)',
+        sourceRef: 'ডেমো ভল্ট নথি',
+        date: d[5] || 'Recent',
+        fields: {
+          party: 'আব্দুল করিম',
+          mouza: 'আমিন বাজার',
+          dag: '1842',
+          khatian: '731',
+          surveyType: 'RS',
+          area: '12.50 decimal',
+          date: d[5] || '12 Oct 2026'
+        }
+      };
+    }
+    return JSON.parse(JSON.stringify(DEMO_DOCUMENT_RECORDS['DOC-0081']));
+  }
+
+  function renderProvenanceBadge(prov) {
+    switch(prov) {
+      case 'verified-source':
+        return '<span class="prov-badge verified-source">✓ সরকারি রেকর্ডরুম (Verified)</span>';
+      case 'AI-extracted-unverified':
+        return '<span class="prov-badge ai-extracted">✳ এআই এক্সট্র্যাক্টকৃত (যাচাইহীন)</span>';
+      case 'sample/demo':
+        return '<span class="prov-badge sample-demo">◈ ডেমো নমুনা (Sample)</span>';
+      case 'user-provided':
+        return '<span class="prov-badge user-provided">✎ নাগরিকের প্রদত্ত তথ্য</span>';
+      default:
+        return '<span class="prov-badge sample-demo">◈ ডেমো ডাটা</span>';
+    }
+  }
+
+  function compareRecords(docA, docB) {
+    const fA = docA.fields || {};
+    const fB = docB.fields || {};
+    const findings = [];
+
+    const areNamesEquivalent = (a, b) => {
+      const na = normalizeRecordText(a);
+      const nb = normalizeRecordText(b);
+      if (na === nb) return true;
+      const pairs = [
+        ['abdul karim', 'আব্দুল করিম'],
+        ['karim', 'করিম'],
+        ['mohammad', 'মোহাম্মদ'],
+        ['md', 'মো:'],
+        ['md', 'মোঃ']
+      ];
+      for (const [p1, p2] of pairs) {
+        if ((na.includes(p1) && nb.includes(p2)) || (na.includes(p2) && nb.includes(p1))) return true;
+      }
+      return false;
+    };
+
+    const areMouzasEquivalent = (a, b) => {
+      const na = normalizeRecordText(a);
+      const nb = normalizeRecordText(b);
+      if (na === nb) return true;
+      const mouzaPairs = [
+        ['amin bazar', 'আমিন বাজার'],
+        ['baipayl', 'বাইপাইল'],
+        ['savar', 'সাভার'],
+        ['kalighat', 'কালীঘাট'],
+        ['lohagara', 'লোহাগড়া']
+      ];
+      for (const [p1, p2] of mouzaPairs) {
+        if ((na === p1 && nb === p2) || (na === p2 && nb === p1)) return true;
+      }
+      return false;
+    };
+
+    // 1. Party / Name
+    const rawPartyA = (fA.party || '').trim();
+    const rawPartyB = (fB.party || '').trim();
+    if (!rawPartyA || !rawPartyB) {
+      findings.push({
+        id: 'party',
+        label: 'মালিক / পক্ষের নাম (Party / Owner)',
+        valA: rawPartyA || '(অনুপস্থিত)',
+        valB: rawPartyB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে নাম অনুপস্থিত থাকায় অমিল হিসেবে গণ্য করা হয়নি।',
+        nextStep: 'প্রয়োজনে জাতীয় পরিচয়পত্র (NID) বা ওয়ারিশান সনদ থেকে নাম সংযোজন করুন।'
+      });
+    } else if (areNamesEquivalent(rawPartyA, rawPartyB)) {
+      findings.push({
+        id: 'party',
+        label: 'মালিক / পক্ষের নাম (Party / Owner)',
+        valA: rawPartyA,
+        valB: rawPartyB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: 'উভয় নথিতে মালিক/পক্ষের নাম সঙ্গতিপূর্ণ ও অভিন্ন রয়েছে।',
+        nextStep: 'মালিকানা অপরিবর্তিত থাকলে অতিরিক্ত পদক্ষেপের প্রয়োজন নেই।'
+      });
+    } else {
+      findings.push({
+        id: 'party',
+        label: 'মালিক / পক্ষের নাম (Party / Owner)',
+        valA: rawPartyA,
+        valB: rawPartyB,
+        status: 'MISMATCH',
+        statusLabel: 'সম্ভাব্য অমিল',
+        statusTone: 'amber',
+        reason: `নামের বানান বা পদবিতে অমিল পাওয়া গেছে ("${rawPartyA}" বনাম "${rawPartyB}")।`,
+        nextStep: 'উপজেলা সাব-রেজিস্ট্রি অফিসে মূল বায়া দলিল তল্লাশি দিয়ে এবং এনআইডি কার্ডের সাথে মিলিয়ে সঠিক নাম নিশ্চিত করুন।'
+      });
+    }
+
+    // 2. Mouza
+    const rawMouzaA = (fA.mouza || '').trim();
+    const rawMouzaB = (fB.mouza || '').trim();
+    if (!rawMouzaA || !rawMouzaB) {
+      findings.push({
+        id: 'mouza',
+        label: 'মৌজা (Mouza)',
+        valA: rawMouzaA || '(অনুপস্থিত)',
+        valB: rawMouzaB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে মৌজার তথ্য অনুপস্থিত থাকায় অমিল গণ্য করা হয়নি।',
+        nextStep: 'খতিয়ান বা খাজনা দাখিলা থেকে সঠিক মৌজা জেএল নম্বর সংগ্রহ করুন।'
+      });
+    } else if (areMouzasEquivalent(rawMouzaA, rawMouzaB)) {
+      findings.push({
+        id: 'mouza',
+        label: 'মৌজা (Mouza)',
+        valA: rawMouzaA,
+        valB: rawMouzaB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: 'উভয় নথিতে মৌজা অভিন্ন ("আমিন বাজার")।',
+        nextStep: 'মৌজা এলাকা নিশ্চিত রয়েছে।'
+      });
+    } else {
+      findings.push({
+        id: 'mouza',
+        label: 'মৌজা (Mouza)',
+        valA: rawMouzaA,
+        valB: rawMouzaB,
+        status: 'MISMATCH',
+        statusLabel: 'ভিন্ন মৌজা',
+        statusTone: 'amber',
+        reason: `ভিন্ন মৌজার নাম পাওয়া গেছে ("${rawMouzaA}" বনাম "${rawMouzaB}")। এটি সম্পূর্ণ ভিন্ন স্থানের সম্পত্তি হতে পারে।`,
+        nextStep: 'সংশ্লিষ্ট উপজেলা ভূমি অফিস ও সাব-রেজিস্ট্রি থেকে মৌজা ও জেএল নম্বর পুনঃযাচাই করুন।'
+      });
+    }
+
+    // 3. Dag Number
+    const rawDagA = (fA.dag || '').trim();
+    const rawDagB = (fB.dag || '').trim();
+    if (!rawDagA || !rawDagB) {
+      findings.push({
+        id: 'dag',
+        label: 'দাগ নম্বর (Dag Number)',
+        valA: rawDagA || '(অনুপস্থিত)',
+        valB: rawDagB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে দাগ নম্বর উল্লেখ নেই (যেমন সাধারণ দাখিলা বা পরিচয়পত্রে এটি থাকে না)।',
+        nextStep: 'মৌজা নকশা (ম্যাপ) ও মূল খতিয়ান থেকে দাগ নম্বর সংগ্রহ করুন।'
+      });
+    } else if (normalizeDigits(rawDagA) === normalizeDigits(rawDagB)) {
+      findings.push({
+        id: 'dag',
+        label: 'দাগ নম্বর (Dag Number)',
+        valA: rawDagA,
+        valB: rawDagB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: `দাগ নম্বর নির্ভুলভাবে মিলেছে (${normalizeDigits(rawDagA)})।`,
+        nextStep: 'দাগ নম্বর সঠিক রয়েছে।'
+      });
+    } else {
+      findings.push({
+        id: 'dag',
+        label: 'দাগ নম্বর (Dag Number)',
+        valA: rawDagA,
+        valB: rawDagB,
+        status: 'MISMATCH',
+        statusLabel: 'দাগ অমিল',
+        statusTone: 'amber',
+        reason: `দাগ নম্বরে অমিল পাওয়া গেছে (${rawDagA} বনাম ${rawDagB})। সাবেক ও হাল দাগের রূপান্তর ঘটেছে কিনা পরীক্ষা প্রয়োজন।`,
+        nextStep: 'উপজেলা সেটেলমেন্ট বা তহশিল অফিস থেকে সাবেক-হাল দাগের মিলপর্চা বা দাগসূচি (Chitta) সংগ্রহ করুন।'
+      });
+    }
+
+    // 4. Khatian Number
+    const rawKhatA = (fA.khatian || '').trim();
+    const rawKhatB = (fB.khatian || '').trim();
+    if (!rawKhatA || !rawKhatB) {
+      findings.push({
+        id: 'khatian',
+        label: 'খতিয়ান নম্বর (Khatian Number)',
+        valA: rawKhatA || '(অনুপস্থিত)',
+        valB: rawKhatB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে খতিয়ান নম্বর উল্লেখ নেই।',
+        nextStep: 'সর্বশেষ নামজারি বা পর্চা কপি থেকে খতিয়ান নম্বর দেখে নিন।'
+      });
+    } else if (normalizeDigits(rawKhatA) === normalizeDigits(rawKhatB)) {
+      findings.push({
+        id: 'khatian',
+        label: 'খতিয়ান নম্বর (Khatian Number)',
+        valA: rawKhatA,
+        valB: rawKhatB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: `খতিয়ান নম্বর হুবহু মিলেছে (${normalizeDigits(rawKhatA)})।`,
+        nextStep: 'খতিয়ান রেফারেন্স সঠিক আছে।'
+      });
+    } else {
+      findings.push({
+        id: 'khatian',
+        label: 'খতিয়ান নম্বর (Khatian Number)',
+        valA: rawKhatA,
+        valB: rawKhatB,
+        status: 'MISMATCH',
+        statusLabel: 'খতিয়ান অমিল',
+        statusTone: 'amber',
+        reason: `খতিয়ান নম্বর ভিন্ন (${rawKhatA} বনাম ${rawKhatB})। নামজারির কারণে পৃথক জোত খতিয়ান সৃষ্টি হয়ে থাকতে পারে।`,
+        nextStep: 'সহকারী কমিশনার (ভূমি) কার্যালয়ের রেজিস্টার থেকে খতিয়ানের ধারাবাহিক খারিজ রেকর্ড যাচাই করুন।'
+      });
+    }
+
+    // 5. Survey Type
+    const rawSurA = (fA.surveyType || '').trim();
+    const rawSurB = (fB.surveyType || '').trim();
+    if (!rawSurA || !rawSurB) {
+      findings.push({
+        id: 'surveyType',
+        label: 'জরিপের ধরন (Survey Type)',
+        valA: rawSurA || '(অনুপস্থিত)',
+        valB: rawSurB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে জরিপের ধরন উল্লেখ নেই।',
+        nextStep: 'পরচা কপির শীর্ষভাগ থেকে জরিপের ধরন (CS/SA/RS/BS) নিশ্চিত করুন।'
+      });
+    } else if (normalizeRecordText(rawSurA) === normalizeRecordText(rawSurB)) {
+      findings.push({
+        id: 'surveyType',
+        label: 'জরিপের ধরন (Survey Type)',
+        valA: rawSurA,
+        valB: rawSurB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: `উভয় নথি একই জরিপ পর্যায়ের (${rawSurA})।`,
+        nextStep: 'জরিপের ধরন সঙ্গতিপূর্ণ।'
+      });
+    } else {
+      findings.push({
+        id: 'surveyType',
+        label: 'জরিপের ধরন (Survey Type)',
+        valA: rawSurA,
+        valB: rawSurB,
+        status: 'INFO_SURVEY',
+        statusLabel: 'জরিপের স্তর ভিন্ন (তথ্যমূলক)',
+        statusTone: 'blue',
+        reason: `নথি দুটিতে জরিপের স্তর আলাদা (${rawSurA} বনাম ${rawSurB}) — এটি বাংলাদেশ ভূমি জরিপের স্বাভাবিক বিবর্তনের অংশ, বিরোধ নয়।`,
+        nextStep: 'সিএস থেকে বর্তমান বিএস পর্যন্ত মালিকানার ধারাবাহিক রেকর্ড সংরক্ষিত আছে কিনা পর্যালোচনা করুন।'
+      });
+    }
+
+    // 6. Land Area
+    const rawAreaA = (fA.area || '').trim();
+    const rawAreaB = (fB.area || '').trim();
+    const areaA = parseAreaField(rawAreaA);
+    const areaB = parseAreaField(rawAreaB);
+
+    if (areaA.empty || areaB.empty) {
+      findings.push({
+        id: 'area',
+        label: 'জমির পরিমাণ ও একক (Land Area)',
+        valA: rawAreaA || '(অনুপস্থিত)',
+        valB: rawAreaB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে জমির পরিমাণ উল্লেখ নেই।',
+        nextStep: 'মূল দলিল বা পরচা থেকে অনুমোদিত জমির অংশ ও ক্ষেত্রফল সংগ্রহ করুন।'
+      });
+    } else if (!areaA.reliable || !areaB.reliable) {
+      findings.push({
+        id: 'area',
+        label: 'জমির পরিমাণ ও একক (Land Area)',
+        valA: rawAreaA,
+        valB: rawAreaB,
+        status: 'INCOMPATIBLE_UNIT',
+        statusLabel: 'একক যাচাই প্রয়োজন',
+        statusTone: 'blue',
+        reason: `পরিমাপের একক ভিন্ন বা স্থানীয় রূপান্তর অনুপাত অনির্ধারিত (${rawAreaA} বনাম ${rawAreaB})। কাঠা/ছটাক/কানির সরকারি রূপান্তর অনুপাত মৌজাভেদে যাচাই সাপেক্ষ।`,
+        nextStep: 'স্থানীয় ভূমি সহকারী কর্মকর্তা (তহশিলদার) বা অনুমোদিত সার্ভেয়ার দ্বারা মৌজার নির্দিষ্ট এককে রূপান্তর নিশ্চিত করুন।'
+      });
+    } else {
+      const diff = Math.abs(areaA.num - areaB.num);
+      if (diff < 0.01) {
+        findings.push({
+          id: 'area',
+          label: 'জমির পরিমাণ ও একক (Land Area)',
+          valA: rawAreaA,
+          valB: rawAreaB,
+          status: 'MATCH',
+          statusLabel: 'হুবহু মিল',
+          statusTone: 'green',
+          reason: `উভয় নথিতে জমির পরিমাণ নির্ভুলভাবে মিলেছে (${areaA.num.toFixed(2)} শতক/decimal)।`,
+          nextStep: 'জমির পরিমাণ সঙ্গতিপূর্ণ রয়েছে।'
+        });
+      } else {
+        findings.push({
+          id: 'area',
+          label: 'জমির পরিমাণ ও একক (Land Area)',
+          valA: rawAreaA,
+          valB: rawAreaB,
+          status: 'MISMATCH',
+          statusLabel: 'পরিমাণে গরমিল',
+          statusTone: 'amber',
+          diffAmount: `${diff.toFixed(2)} শতক (decimal)`,
+          reason: `জমির পরিমাপে গরমিল পাওয়া গেছে (${rawAreaA} বনাম ${rawAreaB})। পার্থক্যের পরিমাণ প্রায় ${diff.toFixed(2)} শতক।`,
+          nextStep: 'সহকারী কমিশনার (ভূমি) কার্যালয়ে মিসকেস বা রেকর্ড সংশোধনের জন্য বায়া দলিলের হস্তান্তরিত অংশ ও পরচা মিলিয়ে দেখুন।'
+        });
+      }
+    }
+
+    // 7. Dates (Informational timeline check)
+    const rawDateA = (fA.date || '').trim();
+    const rawDateB = (fB.date || '').trim();
+    if (rawDateA && rawDateB) {
+      findings.push({
+        id: 'date',
+        label: 'নথির সংশ্লিষ্ট তারিখ (Timeline / Date)',
+        valA: rawDateA,
+        valB: rawDateB,
+        status: 'INFO_DATE',
+        statusLabel: 'তারিখ প্রদর্শন (তথ্যমূলক)',
+        statusTone: 'gray',
+        reason: `নথিদ্বয়ের প্রস্তুত বা রেজিস্ট্রেশনের তারিখ প্রদর্শিত (${rawDateA} বনাম ${rawDateB})। নথির ধরন আলাদা হওয়ায় তারিখ ভিন্ন হওয়া স্বাভাবিক।`,
+        nextStep: 'দলিলের সম্পাদিত তারিখ এবং খতিয়ান প্রস্তুতের তারিখের ধারাবাহিকতা পরীক্ষা করুন।'
+      });
+    }
+
+    // Calculate overall status
+    const mismatches = findings.filter(f => f.status === 'MISMATCH');
+    const matches = findings.filter(f => f.status === 'MATCH');
+    const unitIncompatibles = findings.filter(f => f.status === 'INCOMPATIBLE_UNIT');
+    const skipped = findings.filter(f => f.status === 'SKIPPED_MISSING');
+    const comparableCount = mismatches.length + matches.length + unitIncompatibles.length;
+
+    let overallStatus = 'NO_MISMATCH_OBSERVED';
+    let statusTitle = 'কোনো গরমিল পরিলক্ষিত হয়নি (No Mismatch Observed)';
+    let statusTone = 'match';
+    let explanation = `যাচাইকৃত ${matches.length}টি তুলনীয় ফিল্ডে কোনো গরমিল বা অসঙ্গতি পাওয়া যায়নি।`;
+
+    if (mismatches.length > 0) {
+      overallStatus = 'POTENTIAL_MISMATCH';
+      statusTitle = 'সম্ভাব্য গরমিল পরিলক্ষিত (Potential Mismatch Detected)';
+      statusTone = 'mismatch';
+      explanation = `তুলনাযোগ্য ফিল্ডগুলোর মধ্যে ${mismatches.map(m => m.label.split(' ')[0]).join(', ')} ক্ষেত্রে অমিল পাওয়া গেছে। বিস্তারিত পর্যালোচনা করা বাঞ্ছনীয়।`;
+    } else if (unitIncompatibles.length > 0 || comparableCount === 0) {
+      overallStatus = 'INSUFFICIENT_DATA';
+      statusTitle = 'অপর্যাপ্ত বা অসামঞ্জস্যপূর্ণ তথ্য (Insufficient Data)';
+      statusTone = 'insufficient';
+      explanation = unitIncompatibles.length > 0
+        ? 'পরিমাপের একক অসম বা স্থানীয় রূপান্তর অনুপাত অনিশ্চিত হওয়ায় চূড়ান্ত তুলনা সম্ভব হয়নি। অধিকতর যাচাই প্রয়োজন।'
+        : 'নথি দুটিতে পর্যাপ্ত তুলনীয় সাধারণ ফিল্ড পাওয়া যায়নি।';
+    }
+
+    return {
+      docA,
+      docB,
+      overallStatus,
+      statusTitle,
+      statusTone,
+      explanation,
+      comparableCount,
+      findings,
+      mismatches,
+      matches,
+      unitIncompatibles,
+      skipped,
+      timestamp: Date.now(),
+      dateStr: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    };
+  }
+
+  let reconciliationState = {
+    step: 1, // 1: Select docs, 2: Review candidate values, 3: Findings
+    docAId: 'DOC-0081',
+    docBId: 'DOC-0072',
+    docAData: null,
+    docBData: null,
+    result: null,
+    presetKey: 'area-mismatch',
+    targetCaseId: null
+  };
+
+  function startReconciliation(initialDocA = 'DOC-0081', initialDocB = 'DOC-0072', options = {}) {
+    reconciliationState = {
+      step: options.step || 1,
+      docAId: initialDocA || 'DOC-0081',
+      docBId: initialDocB || 'DOC-0072',
+      docAData: getDocumentRecord(initialDocA || 'DOC-0081'),
+      docBData: getDocumentRecord(initialDocB || 'DOC-0072'),
+      result: options.result || null,
+      presetKey: options.presetKey || null,
+      targetCaseId: options.caseId || null
+    };
+
+    if (options.step === 3 && options.result) {
+      reconciliationState.result = options.result;
+    }
+
+    openModal('Record Reconciliation Engine', renderReconciliationModal(), 'R&D FEATURE #55 · DETERMINISTIC RECONCILIATION');
+    $('.modal')?.classList.add('reconciliation-modal');
+  }
+
+  function renderReconcileStepper(currentStep) {
+    const steps = [
+      { num: 1, label: 'নথি নির্বাচন' },
+      { num: 2, label: 'ফিল্ড পর্যালোচনা ও সংশোধন' },
+      { num: 3, label: 'গরমিল বিশ্লেষণ ও করণীয়' }
+    ];
+    const progressPercent = Math.min(100, Math.max(0, (currentStep - 1) / 2 * 100));
+
+    return `<div class="wizard-stepper">
+      <div class="wizard-stepper-line"></div>
+      <div class="wizard-stepper-progress" style="width: calc(${progressPercent}% * 0.85)"></div>
+      ${steps.map(s => {
+        const isCompleted = s.num < currentStep;
+        const isActive = s.num === currentStep;
+        return `<div class="wizard-step-node ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
+          <div class="wizard-step-circle">${isCompleted ? '✓' : s.num}</div>
+          <span class="wizard-step-label">${s.label}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function renderReconciliationModal() {
+    const step = reconciliationState.step;
+
+    if (step === 1) {
+      const docA = reconciliationState.docAData || getDocumentRecord(reconciliationState.docAId);
+      const docB = reconciliationState.docBData || getDocumentRecord(reconciliationState.docBId);
+
+      return `${renderReconcileStepper(1)}
+        <div style="margin-bottom:14px">
+          <h3 style="font-size:14px;color:#183d35;margin:0 0 4px">তুলনার জন্য দুটি নথি নির্বাচন করুন</h3>
+          <p style="font-size:11px;color:#788f83;line-height:1.5;margin:0">যেকোনো দুটি দলিল, খতিয়ান, পরচা বা দাখিলার তথ্য পাশাপাশি মিলিয়ে দেখার জন্য নিচের বহুল প্রচলিত টেস্ট কেসগুলো থেকে বেছে নিন অথবা ম্যানুয়ালি নথি সিলেক্ট করুন।</p>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:#284a3d;margin-bottom:6px">দ্রুত টেস্ট কেস (1-Click Verification Presets):</div>
+        <div class="reconcile-preset-grid">
+          ${RECONCILIATION_PRESETS.map(p => `
+            <div class="reconcile-preset-card ${reconciliationState.presetKey === p.key ? 'selected' : ''}" data-action="reconcile-preset" data-key="${p.key}">
+              <b>${esc(p.title)}</b>
+              <small>${esc(p.desc)}</small>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="reconcile-compare-grid" style="margin-top:16px">
+          <div class="reconcile-doc-card doc-a">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>প্রথম নথি (Document A)</strong>
+                <small>মূল রেফারেন্স বা খতিয়ান নথি</small>
+              </div>
+              ${renderProvenanceBadge(docA.provenance)}
+            </div>
+            <div class="form-field">
+              <label for="selectDocA">নথি নির্বাচন করুন:</label>
+              <select id="selectDocA" data-action="reconcile-select-doc-a">
+                ${docs.map(d => `<option value="${d[0]}" ${d[0] === reconciliationState.docAId ? 'selected' : ''}>${d[0]} · ${d[1]} (${d[2]})</option>`).join('')}
+              </select>
+            </div>
+            <div style="background:#f8faf8;border-radius:9px;padding:10px 12px;font-size:11px;line-height:1.6">
+              <div><strong>নথি:</strong> ${esc(docA.title)}</div>
+              <div><strong>ধরন:</strong> ${esc(docA.docType)}</div>
+              <div><strong>উৎস:</strong> ${esc(docA.sourceRef)}</div>
+            </div>
+          </div>
+
+          <div class="reconcile-doc-card doc-b">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>দ্বিতীয় নথি (Document B)</strong>
+                <small>তুলনার জন্য সংরক্ষিত বা স্ক্যানকৃত নথি</small>
+              </div>
+              ${renderProvenanceBadge(docB.provenance)}
+            </div>
+            <div class="form-field">
+              <label for="selectDocB">নথি নির্বাচন করুন:</label>
+              <select id="selectDocB" data-action="reconcile-select-doc-b">
+                ${docs.map(d => `<option value="${d[0]}" ${d[0] === reconciliationState.docBId ? 'selected' : ''}>${d[0]} · ${d[1]} (${d[2]})</option>`).join('')}
+              </select>
+            </div>
+            <div style="background:#f8faf8;border-radius:9px;padding:10px 12px;font-size:11px;line-height:1.6">
+              <div><strong>নথি:</strong> ${esc(docB.title)}</div>
+              <div><strong>ধরন:</strong> ${esc(docB.docType)}</div>
+              <div><strong>উৎস:</strong> ${esc(docB.sourceRef)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-note" style="margin-top:14px">
+          💡 পরবর্তী ধাপে আপনি নথির প্রতিটি ফিল্ডের মান পরীক্ষা করতে পারবেন এবং প্রয়োজনে সংশোধিত মান টাইপ করে গরমিল বিশ্লেষণ চালাতে পারবেন।
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" data-action="close-modal">বাতিল করুন</button>
+          <button type="button" class="btn primary" data-action="reconcile-next">পরবর্তী ধাপ (ফিল্ড পর্যালোচনা) →</button>
+        </div>`;
+    }
+
+    if (step === 2) {
+      const docA = reconciliationState.docAData;
+      const docB = reconciliationState.docBData;
+      const fA = docA.fields || {};
+      const fB = docB.fields || {};
+
+      return `${renderReconcileStepper(2)}
+        <div style="margin-bottom:14px">
+          <h3 style="font-size:14px;color:#183d35;margin:0 0 4px">ফিল্ড পর্যালোচনা ও প্রার্থীর মান সংশোধন (Candidate Values Review)</h3>
+          <p style="font-size:11px;color:#788f83;line-height:1.5;margin:0">নথি দুটির পাওয়া ফিল্ডগুলো নিচে দেখানো হলো। কোনো তথ্যে টাইপো থাকলে বা আপনি কোনো নির্দিষ্ট মান দিয়ে টেস্ট করতে চাইলে ইনপুট বক্স থেকে সংশোধন করতে পারেন।</p>
+        </div>
+
+        <div class="reconcile-compare-grid">
+          <div class="reconcile-doc-card doc-a">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>${esc(docA.id)}</strong>
+                <small>${esc(docA.title)}</small>
+              </div>
+              ${renderProvenanceBadge(docA.provenance)}
+            </div>
+
+            <div class="reconcile-field-group">
+              <div class="reconcile-field">
+                <label for="f_a_party">মালিক / পক্ষের নাম</label>
+                <input id="f_a_party" value="${esc(fA.party || '')}" placeholder="নাম নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_mouza">মৌজা</label>
+                <input id="f_a_mouza" value="${esc(fA.mouza || '')}" placeholder="মৌজা নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_dag">দাগ নম্বর</label>
+                <input id="f_a_dag" value="${esc(fA.dag || '')}" placeholder="দাগ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_khatian">খতিয়ান নম্বর</label>
+                <input id="f_a_khatian" value="${esc(fA.khatian || '')}" placeholder="খতিয়ান নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_survey">জরিপের ধরন</label>
+                <input id="f_a_survey" value="${esc(fA.surveyType || '')}" placeholder="জরিপ উল্লেখ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_area">জমির পরিমাণ ও একক</label>
+                <input id="f_a_area" value="${esc(fA.area || '')}" placeholder="পরিমাণ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_date">নথির তারিখ</label>
+                <input id="f_a_date" value="${esc(fA.date || '')}" placeholder="তারিখ নেই"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="reconcile-doc-card doc-b">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>${esc(docB.id)}</strong>
+                <small>${esc(docB.title)}</small>
+              </div>
+              ${renderProvenanceBadge(docB.provenance)}
+            </div>
+
+            <div class="reconcile-field-group">
+              <div class="reconcile-field">
+                <label for="f_b_party">মালিক / পক্ষের নাম</label>
+                <input id="f_b_party" value="${esc(fB.party || '')}" placeholder="নাম নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_mouza">মৌজা</label>
+                <input id="f_b_mouza" value="${esc(fB.mouza || '')}" placeholder="মৌজা নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_dag">দাগ নম্বর</label>
+                <input id="f_b_dag" value="${esc(fB.dag || '')}" placeholder="দাগ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_khatian">খতিয়ান নম্বর</label>
+                <input id="f_b_khatian" value="${esc(fB.khatian || '')}" placeholder="খতিয়ান নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_survey">জরিপের ধরন</label>
+                <input id="f_b_survey" value="${esc(fB.surveyType || '')}" placeholder="জরিপ উল্লেখ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_area">জমির পরিমাণ ও একক</label>
+                <input id="f_b_area" value="${esc(fB.area || '')}" placeholder="পরিমাণ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_date">নথির তারিখ</label>
+                <input id="f_b_date" value="${esc(fB.date || '')}" placeholder="তারিখ নেই"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" data-action="reconcile-prev">← পূর্ববর্তী (নথি নির্বাচন)</button>
+          <button type="button" class="btn primary" data-action="reconcile-next">গরমিল বিশ্লেষণ চালান (Run Comparison) →</button>
+        </div>`;
+    }
+
+    if (step === 3) {
+      const res = reconciliationState.result;
+      if (!res) return '<div class="no-results">কোনো ফলাফল পাওয়া যায়নি।</div>';
+
+      const cases = local.landCases || [];
+
+      return `${renderReconcileStepper(3)}
+        <div class="reconcile-status-banner ${res.statusTone}">
+          <div class="reconcile-status-icon">${res.statusTone === 'mismatch' ? '⚠️' : res.statusTone === 'match' ? '✓' : 'ℹ'}</div>
+          <div style="flex:1">
+            <strong style="font-size:14px;display:block;margin-bottom:3px">${esc(res.statusTitle)}</strong>
+            <p style="margin:0;font-size:11.5px;line-height:1.5">${esc(res.explanation)}</p>
+          </div>
+          <div style="text-align:right">
+            <span class="pill ${res.statusTone === 'mismatch' ? 'amber' : res.statusTone === 'match' ? 'green' : 'blue'}" style="font-size:10px">${res.overallStatus}</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;font-size:11px;font-weight:700;flex-wrap:wrap">
+          <span class="pill green">${res.matches.length}টি ফিল্ডে মিল</span>
+          ${res.mismatches.length ? `<span class="pill amber">${res.mismatches.length}টি গরমিল</span>` : ''}
+          ${res.unitIncompatibles.length ? `<span class="pill blue">${res.unitIncompatibles.length}টি একক যাচাই</span>` : ''}
+          <span class="pill gray">${res.skipped.length}টি অনুপস্থিত (উপেক্ষিত)</span>
+        </div>
+
+        <div class="reconcile-findings-list">
+          ${res.findings.map(f => {
+            const isMismatch = f.status === 'MISMATCH';
+            const isMatch = f.status === 'MATCH';
+            const isUnit = f.status === 'INCOMPATIBLE_UNIT';
+            const rowClass = isMismatch ? 'has-mismatch' : isMatch ? 'is-match' : isUnit ? 'is-unit-incompatible' : '';
+
+            return `<div class="reconcile-finding-row ${rowClass}">
+              <div class="reconcile-finding-field">
+                <b>${esc(f.label.split(' ')[0])}</b>
+                <small>${esc(f.label.split('(')[1]?.replace(')', '') || '')}</small>
+              </div>
+
+              <div class="reconcile-val-box">
+                <small style="color:#778f83">${esc(res.docA.id)} (${res.docA.docType})</small>
+                <strong>${esc(f.valA)}</strong>
+                ${renderProvenanceBadge(res.docA.provenance)}
+              </div>
+
+              <div class="reconcile-val-box">
+                <small style="color:#778f83">${esc(res.docB.id)} (${res.docB.docType})</small>
+                <strong>${esc(f.valB)}</strong>
+                ${renderProvenanceBadge(res.docB.provenance)}
+                ${f.diffAmount ? `<div class="reconcile-diff-tag red">তফাত: ${esc(f.diffAmount)}</div>` : ''}
+              </div>
+
+              <div>
+                <span class="pill ${f.statusTone}" style="margin-bottom:4px;display:inline-block">${esc(f.statusLabel)}</span>
+                <p style="font-size:10px;color:#496b5b;margin:3px 0 0;line-height:1.4">${esc(f.reason)}</p>
+                <div style="font-size:9.5px;color:#6d887a;margin-top:4px"><strong>পরামর্শ:</strong> ${esc(f.nextStep)}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <div class="warning-panel" style="margin-top:16px">
+          ⚠️ <strong>আইনি অস্বীকৃতি ও দায়িত্বসীমা:</strong> এই তুলনামূলক ফলাফলটি একটি স্থানীয় ব্রাউজার অ্যালগরিদমের সহায়তায় তৈরি করা হয়েছে। এটি কোনো আদালত, সহকারী কমিশনার (ভূমি) বা সাব-রেজিস্ট্রারের অফিসিয়াল রেকর্ড প্রত্যয়ন নয়। এটি জমির বৈধ মালিকানা বা জালিয়াতি নির্ধারণ করে না এবং কোনো আইনি অধিকার সৃষ্টি করে না। যেকোনো বিরোধ নিষ্পত্তির জন্য সংশ্লিষ্ট ভূমি অফিসের শরণাপন্ন হোন।
+        </div>
+
+        <div class="reconcile-case-link-box">
+          <div class="reconcile-case-link-head">
+            <div style="font-size:24px;line-height:1">📁</div>
+            <div style="flex:1">
+              <strong>Land Case-এর সাথে যুক্ত করুন (Associate with Land Case)</strong>
+              <p>আপনার এই গরমিল বিশ্লেষণ রিপোর্টটি কেসবুকের Land Case ফাইলে সংরক্ষণ করে রাখুন। পরবর্তী শুনানি বা আবেদনের প্রস্তুতিতে কাজে লাগবে।</p>
+              ${cases.length ? `
+                <div style="display:flex;gap:9px;margin-top:10px;align-items:center;flex-wrap:wrap">
+                  <select id="reconcileCaseSelect" style="padding:7px 10px;border-radius:8px;border:1px solid #c9decb;font-size:11px;background:#fff">
+                    ${cases.map(c => `<option value="${esc(c.id)}">${esc(c.id)} · ${esc(c.category)} (${esc(c.created)})</option>`).join('')}
+                  </select>
+                  <button type="button" class="btn primary small" data-action="reconcile-link-case">✓ এই কেসে যুক্ত করুন</button>
+                  <span style="font-size:11px;color:#6b887b">অথবা</span>
+                  <button type="button" class="btn small" data-action="reconcile-create-case">＋ নতুন Land Case তৈরি করুন</button>
+                </div>
+              ` : `
+                <div style="margin-top:10px">
+                  <button type="button" class="btn primary small" data-action="reconcile-create-case">＋ নতুন Land Case ফাইলে এই গরমিল সংরক্ষণ করুন</button>
+                </div>
+              `}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions" style="margin-top:20px">
+          <button type="button" class="btn" data-action="reconcile-prev">← মান সম্পাদনা করুন</button>
+          <button type="button" class="btn" data-action="start-reconciliation">নতুন তুলনা</button>
+          <button type="button" class="btn primary" data-action="close-modal">সম্পন্ন</button>
+        </div>`;
+    }
+
+    return '';
+  }
+
+  function handleReconciliationAction(action, el) {
+    switch(action) {
+      case 'start-reconciliation': {
+        const caseId = el?.dataset?.caseId || null;
+        startReconciliation('DOC-0081', 'DOC-0072', { caseId });
+        break;
+      }
+
+      case 'document-compare': {
+        const docId = el?.dataset?.id || 'DOC-0081';
+        const otherDoc = docId === 'DOC-0081' ? 'DOC-0072' : 'DOC-0081';
+        startReconciliation(docId, otherDoc);
+        break;
+      }
+
+      case 'reconcile-preset': {
+        const key = el.dataset.key;
+        const preset = RECONCILIATION_PRESETS.find(p => p.key === key);
+        if (preset) {
+          reconciliationState.presetKey = key;
+          reconciliationState.docAId = preset.docA;
+          reconciliationState.docBId = preset.docB;
+          reconciliationState.docAData = getDocumentRecord(preset.docA);
+          reconciliationState.docBData = getDocumentRecord(preset.docB);
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-select-doc-a': {
+        const val = $('#selectDocA')?.value;
+        if (val) {
+          reconciliationState.docAId = val;
+          reconciliationState.docAData = getDocumentRecord(val);
+          reconciliationState.presetKey = null;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-select-doc-b': {
+        const val = $('#selectDocB')?.value;
+        if (val) {
+          reconciliationState.docBId = val;
+          reconciliationState.docBData = getDocumentRecord(val);
+          reconciliationState.presetKey = null;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-next': {
+        if (reconciliationState.step === 1) {
+          reconciliationState.docAData = getDocumentRecord(reconciliationState.docAId);
+          reconciliationState.docBData = getDocumentRecord(reconciliationState.docBId);
+          reconciliationState.step = 2;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+          return;
+        }
+
+        if (reconciliationState.step === 2) {
+          if (reconciliationState.docAData) {
+            reconciliationState.docAData.fields = {
+              party: $('#f_a_party')?.value?.trim() || '',
+              mouza: $('#f_a_mouza')?.value?.trim() || '',
+              dag: $('#f_a_dag')?.value?.trim() || '',
+              khatian: $('#f_a_khatian')?.value?.trim() || '',
+              surveyType: $('#f_a_survey')?.value?.trim() || '',
+              area: $('#f_a_area')?.value?.trim() || '',
+              date: $('#f_a_date')?.value?.trim() || ''
+            };
+          }
+          if (reconciliationState.docBData) {
+            reconciliationState.docBData.fields = {
+              party: $('#f_b_party')?.value?.trim() || '',
+              mouza: $('#f_b_mouza')?.value?.trim() || '',
+              dag: $('#f_b_dag')?.value?.trim() || '',
+              khatian: $('#f_b_khatian')?.value?.trim() || '',
+              surveyType: $('#f_b_survey')?.value?.trim() || '',
+              area: $('#f_b_area')?.value?.trim() || '',
+              date: $('#f_b_date')?.value?.trim() || ''
+            };
+          }
+
+          reconciliationState.result = compareRecords(reconciliationState.docAData, reconciliationState.docBData);
+          reconciliationState.step = 3;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+          return;
+        }
+        break;
+      }
+
+      case 'reconcile-prev': {
+        if (reconciliationState.step > 1) {
+          reconciliationState.step -= 1;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-link-case': {
+        const caseId = $('#reconcileCaseSelect')?.value;
+        const c = (local.landCases || []).find(x => x.id === caseId);
+        if (!c || !reconciliationState.result) {
+          toast('কেস নির্বাচন করুন', 'সঠিক কেস সিলেক্ট করুন।');
+          return;
+        }
+
+        const res = reconciliationState.result;
+        c.reconciliation = res;
+        const noteSummary = `[নথিপত্র গরমিল নিরূপণ #55 - ${res.dateStr}]: ${res.docA.id} বনাম ${res.docB.id} | স্থিতি: ${res.overallStatus} (${res.mismatches.length}টি গরমিল, ${res.matches.length}টি মিল)।`;
+        c.notes = c.notes ? `${c.notes}\n\n${noteSummary}` : noteSummary;
+
+        persist();
+        toast('Land Case-এ গরমিল রিপোর্ট সংরক্ষিত হয়েছে', `${c.id} কেসে সফলভাবে সংযুক্ত করা হয়েছে।`);
+        if (state.page === 'casebook') renderPage();
+        closeModal();
+        break;
+      }
+
+      case 'reconcile-create-case': {
+        const res = reconciliationState.result;
+        closeModal();
+
+        const mismatchText = res && res.mismatches.length
+          ? res.mismatches.map(m => `${m.label.split(' ')[0]}: ${m.valA} বনাম ${m.valB}`).join('; ')
+          : 'নথিপত্র তথ্যে অমিল';
+
+        const prefillText = res
+          ? `${res.docA.title} এবং ${res.docB.title}-এর মধ্যে গরমিল চিহ্নিত হয়েছে (${mismatchText})। সহকারী কমিশনার (ভূমি) কার্যালয়ে রেকর্ড সংশোধনের জন্য প্রস্তুতি নিতে চাই।`
+          : 'দলিল ও খতিয়ানের নামের বানান ও জমির পরিমাপে গরমিল আছে।';
+
+        startLandCaseBuilder(prefillText, {
+          categoryKey: 'mismatch',
+          category: LAND_CASE_CATEGORIES.mismatch.title,
+          linkedParcel: 'DAG-1842',
+          reconciliation: res,
+          notes: res ? `R&D Feature #55 Record Reconciliation Engine দ্বারা স্বয়ংক্রিয়ভাবে গরমিল রিপোর্ট যুক্ত করা হয়েছে (${res.overallStatus})।` : ''
+        });
+        break;
+      }
+
+      case 'reconcile-view-attached': {
+        const caseId = el.dataset.caseId;
+        const c = (local.landCases || []).find(x => x.id === caseId);
+        if (c && c.reconciliation) {
+          startReconciliation(c.reconciliation.docA?.id || 'DOC-0081', c.reconciliation.docB?.id || 'DOC-0072', {
+            step: 3,
+            result: c.reconciliation
+          });
+        }
+        break;
+      }
+    }
+  }
+
   function aiAssistant(){
     return `${heading('ASSISTED GUIDANCE','AI land assistant','Ask for general service guidance, document explanations, or help preparing a checklist.',`<button class="btn primary" data-action="start-land-case-builder">＋ নতুন Land Case তৈরি করুন</button><button class="btn" data-action="clear-chat">↺ New conversation</button>`)}
     ${demoBanner()}
@@ -1493,7 +2629,7 @@
     <div class="content-grid">
       <section class="panel chat-panel">${panelHead('Ask e-Bhumi','Demo assistant with predefined guidance; no live AI model is connected.')}
         <div class="chat-messages" id="chatMessages">
-          ${state.chat.length?state.chat.map(m=>`<div class="chat-bubble ${m.role==='user'?'user':''}">${esc(m.text)}</div>`).join(''):`<div class="chat-bubble">Hello! I can help you understand e-Bhumi services, prepare a document checklist, or explain what a Khatian/Dag reference means. I cannot verify legal ownership or make official decisions.</div><div class="feature-meta">${['What is a Khatian?','Mutation checklist','Prepare for land purchase','আমার জমি নিয়ে সমস্যা হচ্ছে (Case Builder)'].map(q=>`<button class="btn small" data-action="chat-suggestion" data-text="${q}">${q}</button>`).join('')}</div>`}
+          ${state.chat.length?state.chat.map(m=>`<div class="chat-bubble ${m.role==='user'?'user':''}">${esc(m.text)}</div>`).join(''):`<div class="chat-bubble">Hello! I can help you understand e-Bhumi services, prepare a document checklist, or explain what a Khatian/Dag reference means. I cannot verify legal ownership or make official decisions.</div><div class="feature-meta">${['What is a Khatian?','Mutation checklist','দলিল ও খতিয়ানের গরমিল কীভাবে মেলাব? (Reconciliation #55)','আমার জমি নিয়ে সমস্যা হচ্ছে (Case Builder)'].map(q=>`<button class="btn small" data-action="chat-suggestion" data-text="${q}">${q}</button>`).join('')}</div>`}
         </div>
         <form class="chat-input" id="chatForm"><input id="chatInput" placeholder="Ask about a land service…" autocomplete="off"/><button class="btn primary" type="submit">Send ↑</button></form>
       </section>
@@ -1504,7 +2640,7 @@
   }
 
   function casebook(){
-    return `${heading('SUPPORT & DISPUTES','Cases & complaints','Create and track support requests, service complaints, evidence bundles, and escalation history.',`<button class="btn primary" data-action="start-land-case-builder">＋ নতুন Land Case তৈরি করুন</button><button class="btn" data-action="new-complaint">＋ New complaint</button>`)}
+    return `${heading('SUPPORT & DISPUTES','Cases & complaints','Create and track support requests, service complaints, evidence bundles, and escalation history.',`<button class="btn primary" data-action="start-land-case-builder">＋ নতুন Land Case তৈরি করুন</button><button class="btn" data-action="start-reconciliation">⚖ নথিপত্র তুলনা (Reconcile #55)</button><button class="btn" data-action="new-complaint">＋ New complaint</button>`)}
     ${demoBanner()}
     <div class="stats-grid">
       ${stat('Open complaints','02','⚑','1|awaiting response','warning')}
@@ -1942,6 +3078,9 @@
     if(t.includes('সমস্যা') || t.includes('case builder') || t.includes('case') || t.includes('problem')) {
       return 'আপনার জমি সংক্রান্ত সমস্যা গুছিয়ে নিতে এবং নথিপত্রের চেকলিস্ট তৈরি করতে আমাদের নতুন "AI Land Case Builder" ব্যবহার করুন। পেজের উপরের "নতুন Land Case তৈরি করুন" বাটনে ক্লিক করে ধাপে ধাপে আপনার সমস্যাটি নথিভুক্ত করতে পারেন।';
     }
+    if(t.includes('reconciliation') || t.includes('গরমিল') || t.includes('তুলনা') || t.includes('mismatch') || t.includes('reconcile')) {
+      return 'নথিপত্রের তথ্য তুলনা ও গরমিল শনাক্তকরণের জন্য "Record Reconciliation Engine (#55)" ব্যবহার করুন। Documents অথবা Casebook পেজে গিয়ে "⚖ নথিপত্র তুলনা (Reconcile #55)" বাটনে ক্লিক করুন। এটি দুটি দলিলের মালিকের নাম, দাগ, খতিয়ান, মৌজা এবং জমির পরিমাণ যাচাই করে নাগরিক-বান্ধব বিশ্লেষণ প্রদান করে।';
+    }
     if(t.includes('tax') || t.includes('dakhila')) {
       return 'For land development tax, keep the holding or land reference, relevant ownership/record details and previous receipts available. Use the official government service for current dues and payment. Do not rely on amounts shown in this demo; the payment screen uses illustrative data only.';
     }
@@ -1986,6 +3125,19 @@
 
       case 'open-land-case':
         openLandCaseDetail(id);
+        break;
+
+      case 'start-reconciliation':
+      case 'document-compare':
+      case 'reconcile-preset':
+      case 'reconcile-select-doc-a':
+      case 'reconcile-select-doc-b':
+      case 'reconcile-next':
+      case 'reconcile-prev':
+      case 'reconcile-link-case':
+      case 'reconcile-create-case':
+      case 'reconcile-view-attached':
+        handleReconciliationAction(action, el);
         break;
 
       case 'wizard-preset':
@@ -2045,7 +3197,11 @@
           <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Category</div><div class="detail-value">${esc(doc[2])}</div></div><div><div class="detail-label">Last Updated</div><div class="detail-value">${esc(doc[5])}</div></div></div>
           <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Integrity Status</div><div class="detail-value" style="font-family:monospace;font-size:10px">SHA-256 verified · e-Sign pending</div></div></div>
           <div class="warning-panel" style="margin-top:14px">Stored in local demo sandbox. Before legal use, verify physical certified copy or authoritative digital Porcha.</div>
-          <div class="modal-actions"><button class="btn" data-action="close-modal">Close</button><button class="btn primary" data-action="document-guidance">Verification checklist →</button></div>
+          <div class="modal-actions">
+            <button class="btn" data-action="close-modal">Close</button>
+            <button class="btn" data-action="document-compare" data-id="${esc(doc[0])}">⚖ অন্য দলিলের সাথে তুলনা করুন</button>
+            <button class="btn primary" data-action="document-guidance">Verification checklist →</button>
+          </div>
         `, 'DOCUMENT VAULT');
         break;
       }
@@ -2585,6 +3741,12 @@
         if (!Array.isArray(local.landCases)) local.landCases = [];
         if (Array.isArray(s.applications)) applications.splice(0, applications.length, ...s.applications);
         if (Array.isArray(s.docs)) docs.splice(0, docs.length, ...s.docs);
+        if (!docs.some(d => d[0] === 'DOC-0082')) {
+          docs.splice(1, 0, ['DOC-0082','Mutation Porcha · demo','Land record','Verified','green','05 Jun 2025']);
+        }
+        if (!docs.some(d => d[0] === 'DOC-0083')) {
+          docs.splice(3, 0, ['DOC-0083','Historical deed · sample','Uploaded document','Needs review','amber','18 Mar 1985']);
+        }
         Object.assign(state, s.state || {});
       }
     } catch {

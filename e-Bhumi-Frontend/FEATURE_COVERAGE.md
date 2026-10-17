@@ -15,6 +15,7 @@ The feature catalogue is loaded from `data/features.json`, copied from the Maxim
 - Due-diligence checklist and screening status workspace
 - Bounded rule-based AI assistant demo
 - R&D Feature #2: AI Land Case Builder (Bangla-first citizen problem intake, deterministic issue classification with low-confidence handling, category-specific clarifying questions, property linking, interactive document checklists, review draft, and persistent saved cases register)
+- R&D Feature #55: Record Reconciliation Engine (Bangla-first deterministic document and record comparison workflow, party/mouza/dag/khatian/survey/area/date field alignment, candidate review/correction, unit-aware area comparison with conversion caution, missing-field tolerance, POTENTIAL_MISMATCH / NO_MISMATCH_OBSERVED / INSUFFICIENT_DATA result states, provenance labelling [verified-source, sample/demo, AI-extracted-unverified, user-provided], citizen-friendly discrepancy explanation, recommended next steps without legal title determination, and seamless association with citizen Land Cases)
 - Complaint/case workspace and appointment/queue UI
 - Notification centre and preference dialog
 - Analytics/report dashboard with illustrative data
