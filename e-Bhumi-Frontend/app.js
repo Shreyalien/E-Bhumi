@@ -85,8 +85,10 @@
 
   const docs = [
     ['DOC-0081','RS Khatian reference','Land record','Verified','green','12 Oct 2026'],
-    ['DOC-0079','Tax receipt · demo','Payment receipt','Verified','green','10 Oct 2026'],
+    ['DOC-0082','Mutation Porcha · demo','Land record','Verified','green','05 Jun 2025'],
     ['DOC-0072','Deed scan · sample','Uploaded document','Needs review','amber','08 Oct 2026'],
+    ['DOC-0083','Historical deed · sample','Uploaded document','Needs review','amber','18 Mar 1985'],
+    ['DOC-0079','Tax receipt · demo','Payment receipt','Verified','green','10 Oct 2026'],
     ['DOC-0065','Applicant identity checklist','Checklist','Draft','gray','04 Oct 2026']
   ];
 
@@ -173,7 +175,7 @@
   }
 
   function docRows(items=docs){
-    return items.map(d=>`<tr><td class="table-primary">${esc(d[0])}</td><td><strong>${esc(d[1])}</strong></td><td>${esc(d[2])}</td><td><span class="pill ${d[4]}">${esc(d[3])}</span></td><td>${esc(d[5])}</td><td><button class="table-actions" data-action="document-detail" data-id="${esc(d[0])}">Open ↗</button></td></tr>`).join('');
+    return items.map(d=>`<tr><td class="table-primary">${esc(d[0])}</td><td><strong>${esc(d[1])}</strong></td><td>${esc(d[2])}</td><td><span class="pill ${d[4]}">${esc(d[3])}</span></td><td>${esc(d[5])}</td><td><button class="table-actions" data-action="document-detail" data-id="${esc(d[0])}">Open ↗</button><button class="table-actions" data-action="document-compare" data-id="${esc(d[0])}" style="margin-left:7px;color:#185343;font-weight:700" title="অন্য নথির সাথে তথ্য তুলনা করুন">⚖ Reconcile</button></td></tr>`).join('');
   }
 
   function paymentRows(items=payments){
@@ -268,8 +270,18 @@
   }
 
   function servicesPage(){
-    return `${heading('SERVICE DIRECTORY','Land services','Browse service guidance, required information, estimated process steps, and application entry points.',`<button class="btn" data-action="service-compare">⇄ Compare services</button>`)}
+    return `${heading('SERVICE DIRECTORY','Land services','Browse service guidance, required information, estimated process steps, and application entry points.',`<button class="btn primary" data-action="open-service-router">⚡ AI Service Router (#71)</button><button class="btn" data-action="service-compare">⇄ Compare services</button>`)}
     ${demoBanner()}
+    <div class="service-router-banner">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:24px">⚡</span>
+        <div style="flex:1">
+          <strong style="color:#183d35;font-size:13px">কোন সরকারি সেবাটি আপনার প্রয়োজন নিশ্চিত নন? (AI Service Router #71)</strong>
+          <p style="margin:2px 0 0;font-size:11.5px;color:#5a7368">আপনার জমি-সংক্রান্ত সমস্যা সহজ ভাষায় লিখুন। সিস্টেম যাচাইকৃত সরকারি সেবা ডিরেক্টরি অনুযায়ী সঠিক কর্তৃপক্ষ ও পোর্টালের দিকনির্দেশনা দেবে।</p>
+        </div>
+        <button class="btn small primary" data-action="open-service-router">AI Service Router ব্যবহার করুন →</button>
+      </div>
+    </div>
     <div class="toolbar">
       <label class="field-search"><span>⌕</span><input id="serviceFilter" placeholder="Search services, documents, or keywords…"/></label>
       <select class="select-field" id="serviceCategory"><option value="all">All categories</option>${[...new Set(services.map(s=>s.tag))].map(t=>`<option>${t}</option>`).join('')}</select>
@@ -366,8 +378,17 @@
   }
 
   function documentsPage(){
-    return `${heading('SECURE DOCUMENTS','Documents vault','Organise uploaded evidence, service-generated files, receipts, and document verification status.',`<button class="btn" data-action="document-guidance">Document checklist</button><button class="btn primary" data-action="upload-document">↑ Upload document</button>`)}
+    return `${heading('SECURE DOCUMENTS','Documents vault','Organise uploaded evidence, service-generated files, receipts, and document verification status.',`<button class="btn" data-action="start-reconciliation">⚖ নথিপত্র তুলনা (Reconcile #55)</button><button class="btn" data-action="document-guidance">Document checklist</button><button class="btn primary" data-action="upload-document">↑ Upload document</button>`)}
     ${demoBanner()}
+    <div class="reconcile-promo">
+      <div class="reconcile-promo-icon">⚖</div>
+      <div class="reconcile-promo-text">
+        <span class="eyebrow" style="color:#2a6552;margin-bottom:3px">R&amp;D FEATURE #55 · DETERMINISTIC RECONCILIATION</span>
+        <h3 style="margin:0 0 4px;font-size:15px;color:#173d35">Record Reconciliation Engine (দলিল ও খতিয়ান গরমিল নিরূপণ)</h3>
+        <p style="margin:0;font-size:12px;color:#5a7368;line-height:1.5">যেকোনো দুটি দলিল বা খতিয়ানের তথ্য (মালিকের নাম, দাগ, খতিয়ান, মৌজা, জমির পরিমাণ ও একক) পাশাপাশি রেখে অমিল ও অসঙ্গতি নিরূপণ করুন। ফলাফল সরাসরি Land Case ফাইলে সংরক্ষণ করতে পারবেন।</p>
+      </div>
+      <button class="btn primary" data-action="start-reconciliation" style="white-space:nowrap">⚖ নথিপত্র তুলনা শুরু করুন →</button>
+    </div>
     <div class="stats-grid">
       ${stat('Stored documents',String(docs.length).padStart(2,'0'),'▧','Across|4 categories')}
       ${stat('Verified',String(docs.filter(d=>d[4]==='green').length).padStart(2,'0'),'✓','Verified|by platform')}
@@ -808,20 +829,23 @@
     { title: 'অস্পষ্ট ইনপুট (Clarification Test)', text: 'আমার জমি নিয়ে সমস্যা হচ্ছে।' }
   ];
 
-  function startLandCaseBuilder(initialText = ''){
+  function startLandCaseBuilder(initialText = '', options = {}){
+    const catKey = options.categoryKey || (initialText ? classifyLandIssue(initialText).categoryKey : 'other');
+    const cat = LAND_CASE_CATEGORIES[catKey] || LAND_CASE_CATEGORIES.other;
     caseWizardState = {
-      step: 1,
+      step: options.step || 1,
       description: initialText || '',
-      categoryKey: 'other',
-      category: '',
-      confidence: 'low',
+      categoryKey: catKey,
+      category: options.category || cat.title,
+      confidence: options.confidence || (catKey !== 'other' ? 'high' : 'low'),
       isVague: false,
       ambiguousMatches: [],
       showCategoryGrid: false,
-      clarificationAnswer: '',
-      linkedParcel: '',
-      checklist: [],
-      notes: '',
+      clarificationAnswer: options.clarificationAnswer || '',
+      linkedParcel: options.linkedParcel || '',
+      checklist: options.checklist || getSuggestedChecklist(catKey),
+      notes: options.notes || '',
+      reconciliation: options.reconciliation || null,
       savedCaseId: null
     };
 
@@ -1269,6 +1293,7 @@
           checklist: JSON.parse(JSON.stringify(caseWizardState.checklist)),
           notes: caseWizardState.notes || '',
           nextSteps: getSuggestedNextSteps(caseWizardState.categoryKey, caseWizardState.checklist),
+          reconciliation: caseWizardState.reconciliation || null,
           isDemo: true
         };
 
@@ -1334,7 +1359,10 @@
                 const verify = (c.checklist || []).filter(i => i.status === 'verify').length;
                 return `<tr>
                   <td class="table-primary"><strong>${esc(c.id)}</strong></td>
-                  <td><strong>${esc(c.category)}</strong></td>
+                  <td>
+                    <strong>${esc(c.category)}</strong>
+                    ${c.reconciliation ? `<br/><span class="reconcile-case-badge ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? 'warning' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? 'success' : 'info'}">⚖ ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? 'গরমিল চিহ্নিত' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? 'মিল রয়েছে' : 'যাচাই প্রয়োজন'}</span>` : ''}
+                  </td>
                   <td>${esc(c.linkedParcel || 'নির্দিষ্ট জমি নেই')}</td>
                   <td>${esc(c.created)}</td>
                   <td>
@@ -1404,6 +1432,27 @@
           <p style="font-size:11.5px;color:#456657;margin:2px 0 0">${esc(c.clarificationAnswer)}</p>
         </div>
       ` : ''}
+
+      ${c.reconciliation ? `
+        <div style="margin-top:16px;background:#f6faf8;border:1.5px solid #c2e2d2;border-radius:12px;padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <strong style="font-size:11.5px;color:#184236">⚖ R&amp;D Feature #55 · সংযুক্ত গরমিল রিপোর্ট</strong>
+            <span class="pill ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? 'amber' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? 'green' : 'blue'}">
+              ${c.reconciliation.overallStatus === 'POTENTIAL_MISMATCH' ? '⚠️ গরমিল চিহ্নিত' : c.reconciliation.overallStatus === 'NO_MISMATCH_OBSERVED' ? '✓ মিল রয়েছে' : 'ℹ অপর্যাপ্ত তথ্য'}
+            </span>
+          </div>
+          <p style="font-size:11px;color:#355a49;margin:0 0 8px;line-height:1.5">${esc(c.reconciliation.explanation)}</p>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="btn small" data-action="reconcile-view-attached" data-case-id="${esc(c.id)}">সম্পূর্ণ বিশ্লেষণ রিপোর্ট দেখুন ↗</button>
+            <small style="color:#779183;font-size:9.5px">নথি: ${esc(c.reconciliation.docA?.id || 'Doc A')} বনাম ${esc(c.reconciliation.docB?.id || 'Doc B')}</small>
+          </div>
+        </div>
+      ` : `
+        <div style="margin-top:14px;border:1px dashed #dce7df;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+          <small style="color:#638072;font-size:10.5px">এই কেসে নথিপত্রের গরমিল পরীক্ষা করতে চান?</small>
+          <button type="button" class="btn small" data-action="start-reconciliation" data-case-id="${esc(c.id)}">⚖ নথিপত্র গরমিল পরীক্ষা করুন</button>
+        </div>
+      `}
 
       <div style="margin-top:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -1478,9 +1527,1926 @@
     toast('Land Case মুছে ফেলা হয়েছে', 'কেস ফাইলটি অপসারিত হয়েছে।');
   }
 
+  /* ==========================================================================
+     R&D Feature #55: Record Reconciliation Engine
+     Deterministic document & record comparison engine.
+     Normalizes formatting, Bangla/English numerals, and whitespace.
+     Unit-aware area comparison with conversion caution.
+     Missing fields tolerance (does not treat missing as mismatch).
+     Citizen-friendly Bangla explanations & next steps.
+     ========================================================================== */
+
+  const DEMO_DOCUMENT_RECORDS = {
+    'DOC-0081': {
+      id: 'DOC-0081',
+      title: 'RS Khatian reference (আরএস খতিয়ান নং ৭৩১)',
+      docType: 'খতিয়ান / পর্চা (Khatian Record)',
+      provenance: 'verified-source',
+      provenanceLabel: 'সরকারি রেকর্ডরুম সার্টিফাইড নকল',
+      sourceRef: 'সাভার উপজেলা ভূমি রেকর্ডরুম · বালাম ৪২, পৃষ্ঠা ১৫',
+      date: '12 Oct 2026',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'RS',
+        area: '12.50 decimal',
+        date: '12 Oct 2026'
+      }
+    },
+    'DOC-0072': {
+      id: 'DOC-0072',
+      title: 'Deed scan · sample (সাব-কবলা দলিল নং ৫৪২১/২০২৪)',
+      docType: 'সাব-কবলা দলিল (Sub-Kabala Deed)',
+      provenance: 'AI-extracted-unverified',
+      provenanceLabel: 'নমুনা স্ক্যান থেকে এক্সট্র্যাক্টকৃত (যাচাইহীন)',
+      sourceRef: 'সাভার সাব-রেজিস্ট্রি অফিস · দলিল নং ৫৪২১',
+      date: '14 Feb 2024',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'RS',
+        area: '10.00 decimal', // Area mismatch with DOC-0081 (12.50 vs 10.00)
+        date: '14 Feb 2024'
+      }
+    },
+    'DOC-0082': {
+      id: 'DOC-0082',
+      title: 'Mutation Porcha · demo (নামজারি পর্চা নং ৯২০/১)',
+      docType: 'নামজারি খতিয়ান (Mutation Khatian)',
+      provenance: 'verified-source',
+      provenanceLabel: 'ই-নামজারি ডিজিটাল রেকর্ড',
+      sourceRef: 'ই-নামজারি সিস্টেম · জোত নং ৯২০/১',
+      date: '05 Jun 2025',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'RS',
+        area: '12.50 decimal', // Exact match with DOC-0081
+        date: '05 Jun 2025'
+      }
+    },
+    'DOC-0083': {
+      id: 'DOC-0083',
+      title: 'Historical deed · sample (১৯৮৫ সালের বায়া দলিল)',
+      docType: 'বায়া দলিল (Historical Deed)',
+      provenance: 'sample/demo',
+      provenanceLabel: 'ঐতিহাসিক দলিল নমুনা (ডেমো)',
+      sourceRef: 'পারিবারিক বায়া দলিল রেকর্ড',
+      date: '18 Mar 1985',
+      fields: {
+        party: 'মরহুম রমিজ উদ্দিন',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: 'SA',
+        area: '২ কাঠা ৪ ছটাক', // Incompatible regional units
+        date: '18 Mar 1985'
+      }
+    },
+    'DOC-0079': {
+      id: 'DOC-0079',
+      title: 'Tax receipt · demo (ভূমি উন্নয়ন কর দাখিলা)',
+      docType: 'কর দাখিলা (Tax Receipt)',
+      provenance: 'sample/demo',
+      provenanceLabel: 'ভূমি কর পোর্টাল ডেমো দাখিলা',
+      sourceRef: 'ইউনিয়ন ভূমি অফিস · দাখিলা রসিদ নং ৯৮৩',
+      date: '10 Oct 2026',
+      fields: {
+        party: 'আব্দুল করিম',
+        mouza: 'আমিন বাজার',
+        dag: '1842',
+        khatian: '731',
+        surveyType: '', // Missing survey type
+        area: '12.50 decimal',
+        date: '10 Oct 2026'
+      }
+    },
+    'DOC-0065': {
+      id: 'DOC-0065',
+      title: 'Applicant identity checklist (পরিচয় ও এনআইডি)',
+      docType: 'নাগরিক চেকলিস্ট (Citizen Identity Checklist)',
+      provenance: 'user-provided',
+      provenanceLabel: 'নাগরিকের প্রদত্ত তথ্য',
+      sourceRef: 'নাগরিকের নিজ ঘোষণাপত্র ও এনআইডি কপি',
+      date: '04 Oct 2026',
+      fields: {
+        party: 'আব্দুল করিম শেখ', // Spelling variation
+        mouza: '',
+        dag: '',
+        khatian: '',
+        surveyType: '',
+        area: '',
+        date: '04 Oct 2026'
+      }
+    }
+  };
+
+  const RECONCILIATION_PRESETS = [
+    {
+      key: 'area-mismatch',
+      title: '⚠️ কেস ১: জমির পরিমাপে গরমিল (Area Discrepancy)',
+      desc: 'আরএস খতিয়ান (১২.৫০ শতক) বনাম সাব-কবলা দলিল (১০.০০ শতক) — ২.৫০ শতকের অমিল',
+      docA: 'DOC-0081',
+      docB: 'DOC-0072'
+    },
+    {
+      key: 'exact-match',
+      title: '✓ কেস ২: অবিকল মিল (Exact Match)',
+      desc: 'আরএস খতিয়ান (৭৩১) বনাম ই-নামজারি পর্চা (৯২০/১) — সকল ফিল্ড সঙ্গতিপূর্ণ',
+      docA: 'DOC-0081',
+      docB: 'DOC-0082'
+    },
+    {
+      key: 'incompatible-units',
+      title: '❓ কেস ৩: পরিমাপের অসম একক (Incompatible Units)',
+      desc: 'আরএস খতিয়ান (১২.৫০ শতক) বনাম প্রাচীন দলিল (২ কাঠা ৪ ছটাক) — একক রূপান্তর যাচাই প্রয়োজন',
+      docA: 'DOC-0081',
+      docB: 'DOC-0083'
+    },
+    {
+      key: 'missing-fields',
+      title: '✎ কেস ৪: অনুপস্থিত তথ্য ও নামের বানান তফাত (Missing Fields & Spelling)',
+      desc: 'আরএস খতিয়ান (সম্পূর্ণ) বনাম নাগরিক পরিচয়পত্র (অনুপস্থিত দাগ/খতিয়ান এবং নামের পদবি পার্থক্য)',
+      docA: 'DOC-0081',
+      docB: 'DOC-0065'
+    }
+  ];
+
+  function normalizeDigits(str) {
+    if (str == null) return '';
+    return String(str).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  }
+
+  function normalizeRecordText(str) {
+    if (str == null) return '';
+    return normalizeDigits(String(str))
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toLowerCase();
+  }
+
+  function parseAreaField(raw) {
+    if (!raw || !String(raw).trim()) return { raw: '', num: null, unit: '', reliable: false, empty: true };
+    const text = normalizeRecordText(raw);
+    const numMatch = text.match(/[-+]?[0-9]*\.?[0-9]+/);
+    if (!numMatch) {
+      return { raw, num: null, unit: 'unknown', reliable: false, empty: false, reason: 'কোনো বৈধ সংখ্যাসূচক মান পাওয়া যায়নি' };
+    }
+    const num = parseFloat(numMatch[0]);
+
+    // Check for regional or unstandardized local units
+    if (/কাঠা|katha|বিঘা|bigha|ছটাক|chatak|কানি|kani|গণ্ডা|gonda|পাখি|pakhi/.test(text)) {
+      return {
+        raw,
+        num,
+        unit: 'regional',
+        reliable: false,
+        empty: false,
+        reason: 'আঞ্চলিক পরিমাপের একক (কাঠা/ছটাক/কানি) — স্থানীয় মৌজার সরকারি রূপান্তর অনুপাত ব্যতীত সরাসরি মেলানো ঝুঁকিপূর্ণ'
+      };
+    }
+
+    // Standard decimal / শতাংশ / শতক
+    if (/decimal|শতাংশ|শতক|ডিসিমেল|শতকরা/.test(text) || (!/acre|একর|sqft|বর্গফুট/.test(text) && numMatch)) {
+      return { raw, num: num, unit: 'decimal', reliable: true, empty: false };
+    }
+
+    // Acre / একর (1 acre = 100 decimal)
+    if (/acre|একর/.test(text)) {
+      return { raw, num: num * 100, unit: 'decimal', reliable: true, empty: false, convertedFrom: 'acre' };
+    }
+
+    // Sq ft / বর্গফুট (1 decimal = 435.6 sq ft)
+    if (/sqft|sq\s*ft|square\s*feet|বর্গফুট|বর্গ\s*ফুট/.test(text)) {
+      return { raw, num: Number((num / 435.6).toFixed(2)), unit: 'decimal', reliable: true, empty: false, convertedFrom: 'sqft' };
+    }
+
+    return { raw, num: num, unit: 'unknown', reliable: false, empty: false, reason: 'অনির্ধারিত একক' };
+  }
+
+  function getDocumentRecord(id) {
+    if (DEMO_DOCUMENT_RECORDS[id]) {
+      return JSON.parse(JSON.stringify(DEMO_DOCUMENT_RECORDS[id]));
+    }
+    const d = docs.find(x => x[0] === id);
+    if (d) {
+      return {
+        id: d[0],
+        title: `${d[1]} (${d[0]})`,
+        docType: d[2] || 'নথি (Document)',
+        provenance: d[4] === 'green' ? 'verified-source' : 'sample/demo',
+        provenanceLabel: d[4] === 'green' ? 'যাচাইকৃত নথি' : 'নমুনা নথি (ডেমো)',
+        sourceRef: 'ডেমো ভল্ট নথি',
+        date: d[5] || 'Recent',
+        fields: {
+          party: 'আব্দুল করিম',
+          mouza: 'আমিন বাজার',
+          dag: '1842',
+          khatian: '731',
+          surveyType: 'RS',
+          area: '12.50 decimal',
+          date: d[5] || '12 Oct 2026'
+        }
+      };
+    }
+    return JSON.parse(JSON.stringify(DEMO_DOCUMENT_RECORDS['DOC-0081']));
+  }
+
+  function renderProvenanceBadge(prov) {
+    switch(prov) {
+      case 'verified-source':
+        return '<span class="prov-badge verified-source">✓ সরকারি রেকর্ডরুম (Verified)</span>';
+      case 'AI-extracted-unverified':
+        return '<span class="prov-badge ai-extracted">✳ এআই এক্সট্র্যাক্টকৃত (যাচাইহীন)</span>';
+      case 'sample/demo':
+        return '<span class="prov-badge sample-demo">◈ ডেমো নমুনা (Sample)</span>';
+      case 'user-provided':
+        return '<span class="prov-badge user-provided">✎ নাগরিকের প্রদত্ত তথ্য</span>';
+      default:
+        return '<span class="prov-badge sample-demo">◈ ডেমো ডাটা</span>';
+    }
+  }
+
+  function compareRecords(docA, docB) {
+    const fA = docA.fields || {};
+    const fB = docB.fields || {};
+    const findings = [];
+
+    const areNamesEquivalent = (a, b) => {
+      const na = normalizeRecordText(a);
+      const nb = normalizeRecordText(b);
+      if (na === nb) return true;
+      const pairs = [
+        ['abdul karim', 'আব্দুল করিম'],
+        ['karim', 'করিম'],
+        ['mohammad', 'মোহাম্মদ'],
+        ['md', 'মো:'],
+        ['md', 'মোঃ']
+      ];
+      for (const [p1, p2] of pairs) {
+        if ((na.includes(p1) && nb.includes(p2)) || (na.includes(p2) && nb.includes(p1))) return true;
+      }
+      return false;
+    };
+
+    const areMouzasEquivalent = (a, b) => {
+      const na = normalizeRecordText(a);
+      const nb = normalizeRecordText(b);
+      if (na === nb) return true;
+      const mouzaPairs = [
+        ['amin bazar', 'আমিন বাজার'],
+        ['baipayl', 'বাইপাইল'],
+        ['savar', 'সাভার'],
+        ['kalighat', 'কালীঘাট'],
+        ['lohagara', 'লোহাগড়া']
+      ];
+      for (const [p1, p2] of mouzaPairs) {
+        if ((na === p1 && nb === p2) || (na === p2 && nb === p1)) return true;
+      }
+      return false;
+    };
+
+    // 1. Party / Name
+    const rawPartyA = (fA.party || '').trim();
+    const rawPartyB = (fB.party || '').trim();
+    if (!rawPartyA || !rawPartyB) {
+      findings.push({
+        id: 'party',
+        label: 'মালিক / পক্ষের নাম (Party / Owner)',
+        valA: rawPartyA || '(অনুপস্থিত)',
+        valB: rawPartyB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে নাম অনুপস্থিত থাকায় অমিল হিসেবে গণ্য করা হয়নি।',
+        nextStep: 'প্রয়োজনে জাতীয় পরিচয়পত্র (NID) বা ওয়ারিশান সনদ থেকে নাম সংযোজন করুন।'
+      });
+    } else if (areNamesEquivalent(rawPartyA, rawPartyB)) {
+      findings.push({
+        id: 'party',
+        label: 'মালিক / পক্ষের নাম (Party / Owner)',
+        valA: rawPartyA,
+        valB: rawPartyB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: 'উভয় নথিতে মালিক/পক্ষের নাম সঙ্গতিপূর্ণ ও অভিন্ন রয়েছে।',
+        nextStep: 'মালিকানা অপরিবর্তিত থাকলে অতিরিক্ত পদক্ষেপের প্রয়োজন নেই।'
+      });
+    } else {
+      findings.push({
+        id: 'party',
+        label: 'মালিক / পক্ষের নাম (Party / Owner)',
+        valA: rawPartyA,
+        valB: rawPartyB,
+        status: 'MISMATCH',
+        statusLabel: 'সম্ভাব্য অমিল',
+        statusTone: 'amber',
+        reason: `নামের বানান বা পদবিতে অমিল পাওয়া গেছে ("${rawPartyA}" বনাম "${rawPartyB}")।`,
+        nextStep: 'উপজেলা সাব-রেজিস্ট্রি অফিসে মূল বায়া দলিল তল্লাশি দিয়ে এবং এনআইডি কার্ডের সাথে মিলিয়ে সঠিক নাম নিশ্চিত করুন।'
+      });
+    }
+
+    // 2. Mouza
+    const rawMouzaA = (fA.mouza || '').trim();
+    const rawMouzaB = (fB.mouza || '').trim();
+    if (!rawMouzaA || !rawMouzaB) {
+      findings.push({
+        id: 'mouza',
+        label: 'মৌজা (Mouza)',
+        valA: rawMouzaA || '(অনুপস্থিত)',
+        valB: rawMouzaB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে মৌজার তথ্য অনুপস্থিত থাকায় অমিল গণ্য করা হয়নি।',
+        nextStep: 'খতিয়ান বা খাজনা দাখিলা থেকে সঠিক মৌজা জেএল নম্বর সংগ্রহ করুন।'
+      });
+    } else if (areMouzasEquivalent(rawMouzaA, rawMouzaB)) {
+      findings.push({
+        id: 'mouza',
+        label: 'মৌজা (Mouza)',
+        valA: rawMouzaA,
+        valB: rawMouzaB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: 'উভয় নথিতে মৌজা অভিন্ন ("আমিন বাজার")।',
+        nextStep: 'মৌজা এলাকা নিশ্চিত রয়েছে।'
+      });
+    } else {
+      findings.push({
+        id: 'mouza',
+        label: 'মৌজা (Mouza)',
+        valA: rawMouzaA,
+        valB: rawMouzaB,
+        status: 'MISMATCH',
+        statusLabel: 'ভিন্ন মৌজা',
+        statusTone: 'amber',
+        reason: `ভিন্ন মৌজার নাম পাওয়া গেছে ("${rawMouzaA}" বনাম "${rawMouzaB}")। এটি সম্পূর্ণ ভিন্ন স্থানের সম্পত্তি হতে পারে।`,
+        nextStep: 'সংশ্লিষ্ট উপজেলা ভূমি অফিস ও সাব-রেজিস্ট্রি থেকে মৌজা ও জেএল নম্বর পুনঃযাচাই করুন।'
+      });
+    }
+
+    // 3. Dag Number
+    const rawDagA = (fA.dag || '').trim();
+    const rawDagB = (fB.dag || '').trim();
+    if (!rawDagA || !rawDagB) {
+      findings.push({
+        id: 'dag',
+        label: 'দাগ নম্বর (Dag Number)',
+        valA: rawDagA || '(অনুপস্থিত)',
+        valB: rawDagB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে দাগ নম্বর উল্লেখ নেই (যেমন সাধারণ দাখিলা বা পরিচয়পত্রে এটি থাকে না)।',
+        nextStep: 'মৌজা নকশা (ম্যাপ) ও মূল খতিয়ান থেকে দাগ নম্বর সংগ্রহ করুন।'
+      });
+    } else if (normalizeDigits(rawDagA) === normalizeDigits(rawDagB)) {
+      findings.push({
+        id: 'dag',
+        label: 'দাগ নম্বর (Dag Number)',
+        valA: rawDagA,
+        valB: rawDagB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: `দাগ নম্বর নির্ভুলভাবে মিলেছে (${normalizeDigits(rawDagA)})।`,
+        nextStep: 'দাগ নম্বর সঠিক রয়েছে।'
+      });
+    } else {
+      findings.push({
+        id: 'dag',
+        label: 'দাগ নম্বর (Dag Number)',
+        valA: rawDagA,
+        valB: rawDagB,
+        status: 'MISMATCH',
+        statusLabel: 'দাগ অমিল',
+        statusTone: 'amber',
+        reason: `দাগ নম্বরে অমিল পাওয়া গেছে (${rawDagA} বনাম ${rawDagB})। সাবেক ও হাল দাগের রূপান্তর ঘটেছে কিনা পরীক্ষা প্রয়োজন।`,
+        nextStep: 'উপজেলা সেটেলমেন্ট বা তহশিল অফিস থেকে সাবেক-হাল দাগের মিলপর্চা বা দাগসূচি (Chitta) সংগ্রহ করুন।'
+      });
+    }
+
+    // 4. Khatian Number
+    const rawKhatA = (fA.khatian || '').trim();
+    const rawKhatB = (fB.khatian || '').trim();
+    if (!rawKhatA || !rawKhatB) {
+      findings.push({
+        id: 'khatian',
+        label: 'খতিয়ান নম্বর (Khatian Number)',
+        valA: rawKhatA || '(অনুপস্থিত)',
+        valB: rawKhatB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে খতিয়ান নম্বর উল্লেখ নেই।',
+        nextStep: 'সর্বশেষ নামজারি বা পর্চা কপি থেকে খতিয়ান নম্বর দেখে নিন।'
+      });
+    } else if (normalizeDigits(rawKhatA) === normalizeDigits(rawKhatB)) {
+      findings.push({
+        id: 'khatian',
+        label: 'খতিয়ান নম্বর (Khatian Number)',
+        valA: rawKhatA,
+        valB: rawKhatB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: `খতিয়ান নম্বর হুবহু মিলেছে (${normalizeDigits(rawKhatA)})।`,
+        nextStep: 'খতিয়ান রেফারেন্স সঠিক আছে।'
+      });
+    } else {
+      findings.push({
+        id: 'khatian',
+        label: 'খতিয়ান নম্বর (Khatian Number)',
+        valA: rawKhatA,
+        valB: rawKhatB,
+        status: 'MISMATCH',
+        statusLabel: 'খতিয়ান অমিল',
+        statusTone: 'amber',
+        reason: `খতিয়ান নম্বর ভিন্ন (${rawKhatA} বনাম ${rawKhatB})। নামজারির কারণে পৃথক জোত খতিয়ান সৃষ্টি হয়ে থাকতে পারে।`,
+        nextStep: 'সহকারী কমিশনার (ভূমি) কার্যালয়ের রেজিস্টার থেকে খতিয়ানের ধারাবাহিক খারিজ রেকর্ড যাচাই করুন।'
+      });
+    }
+
+    // 5. Survey Type
+    const rawSurA = (fA.surveyType || '').trim();
+    const rawSurB = (fB.surveyType || '').trim();
+    if (!rawSurA || !rawSurB) {
+      findings.push({
+        id: 'surveyType',
+        label: 'জরিপের ধরন (Survey Type)',
+        valA: rawSurA || '(অনুপস্থিত)',
+        valB: rawSurB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে জরিপের ধরন উল্লেখ নেই।',
+        nextStep: 'পরচা কপির শীর্ষভাগ থেকে জরিপের ধরন (CS/SA/RS/BS) নিশ্চিত করুন।'
+      });
+    } else if (normalizeRecordText(rawSurA) === normalizeRecordText(rawSurB)) {
+      findings.push({
+        id: 'surveyType',
+        label: 'জরিপের ধরন (Survey Type)',
+        valA: rawSurA,
+        valB: rawSurB,
+        status: 'MATCH',
+        statusLabel: 'হুবহু মিল',
+        statusTone: 'green',
+        reason: `উভয় নথি একই জরিপ পর্যায়ের (${rawSurA})।`,
+        nextStep: 'জরিপের ধরন সঙ্গতিপূর্ণ।'
+      });
+    } else {
+      findings.push({
+        id: 'surveyType',
+        label: 'জরিপের ধরন (Survey Type)',
+        valA: rawSurA,
+        valB: rawSurB,
+        status: 'INFO_SURVEY',
+        statusLabel: 'জরিপের স্তর ভিন্ন (তথ্যমূলক)',
+        statusTone: 'blue',
+        reason: `নথি দুটিতে জরিপের স্তর আলাদা (${rawSurA} বনাম ${rawSurB}) — এটি বাংলাদেশ ভূমি জরিপের স্বাভাবিক বিবর্তনের অংশ, বিরোধ নয়।`,
+        nextStep: 'সিএস থেকে বর্তমান বিএস পর্যন্ত মালিকানার ধারাবাহিক রেকর্ড সংরক্ষিত আছে কিনা পর্যালোচনা করুন।'
+      });
+    }
+
+    // 6. Land Area
+    const rawAreaA = (fA.area || '').trim();
+    const rawAreaB = (fB.area || '').trim();
+    const areaA = parseAreaField(rawAreaA);
+    const areaB = parseAreaField(rawAreaB);
+
+    if (areaA.empty || areaB.empty) {
+      findings.push({
+        id: 'area',
+        label: 'জমির পরিমাণ ও একক (Land Area)',
+        valA: rawAreaA || '(অনুপস্থিত)',
+        valB: rawAreaB || '(অনুপস্থিত)',
+        status: 'SKIPPED_MISSING',
+        statusLabel: 'তথ্য অনুপস্থিত (উপেক্ষিত)',
+        statusTone: 'gray',
+        reason: 'একটি নথিতে জমির পরিমাণ উল্লেখ নেই।',
+        nextStep: 'মূল দলিল বা পরচা থেকে অনুমোদিত জমির অংশ ও ক্ষেত্রফল সংগ্রহ করুন।'
+      });
+    } else if (!areaA.reliable || !areaB.reliable) {
+      findings.push({
+        id: 'area',
+        label: 'জমির পরিমাণ ও একক (Land Area)',
+        valA: rawAreaA,
+        valB: rawAreaB,
+        status: 'INCOMPATIBLE_UNIT',
+        statusLabel: 'একক যাচাই প্রয়োজন',
+        statusTone: 'blue',
+        reason: `পরিমাপের একক ভিন্ন বা স্থানীয় রূপান্তর অনুপাত অনির্ধারিত (${rawAreaA} বনাম ${rawAreaB})। কাঠা/ছটাক/কানির সরকারি রূপান্তর অনুপাত মৌজাভেদে যাচাই সাপেক্ষ।`,
+        nextStep: 'স্থানীয় ভূমি সহকারী কর্মকর্তা (তহশিলদার) বা অনুমোদিত সার্ভেয়ার দ্বারা মৌজার নির্দিষ্ট এককে রূপান্তর নিশ্চিত করুন।'
+      });
+    } else {
+      const diff = Math.abs(areaA.num - areaB.num);
+      if (diff < 0.01) {
+        findings.push({
+          id: 'area',
+          label: 'জমির পরিমাণ ও একক (Land Area)',
+          valA: rawAreaA,
+          valB: rawAreaB,
+          status: 'MATCH',
+          statusLabel: 'হুবহু মিল',
+          statusTone: 'green',
+          reason: `উভয় নথিতে জমির পরিমাণ নির্ভুলভাবে মিলেছে (${areaA.num.toFixed(2)} শতক/decimal)।`,
+          nextStep: 'জমির পরিমাণ সঙ্গতিপূর্ণ রয়েছে।'
+        });
+      } else {
+        findings.push({
+          id: 'area',
+          label: 'জমির পরিমাণ ও একক (Land Area)',
+          valA: rawAreaA,
+          valB: rawAreaB,
+          status: 'MISMATCH',
+          statusLabel: 'পরিমাণে গরমিল',
+          statusTone: 'amber',
+          diffAmount: `${diff.toFixed(2)} শতক (decimal)`,
+          reason: `জমির পরিমাপে গরমিল পাওয়া গেছে (${rawAreaA} বনাম ${rawAreaB})। পার্থক্যের পরিমাণ প্রায় ${diff.toFixed(2)} শতক।`,
+          nextStep: 'সহকারী কমিশনার (ভূমি) কার্যালয়ে মিসকেস বা রেকর্ড সংশোধনের জন্য বায়া দলিলের হস্তান্তরিত অংশ ও পরচা মিলিয়ে দেখুন।'
+        });
+      }
+    }
+
+    // 7. Dates (Informational timeline check)
+    const rawDateA = (fA.date || '').trim();
+    const rawDateB = (fB.date || '').trim();
+    if (rawDateA && rawDateB) {
+      findings.push({
+        id: 'date',
+        label: 'নথির সংশ্লিষ্ট তারিখ (Timeline / Date)',
+        valA: rawDateA,
+        valB: rawDateB,
+        status: 'INFO_DATE',
+        statusLabel: 'তারিখ প্রদর্শন (তথ্যমূলক)',
+        statusTone: 'gray',
+        reason: `নথিদ্বয়ের প্রস্তুত বা রেজিস্ট্রেশনের তারিখ প্রদর্শিত (${rawDateA} বনাম ${rawDateB})। নথির ধরন আলাদা হওয়ায় তারিখ ভিন্ন হওয়া স্বাভাবিক।`,
+        nextStep: 'দলিলের সম্পাদিত তারিখ এবং খতিয়ান প্রস্তুতের তারিখের ধারাবাহিকতা পরীক্ষা করুন।'
+      });
+    }
+
+    // Calculate overall status
+    const mismatches = findings.filter(f => f.status === 'MISMATCH');
+    const matches = findings.filter(f => f.status === 'MATCH');
+    const unitIncompatibles = findings.filter(f => f.status === 'INCOMPATIBLE_UNIT');
+    const skipped = findings.filter(f => f.status === 'SKIPPED_MISSING');
+    const comparableCount = mismatches.length + matches.length + unitIncompatibles.length;
+
+    let overallStatus = 'NO_MISMATCH_OBSERVED';
+    let statusTitle = 'কোনো গরমিল পরিলক্ষিত হয়নি (No Mismatch Observed)';
+    let statusTone = 'match';
+    let explanation = `যাচাইকৃত ${matches.length}টি তুলনীয় ফিল্ডে কোনো গরমিল বা অসঙ্গতি পাওয়া যায়নি।`;
+
+    if (mismatches.length > 0) {
+      overallStatus = 'POTENTIAL_MISMATCH';
+      statusTitle = 'সম্ভাব্য গরমিল পরিলক্ষিত (Potential Mismatch Detected)';
+      statusTone = 'mismatch';
+      explanation = `তুলনাযোগ্য ফিল্ডগুলোর মধ্যে ${mismatches.map(m => m.label.split(' ')[0]).join(', ')} ক্ষেত্রে অমিল পাওয়া গেছে। বিস্তারিত পর্যালোচনা করা বাঞ্ছনীয়।`;
+    } else if (unitIncompatibles.length > 0 || comparableCount === 0) {
+      overallStatus = 'INSUFFICIENT_DATA';
+      statusTitle = 'অপর্যাপ্ত বা অসামঞ্জস্যপূর্ণ তথ্য (Insufficient Data)';
+      statusTone = 'insufficient';
+      explanation = unitIncompatibles.length > 0
+        ? 'পরিমাপের একক অসম বা স্থানীয় রূপান্তর অনুপাত অনিশ্চিত হওয়ায় চূড়ান্ত তুলনা সম্ভব হয়নি। অধিকতর যাচাই প্রয়োজন।'
+        : 'নথি দুটিতে পর্যাপ্ত তুলনীয় সাধারণ ফিল্ড পাওয়া যায়নি।';
+    }
+
+    return {
+      docA,
+      docB,
+      overallStatus,
+      statusTitle,
+      statusTone,
+      explanation,
+      comparableCount,
+      findings,
+      mismatches,
+      matches,
+      unitIncompatibles,
+      skipped,
+      timestamp: Date.now(),
+      dateStr: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    };
+  }
+
+  let reconciliationState = {
+    step: 1, // 1: Select docs, 2: Review candidate values, 3: Findings
+    docAId: 'DOC-0081',
+    docBId: 'DOC-0072',
+    docAData: null,
+    docBData: null,
+    result: null,
+    presetKey: 'area-mismatch',
+    targetCaseId: null
+  };
+
+  function startReconciliation(initialDocA = 'DOC-0081', initialDocB = 'DOC-0072', options = {}) {
+    reconciliationState = {
+      step: options.step || 1,
+      docAId: initialDocA || 'DOC-0081',
+      docBId: initialDocB || 'DOC-0072',
+      docAData: getDocumentRecord(initialDocA || 'DOC-0081'),
+      docBData: getDocumentRecord(initialDocB || 'DOC-0072'),
+      result: options.result || null,
+      presetKey: options.presetKey || null,
+      targetCaseId: options.caseId || null
+    };
+
+    if (options.step === 3 && options.result) {
+      reconciliationState.result = options.result;
+    }
+
+    openModal('Record Reconciliation Engine', renderReconciliationModal(), 'R&D FEATURE #55 · DETERMINISTIC RECONCILIATION');
+    $('.modal')?.classList.add('reconciliation-modal');
+  }
+
+  function renderReconcileStepper(currentStep) {
+    const steps = [
+      { num: 1, label: 'নথি নির্বাচন' },
+      { num: 2, label: 'ফিল্ড পর্যালোচনা ও সংশোধন' },
+      { num: 3, label: 'গরমিল বিশ্লেষণ ও করণীয়' }
+    ];
+    const progressPercent = Math.min(100, Math.max(0, (currentStep - 1) / 2 * 100));
+
+    return `<div class="wizard-stepper">
+      <div class="wizard-stepper-line"></div>
+      <div class="wizard-stepper-progress" style="width: calc(${progressPercent}% * 0.85)"></div>
+      ${steps.map(s => {
+        const isCompleted = s.num < currentStep;
+        const isActive = s.num === currentStep;
+        return `<div class="wizard-step-node ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
+          <div class="wizard-step-circle">${isCompleted ? '✓' : s.num}</div>
+          <span class="wizard-step-label">${s.label}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function renderReconciliationModal() {
+    const step = reconciliationState.step;
+
+    if (step === 1) {
+      const docA = reconciliationState.docAData || getDocumentRecord(reconciliationState.docAId);
+      const docB = reconciliationState.docBData || getDocumentRecord(reconciliationState.docBId);
+
+      return `${renderReconcileStepper(1)}
+        <div style="margin-bottom:14px">
+          <h3 style="font-size:14px;color:#183d35;margin:0 0 4px">তুলনার জন্য দুটি নথি নির্বাচন করুন</h3>
+          <p style="font-size:11px;color:#788f83;line-height:1.5;margin:0">যেকোনো দুটি দলিল, খতিয়ান, পরচা বা দাখিলার তথ্য পাশাপাশি মিলিয়ে দেখার জন্য নিচের বহুল প্রচলিত টেস্ট কেসগুলো থেকে বেছে নিন অথবা ম্যানুয়ালি নথি সিলেক্ট করুন।</p>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:#284a3d;margin-bottom:6px">দ্রুত টেস্ট কেস (1-Click Verification Presets):</div>
+        <div class="reconcile-preset-grid">
+          ${RECONCILIATION_PRESETS.map(p => `
+            <div class="reconcile-preset-card ${reconciliationState.presetKey === p.key ? 'selected' : ''}" data-action="reconcile-preset" data-key="${p.key}">
+              <b>${esc(p.title)}</b>
+              <small>${esc(p.desc)}</small>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="reconcile-compare-grid" style="margin-top:16px">
+          <div class="reconcile-doc-card doc-a">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>প্রথম নথি (Document A)</strong>
+                <small>মূল রেফারেন্স বা খতিয়ান নথি</small>
+              </div>
+              ${renderProvenanceBadge(docA.provenance)}
+            </div>
+            <div class="form-field">
+              <label for="selectDocA">নথি নির্বাচন করুন:</label>
+              <select id="selectDocA" data-action="reconcile-select-doc-a">
+                ${docs.map(d => `<option value="${d[0]}" ${d[0] === reconciliationState.docAId ? 'selected' : ''}>${d[0]} · ${d[1]} (${d[2]})</option>`).join('')}
+              </select>
+            </div>
+            <div style="background:#f8faf8;border-radius:9px;padding:10px 12px;font-size:11px;line-height:1.6">
+              <div><strong>নথি:</strong> ${esc(docA.title)}</div>
+              <div><strong>ধরন:</strong> ${esc(docA.docType)}</div>
+              <div><strong>উৎস:</strong> ${esc(docA.sourceRef)}</div>
+            </div>
+          </div>
+
+          <div class="reconcile-doc-card doc-b">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>দ্বিতীয় নথি (Document B)</strong>
+                <small>তুলনার জন্য সংরক্ষিত বা স্ক্যানকৃত নথি</small>
+              </div>
+              ${renderProvenanceBadge(docB.provenance)}
+            </div>
+            <div class="form-field">
+              <label for="selectDocB">নথি নির্বাচন করুন:</label>
+              <select id="selectDocB" data-action="reconcile-select-doc-b">
+                ${docs.map(d => `<option value="${d[0]}" ${d[0] === reconciliationState.docBId ? 'selected' : ''}>${d[0]} · ${d[1]} (${d[2]})</option>`).join('')}
+              </select>
+            </div>
+            <div style="background:#f8faf8;border-radius:9px;padding:10px 12px;font-size:11px;line-height:1.6">
+              <div><strong>নথি:</strong> ${esc(docB.title)}</div>
+              <div><strong>ধরন:</strong> ${esc(docB.docType)}</div>
+              <div><strong>উৎস:</strong> ${esc(docB.sourceRef)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-note" style="margin-top:14px">
+          💡 পরবর্তী ধাপে আপনি নথির প্রতিটি ফিল্ডের মান পরীক্ষা করতে পারবেন এবং প্রয়োজনে সংশোধিত মান টাইপ করে গরমিল বিশ্লেষণ চালাতে পারবেন।
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" data-action="close-modal">বাতিল করুন</button>
+          <button type="button" class="btn primary" data-action="reconcile-next">পরবর্তী ধাপ (ফিল্ড পর্যালোচনা) →</button>
+        </div>`;
+    }
+
+    if (step === 2) {
+      const docA = reconciliationState.docAData;
+      const docB = reconciliationState.docBData;
+      const fA = docA.fields || {};
+      const fB = docB.fields || {};
+
+      return `${renderReconcileStepper(2)}
+        <div style="margin-bottom:14px">
+          <h3 style="font-size:14px;color:#183d35;margin:0 0 4px">ফিল্ড পর্যালোচনা ও প্রার্থীর মান সংশোধন (Candidate Values Review)</h3>
+          <p style="font-size:11px;color:#788f83;line-height:1.5;margin:0">নথি দুটির পাওয়া ফিল্ডগুলো নিচে দেখানো হলো। কোনো তথ্যে টাইপো থাকলে বা আপনি কোনো নির্দিষ্ট মান দিয়ে টেস্ট করতে চাইলে ইনপুট বক্স থেকে সংশোধন করতে পারেন।</p>
+        </div>
+
+        <div class="reconcile-compare-grid">
+          <div class="reconcile-doc-card doc-a">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>${esc(docA.id)}</strong>
+                <small>${esc(docA.title)}</small>
+              </div>
+              ${renderProvenanceBadge(docA.provenance)}
+            </div>
+
+            <div class="reconcile-field-group">
+              <div class="reconcile-field">
+                <label for="f_a_party">মালিক / পক্ষের নাম</label>
+                <input id="f_a_party" value="${esc(fA.party || '')}" placeholder="নাম নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_mouza">মৌজা</label>
+                <input id="f_a_mouza" value="${esc(fA.mouza || '')}" placeholder="মৌজা নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_dag">দাগ নম্বর</label>
+                <input id="f_a_dag" value="${esc(fA.dag || '')}" placeholder="দাগ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_khatian">খতিয়ান নম্বর</label>
+                <input id="f_a_khatian" value="${esc(fA.khatian || '')}" placeholder="খতিয়ান নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_survey">জরিপের ধরন</label>
+                <input id="f_a_survey" value="${esc(fA.surveyType || '')}" placeholder="জরিপ উল্লেখ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_area">জমির পরিমাণ ও একক</label>
+                <input id="f_a_area" value="${esc(fA.area || '')}" placeholder="পরিমাণ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_a_date">নথির তারিখ</label>
+                <input id="f_a_date" value="${esc(fA.date || '')}" placeholder="তারিখ নেই"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="reconcile-doc-card doc-b">
+            <div class="reconcile-doc-head">
+              <div>
+                <strong>${esc(docB.id)}</strong>
+                <small>${esc(docB.title)}</small>
+              </div>
+              ${renderProvenanceBadge(docB.provenance)}
+            </div>
+
+            <div class="reconcile-field-group">
+              <div class="reconcile-field">
+                <label for="f_b_party">মালিক / পক্ষের নাম</label>
+                <input id="f_b_party" value="${esc(fB.party || '')}" placeholder="নাম নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_mouza">মৌজা</label>
+                <input id="f_b_mouza" value="${esc(fB.mouza || '')}" placeholder="মৌজা নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_dag">দাগ নম্বর</label>
+                <input id="f_b_dag" value="${esc(fB.dag || '')}" placeholder="দাগ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_khatian">খতিয়ান নম্বর</label>
+                <input id="f_b_khatian" value="${esc(fB.khatian || '')}" placeholder="খতিয়ান নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_survey">জরিপের ধরন</label>
+                <input id="f_b_survey" value="${esc(fB.surveyType || '')}" placeholder="জরিপ উল্লেখ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_area">জমির পরিমাণ ও একক</label>
+                <input id="f_b_area" value="${esc(fB.area || '')}" placeholder="পরিমাণ নেই"/>
+              </div>
+              <div class="reconcile-field">
+                <label for="f_b_date">নথির তারিখ</label>
+                <input id="f_b_date" value="${esc(fB.date || '')}" placeholder="তারিখ নেই"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" data-action="reconcile-prev">← পূর্ববর্তী (নথি নির্বাচন)</button>
+          <button type="button" class="btn primary" data-action="reconcile-next">গরমিল বিশ্লেষণ চালান (Run Comparison) →</button>
+        </div>`;
+    }
+
+    if (step === 3) {
+      const res = reconciliationState.result;
+      if (!res) return '<div class="no-results">কোনো ফলাফল পাওয়া যায়নি।</div>';
+
+      const cases = local.landCases || [];
+
+      return `${renderReconcileStepper(3)}
+        <div class="reconcile-status-banner ${res.statusTone}">
+          <div class="reconcile-status-icon">${res.statusTone === 'mismatch' ? '⚠️' : res.statusTone === 'match' ? '✓' : 'ℹ'}</div>
+          <div style="flex:1">
+            <strong style="font-size:14px;display:block;margin-bottom:3px">${esc(res.statusTitle)}</strong>
+            <p style="margin:0;font-size:11.5px;line-height:1.5">${esc(res.explanation)}</p>
+          </div>
+          <div style="text-align:right">
+            <span class="pill ${res.statusTone === 'mismatch' ? 'amber' : res.statusTone === 'match' ? 'green' : 'blue'}" style="font-size:10px">${res.overallStatus}</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;font-size:11px;font-weight:700;flex-wrap:wrap">
+          <span class="pill green">${res.matches.length}টি ফিল্ডে মিল</span>
+          ${res.mismatches.length ? `<span class="pill amber">${res.mismatches.length}টি গরমিল</span>` : ''}
+          ${res.unitIncompatibles.length ? `<span class="pill blue">${res.unitIncompatibles.length}টি একক যাচাই</span>` : ''}
+          <span class="pill gray">${res.skipped.length}টি অনুপস্থিত (উপেক্ষিত)</span>
+        </div>
+
+        <div class="reconcile-findings-list">
+          ${res.findings.map(f => {
+            const isMismatch = f.status === 'MISMATCH';
+            const isMatch = f.status === 'MATCH';
+            const isUnit = f.status === 'INCOMPATIBLE_UNIT';
+            const rowClass = isMismatch ? 'has-mismatch' : isMatch ? 'is-match' : isUnit ? 'is-unit-incompatible' : '';
+
+            return `<div class="reconcile-finding-row ${rowClass}">
+              <div class="reconcile-finding-field">
+                <b>${esc(f.label.split(' ')[0])}</b>
+                <small>${esc(f.label.split('(')[1]?.replace(')', '') || '')}</small>
+              </div>
+
+              <div class="reconcile-val-box">
+                <small style="color:#778f83">${esc(res.docA.id)} (${res.docA.docType})</small>
+                <strong>${esc(f.valA)}</strong>
+                ${renderProvenanceBadge(res.docA.provenance)}
+              </div>
+
+              <div class="reconcile-val-box">
+                <small style="color:#778f83">${esc(res.docB.id)} (${res.docB.docType})</small>
+                <strong>${esc(f.valB)}</strong>
+                ${renderProvenanceBadge(res.docB.provenance)}
+                ${f.diffAmount ? `<div class="reconcile-diff-tag red">তফাত: ${esc(f.diffAmount)}</div>` : ''}
+              </div>
+
+              <div>
+                <span class="pill ${f.statusTone}" style="margin-bottom:4px;display:inline-block">${esc(f.statusLabel)}</span>
+                <p style="font-size:10px;color:#496b5b;margin:3px 0 0;line-height:1.4">${esc(f.reason)}</p>
+                <div style="font-size:9.5px;color:#6d887a;margin-top:4px"><strong>পরামর্শ:</strong> ${esc(f.nextStep)}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <div class="warning-panel" style="margin-top:16px">
+          ⚠️ <strong>আইনি অস্বীকৃতি ও দায়িত্বসীমা:</strong> এই তুলনামূলক ফলাফলটি একটি স্থানীয় ব্রাউজার অ্যালগরিদমের সহায়তায় তৈরি করা হয়েছে। এটি কোনো আদালত, সহকারী কমিশনার (ভূমি) বা সাব-রেজিস্ট্রারের অফিসিয়াল রেকর্ড প্রত্যয়ন নয়। এটি জমির বৈধ মালিকানা বা জালিয়াতি নির্ধারণ করে না এবং কোনো আইনি অধিকার সৃষ্টি করে না। যেকোনো বিরোধ নিষ্পত্তির জন্য সংশ্লিষ্ট ভূমি অফিসের শরণাপন্ন হোন।
+        </div>
+
+        <div class="reconcile-case-link-box">
+          <div class="reconcile-case-link-head">
+            <div style="font-size:24px;line-height:1">📁</div>
+            <div style="flex:1">
+              <strong>Land Case-এর সাথে যুক্ত করুন (Associate with Land Case)</strong>
+              <p>আপনার এই গরমিল বিশ্লেষণ রিপোর্টটি কেসবুকের Land Case ফাইলে সংরক্ষণ করে রাখুন। পরবর্তী শুনানি বা আবেদনের প্রস্তুতিতে কাজে লাগবে।</p>
+              ${cases.length ? `
+                <div style="display:flex;gap:9px;margin-top:10px;align-items:center;flex-wrap:wrap">
+                  <select id="reconcileCaseSelect" style="padding:7px 10px;border-radius:8px;border:1px solid #c9decb;font-size:11px;background:#fff">
+                    ${cases.map(c => `<option value="${esc(c.id)}">${esc(c.id)} · ${esc(c.category)} (${esc(c.created)})</option>`).join('')}
+                  </select>
+                  <button type="button" class="btn primary small" data-action="reconcile-link-case">✓ এই কেসে যুক্ত করুন</button>
+                  <span style="font-size:11px;color:#6b887b">অথবা</span>
+                  <button type="button" class="btn small" data-action="reconcile-create-case">＋ নতুন Land Case তৈরি করুন</button>
+                </div>
+              ` : `
+                <div style="margin-top:10px">
+                  <button type="button" class="btn primary small" data-action="reconcile-create-case">＋ নতুন Land Case ফাইলে এই গরমিল সংরক্ষণ করুন</button>
+                </div>
+              `}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions" style="margin-top:20px">
+          <button type="button" class="btn" data-action="reconcile-prev">← মান সম্পাদনা করুন</button>
+          <button type="button" class="btn" data-action="start-reconciliation">নতুন তুলনা</button>
+          <button type="button" class="btn primary" data-action="close-modal">সম্পন্ন</button>
+        </div>`;
+    }
+
+    return '';
+  }
+
+  function handleReconciliationAction(action, el) {
+    switch(action) {
+      case 'start-reconciliation': {
+        const caseId = el?.dataset?.caseId || null;
+        startReconciliation('DOC-0081', 'DOC-0072', { caseId });
+        break;
+      }
+
+      case 'document-compare': {
+        const docId = el?.dataset?.id || 'DOC-0081';
+        const otherDoc = docId === 'DOC-0081' ? 'DOC-0072' : 'DOC-0081';
+        startReconciliation(docId, otherDoc);
+        break;
+      }
+
+      case 'reconcile-preset': {
+        const key = el.dataset.key;
+        const preset = RECONCILIATION_PRESETS.find(p => p.key === key);
+        if (preset) {
+          reconciliationState.presetKey = key;
+          reconciliationState.docAId = preset.docA;
+          reconciliationState.docBId = preset.docB;
+          reconciliationState.docAData = getDocumentRecord(preset.docA);
+          reconciliationState.docBData = getDocumentRecord(preset.docB);
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-select-doc-a': {
+        const val = $('#selectDocA')?.value;
+        if (val) {
+          reconciliationState.docAId = val;
+          reconciliationState.docAData = getDocumentRecord(val);
+          reconciliationState.presetKey = null;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-select-doc-b': {
+        const val = $('#selectDocB')?.value;
+        if (val) {
+          reconciliationState.docBId = val;
+          reconciliationState.docBData = getDocumentRecord(val);
+          reconciliationState.presetKey = null;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-next': {
+        if (reconciliationState.step === 1) {
+          reconciliationState.docAData = getDocumentRecord(reconciliationState.docAId);
+          reconciliationState.docBData = getDocumentRecord(reconciliationState.docBId);
+          reconciliationState.step = 2;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+          return;
+        }
+
+        if (reconciliationState.step === 2) {
+          if (reconciliationState.docAData) {
+            reconciliationState.docAData.fields = {
+              party: $('#f_a_party')?.value?.trim() || '',
+              mouza: $('#f_a_mouza')?.value?.trim() || '',
+              dag: $('#f_a_dag')?.value?.trim() || '',
+              khatian: $('#f_a_khatian')?.value?.trim() || '',
+              surveyType: $('#f_a_survey')?.value?.trim() || '',
+              area: $('#f_a_area')?.value?.trim() || '',
+              date: $('#f_a_date')?.value?.trim() || ''
+            };
+          }
+          if (reconciliationState.docBData) {
+            reconciliationState.docBData.fields = {
+              party: $('#f_b_party')?.value?.trim() || '',
+              mouza: $('#f_b_mouza')?.value?.trim() || '',
+              dag: $('#f_b_dag')?.value?.trim() || '',
+              khatian: $('#f_b_khatian')?.value?.trim() || '',
+              surveyType: $('#f_b_survey')?.value?.trim() || '',
+              area: $('#f_b_area')?.value?.trim() || '',
+              date: $('#f_b_date')?.value?.trim() || ''
+            };
+          }
+
+          reconciliationState.result = compareRecords(reconciliationState.docAData, reconciliationState.docBData);
+          reconciliationState.step = 3;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+          return;
+        }
+        break;
+      }
+
+      case 'reconcile-prev': {
+        if (reconciliationState.step > 1) {
+          reconciliationState.step -= 1;
+          $('#modalBody').innerHTML = renderReconciliationModal();
+        }
+        break;
+      }
+
+      case 'reconcile-link-case': {
+        const caseId = $('#reconcileCaseSelect')?.value;
+        const c = (local.landCases || []).find(x => x.id === caseId);
+        if (!c || !reconciliationState.result) {
+          toast('কেস নির্বাচন করুন', 'সঠিক কেস সিলেক্ট করুন।');
+          return;
+        }
+
+        const res = reconciliationState.result;
+        c.reconciliation = res;
+        const noteSummary = `[নথিপত্র গরমিল নিরূপণ #55 - ${res.dateStr}]: ${res.docA.id} বনাম ${res.docB.id} | স্থিতি: ${res.overallStatus} (${res.mismatches.length}টি গরমিল, ${res.matches.length}টি মিল)।`;
+        c.notes = c.notes ? `${c.notes}\n\n${noteSummary}` : noteSummary;
+
+        persist();
+        toast('Land Case-এ গরমিল রিপোর্ট সংরক্ষিত হয়েছে', `${c.id} কেসে সফলভাবে সংযুক্ত করা হয়েছে।`);
+        if (state.page === 'casebook') renderPage();
+        closeModal();
+        break;
+      }
+
+      case 'reconcile-create-case': {
+        const res = reconciliationState.result;
+        closeModal();
+
+        const mismatchText = res && res.mismatches.length
+          ? res.mismatches.map(m => `${m.label.split(' ')[0]}: ${m.valA} বনাম ${m.valB}`).join('; ')
+          : 'নথিপত্র তথ্যে অমিল';
+
+        const prefillText = res
+          ? `${res.docA.title} এবং ${res.docB.title}-এর মধ্যে গরমিল চিহ্নিত হয়েছে (${mismatchText})। সহকারী কমিশনার (ভূমি) কার্যালয়ে রেকর্ড সংশোধনের জন্য প্রস্তুতি নিতে চাই।`
+          : 'দলিল ও খতিয়ানের নামের বানান ও জমির পরিমাপে গরমিল আছে।';
+
+        startLandCaseBuilder(prefillText, {
+          categoryKey: 'mismatch',
+          category: LAND_CASE_CATEGORIES.mismatch.title,
+          linkedParcel: 'DAG-1842',
+          reconciliation: res,
+          notes: res ? `R&D Feature #55 Record Reconciliation Engine দ্বারা স্বয়ংক্রিয়ভাবে গরমিল রিপোর্ট যুক্ত করা হয়েছে (${res.overallStatus})।` : ''
+        });
+        break;
+      }
+
+      case 'reconcile-view-attached': {
+        const caseId = el.dataset.caseId;
+        const c = (local.landCases || []).find(x => x.id === caseId);
+        if (c && c.reconciliation) {
+          startReconciliation(c.reconciliation.docA?.id || 'DOC-0081', c.reconciliation.docB?.id || 'DOC-0072', {
+            step: 3,
+            result: c.reconciliation
+          });
+        }
+        break;
+      }
+    }
+  }
+
+  /* ==========================================================================
+     R&D Feature #71: AI Service Router
+     Suggests an official service/authority based on the stated problem and
+     the verified service directory.
+     Source basis: docs/RND_REFERENCE_v1.4.md (§6.12, §7.4 #71, §20.1–20.4)
+     ========================================================================== */
+
+  const VERIFIED_SERVICE_DIRECTORY = [
+    {
+      id: 'mutation',
+      name: 'ই-নামজারি ও জমাভাগ (e-Mutation)',
+      nameEn: 'Online Land Mutation & Partition',
+      authority: 'সহকারী কমিশনার (ভূমি) / উপজেলা ভূমি অফিস (AC Land Office)',
+      authorityEn: 'Assistant Commissioner (Land) / Upazila Land Office',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'mutation',
+      icon: '⇄',
+      officialPortalUrl: 'https://mutation.land.gov.bd/',
+      portalLabel: 'mutation.land.gov.bd',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.2 #6 (e-Mutation / e-Namjari Portal)',
+      description: 'জমি ক্রয়, হেবা, দান বা হস্তান্তরের পর সরকারি রেকর্ডে নিজের নাম অন্তর্ভুক্তিকরণ ও পৃথক খতিয়ান তৈরি।',
+      keywords: ['নামজারি', 'খারিজ', 'নামপত্তন', 'জমাভাগ', 'খারিজের আবেদন', 'মিউটেশন', 'mutation', 'namjari', 'kharij', 'হস্তান্তর', 'জমি কিনেছি', 'দলিল রেজিস্ট্রি হয়েছে', 'রেকর্ড পরিবর্তন', 'নাম পরিবর্তন'],
+      requiredDocuments: [
+        'মূল দলিলের সার্টিফাইড কপি বা স্ক্যান',
+        'পিঠ দলিল / বায়া দলিলের ধারাবাহিক কপি',
+        'হাল সনের ভূমি উন্নয়ন কর পরিশোধ দাখিলা',
+        'সর্বশেষ জরিপের খতিয়ান / পরচা কপি',
+        'আবেদনকারীর এনআইডি ও ছবি'
+      ],
+      citizenNextSteps: [
+        'ই-নামজারি পোর্টালে (mutation.land.gov.bd) অনলাইনে আবেদন ফরম পূরণ করুন।',
+        'প্রয়োজনীয় কোর্ট ফি ও নোটিশ জারি ফি অনলাইনে পরিশোধ করুন।',
+        'ইউনিয়ন ভূমি সহকারী কর্মকর্তার সরেজমিন তদন্ত ও এসি ল্যান্ডের শুনানিতে মূল কাগজপত্র প্রদর্শন করুন।'
+      ],
+      caution: 'নামজারির আবেদন কেবল অনুমোদিত সরকারি পোর্টালেই করতে হবে। কোনো মধ্যস্বত্বভোগী বা দালালের সহায়তা নেওয়া দণ্ডনীয়।'
+    },
+    {
+      id: 'tax',
+      name: 'ভূমি উন্নয়ন কর ও অনলাইন দাখিলা (Land Development Tax)',
+      nameEn: 'Land Development Tax & Digital Dakhila',
+      authority: 'ইউনিয়ন ভূমি সহকারী কর্মকর্তা (তহশিলদার) / ইউনিয়ন ভূমি অফিস',
+      authorityEn: 'Union Land Assistant Officer / Union Land Office',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'tax',
+      icon: '৳',
+      officialPortalUrl: 'https://ldtax.gov.bd/',
+      portalLabel: 'ldtax.gov.bd',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.2 #7, #8 (Land Development Tax Portal & Manuals)',
+      description: 'বার্ষিক জমির খাজনা বা ভূমি উন্নয়ন কর পরিশোধ, বকেয়া কর যাচাই এবং কিউআর-কোডযুক্ত ডিজিটাল দাখিলা সংগ্রহ।',
+      keywords: ['খাজনা', 'ভূমি উন্নয়ন কর', 'ভূমি কর', 'কর পরিশোধ', 'বকেয়া কর', 'দাখিলা', 'বকেয়া খাজনা', 'এলডি ট্যাক্স', 'হোল্ডিং ট্যাক্স', 'ট্যাক্স', 'tax', 'khajna', 'dakhila', 'ldtax', 'holding tax', 'খাজনা বাকি', 'দাখিলা রসিদ', 'খাজনা দেব'],
+      requiredDocuments: [
+        'হাল খতিয়ান বা নামজারি পর্চার কপি',
+        'পূর্ববর্তী পরিশোধিত দাখিলা রসিদ',
+        'মালিকের জাতীয় পরিচয়পত্র ও সক্রিয় মোবাইল নম্বর',
+        'অনলাইন হোল্ডিং নম্বর (যদি পূর্বে নিবন্ধন করা থাকে)'
+      ],
+      citizenNextSteps: [
+        'ldtax.gov.bd পোর্টালে নাগরিক নিবন্ধন করে মোবাইল নম্বর ও এনআইডি দিয়ে লগইন করুন।',
+        'হোল্ডিং এন্ট্রি বা হালনাগাদ করে বর্তমান বকেয়া ও দাবির পরিমাণ যাচাই করুন।',
+        'অনলাইনে মোবাইল ফাইন্যান্সিয়াল সার্ভিস (বিকাশ, নগদ, রকেট) বা কার্ডের মাধ্যমে কর পরিশোধ করে কিউআর দাখিলা প্রিন্ট করুন।'
+      ],
+      caution: 'দাখিলার জন্য কোনো অতিরিক্ত নগদ অর্থ প্রদান করবেন না। ডিজিটাল কিউআর-কোডযুক্ত দাখিলাই একমাত্র আইনি রসিদ।'
+    },
+    {
+      id: 'khatian',
+      name: 'খতিয়ান / পর্চার সার্টিফাইড কপি ও তল্লাশ (e-Porcha)',
+      nameEn: 'Certified Khatian / Porcha Record Copy',
+      authority: 'জেলা প্রশাসকের কার্যালয়ের রেকর্ডরুম / উপজেলা ভূমি অফিস (DC Record Room / DLRS)',
+      authorityEn: 'Deputy Commissioner Record Room / Directorate of Land Records & Surveys',
+      ministry: 'ভূমি রেকর্ড ও জরিপ অধিদপ্তর (DLRS) ও ভূমি মন্ত্রণালয়',
+      categoryKey: 'records',
+      icon: '⌂',
+      officialPortalUrl: 'https://land.gov.bd/',
+      portalLabel: 'land.gov.bd (DLRS e-Porcha)',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.1 #3, §20.2 #9 (DLRS / National Land Portal)',
+      description: 'সিএস, এসএ, আরএস, দিয়ারা ও হাল বিএস/বিআরএস জরিপের খতিয়ান অনুসন্ধান, অনলাইন যাচাই ও সার্টিফাইড কপির আবেদন।',
+      keywords: ['খতিয়ান', 'পর্চা', 'পরচা', 'সিএস', 'এসএ', 'আরএস', 'বিএস', 'বিআরএস', 'khatian', 'porcha', 'eporcha', 'সার্টিফাইড কপি', 'রেকর্ড কপি', 'খতিয়ান তল্লাশ', 'রেকর্ড অফ রাইটস', 'ror', 'পর্চা তুলতে'],
+      requiredDocuments: [
+        'মৌজার নাম ও জেএল নম্বর',
+        'খতিয়ান নম্বর বা দাগ নম্বর',
+        'জরিপের ধরন (CS / SA / RS / BS)',
+        'আবেদনকারীর এনআইডি ও ডাকযোগে ডেলিভারি ঠিকানা'
+      ],
+      citizenNextSteps: [
+        'land.gov.bd বা eporcha সেবায় গিয়ে বিভাগ, জেলা, উপজেলা ও মৌজা নির্বাচন করুন।',
+        'খতিয়ান নম্বর বা দাগ নম্বর দিয়ে রেকর্ড অনুসন্ধান করুন।',
+        'সার্টিফাইড কপির জন্য কোর্ট ফি প্রদান করে ডাকযোগে বা ডিসি অফিস রেকর্ডরুম থেকে সরাসরি কপি সংগ্রহের আবেদন করুন।'
+      ],
+      caution: 'অনলাইন ভিউ কেবল তথ্যগত পর্যালোচনার জন্য; আদালতে প্রমাণের জন্য রেকর্ডরুমের মোহরাঙ্কিত সার্টিফাইড কপি আবশ্যক।'
+    },
+    {
+      id: 'mouza-map',
+      name: 'মৌজা নকশা ও দাগভিত্তিক ম্যাপ (Digital Mouza Map)',
+      nameEn: 'Digital Mouza Map & Plot Sheet',
+      authority: 'ভূমি রেকর্ড ও জরিপ অধিদপ্তর (DLRS) / জেলা রেকর্ডরুম',
+      authorityEn: 'Directorate of Land Records & Surveys (DLRS)',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'gis',
+      icon: '⌖',
+      officialPortalUrl: 'https://map.land.gov.bd/',
+      portalLabel: 'map.land.gov.bd',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.1 #5 (National Digital Land Zoning & Map Portal)',
+      description: 'মৌজা নকশা বা শিট ম্যাপ দর্শন, নির্দিষ্ট দাগের অবস্থান পরিমাপ এবং মুদ্রিত শিটের জন্য সার্টিফাইড আবেদন।',
+      keywords: ['ম্যাপ', 'নকশা', 'মৌজা ম্যাপ', 'দাগ ম্যাপ', 'শিট', 'মৌজা নকশা', 'map', 'mouza map', 'cadastral', 'plot map', 'নকসা', 'sheet', 'নকশা দেখতে'],
+      requiredDocuments: [
+        'মৌজা ও জেএল নম্বর',
+        'শিট নম্বর (একাধিক শিটভুক্ত মৌজার ক্ষেত্রে)',
+        'দাগ নম্বর'
+      ],
+      citizenNextSteps: [
+        'map.land.gov.bd পোর্টালে মৌজা ও শিট নির্বাচন করে ডিজিটাল দাগ ম্যাপ পর্যালোচনা করুন।',
+        'সার্টিফাইড প্রিন্টেড ম্যাপের জন্য জেলা রেকর্ডরুম বা ডাকযোগে ডেলিভারির আবেদন করুন।'
+      ],
+      caution: 'স্ক্রিনের ডিজিটাল ভিউ পরিমাপের জন্য সহায়ক হলেও আইনি সীমানা নির্ধারণে সরকারি সার্টিফাইড শিট প্রযোজ্য।'
+    },
+    {
+      id: 'dispute-correction',
+      name: 'রেকর্ড সংশোধন ও ভূমি রাজস্ব মামলা (Miss Case / Correction)',
+      nameEn: 'Record Correction & Revenue Court Case',
+      authority: 'সহকারী কমিশনার (ভূমি) আদালত / অতিরিক্ত জেলা প্রশাসক (রাজস্ব)',
+      authorityEn: 'Assistant Commissioner (Land) Revenue Court / ADC (Revenue)',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'dispute',
+      icon: '▤',
+      officialPortalUrl: 'https://case.gov.bd/',
+      portalLabel: 'case.gov.bd',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.2 #10 (Land Revenue Case Management System)',
+      description: 'খতিয়ানে নামের বানান বা দাগের ক্লারিক্যাল ভুল সংশোধন, নামজারি আদেশের বিরুদ্ধে মিসকেস ও রাজস্ব বিরোধের আইনি প্রতিকার।',
+      keywords: ['রেকর্ড সংশোধন', 'মিসকেস', 'ভুল সংশোধন', 'বানান ভুল', 'দাগ ভুল', 'খতিয়ান ভুল', 'মিস কেস', 'মামলা', 'আপিল', 'রাজস্ব মামলা', 'case', 'miss case', 'correction', 'revenue case', 'বিরোধ', 'গরমিল সংশোধন', 'নামের বানান ভুল'],
+      requiredDocuments: [
+        'যেই খতিয়ানে ভুল হয়েছে তার সার্টিফাইড কপি',
+        'ভুল প্রমাণের সপক্ষে মূল বায়া দলিল ও পূর্ববর্তী শুদ্ধ খতিয়ান',
+        'আবেদনকারীর এনআইডি ও সংশোধন প্রার্থনার সুনির্দিষ্ট বিবরণ',
+        'নামজারি আদেশের বিরুদ্ধে হলে আদেশের সত্যায়িত নকল'
+      ],
+      citizenNextSteps: [
+        'case.gov.bd পোর্টালে মামলার ধরন নির্বাচন করে মিসকেস বা আপিল পিটিশন দাখিলের প্রস্তুতি নিন।',
+        'উপজেলা সহকারী কমিশনার (ভূমি) কার্যালয়ে প্রয়োজনীয় কোর্ট ফিসহ আবেদনপত্র জমা দিন।',
+        'বিজ্ঞ আদালতের নোটিশ জারির পর নির্ধারিত তারিখে মূল নথিপত্রসহ শুনানিতে অংশ নিন।'
+      ],
+      caution: 'স্বত্ব ও মালিকানা সংক্রান্ত জটিল দেওয়ানি বিরোধ নিষ্পত্তির এখতিয়ার কেবল দেওয়ানি আদালতের (Civil Court); রাজস্ব আদালত কেবল রেকর্ডের ভুল ও নামজারি বিরোধ দেখে।'
+    },
+    {
+      id: 'inheritance',
+      name: 'উত্তরাধিকার ও পারিবারিক সম্পত্তি বণ্টন (Inheritance & Faraiz)',
+      nameEn: 'Inheritance Property Distribution & Succession Mutation',
+      authority: 'সহকারী কমিশনার (ভূমি) কার্যালয় (নামজারির জন্য) ও সাব-রেজিস্ট্রি অফিস (বণ্টন দলিলের জন্য)',
+      authorityEn: 'AC Land Office (Mutation) & Sub-Registry Office (Partition Deed)',
+      ministry: 'ভূমি মন্ত্রণালয় ও আইন মন্ত্রণালয় (নিবন্ধন অধিদপ্তর)',
+      categoryKey: 'inheritance',
+      icon: '⌁',
+      officialPortalUrl: 'https://mutation.land.gov.bd/',
+      portalLabel: 'mutation.land.gov.bd (ওয়ারিশান নামজারি)',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.2 #6, §19.3',
+      description: 'পৈতৃক সম্পত্তির ফারায়েজ অনুযায়ী অংশ নির্ধারণ, ওয়ারিশান নামজারি এবং রেজিস্ট্রিকৃত আপস বণ্টননামার মাধ্যমে পৃথক খতিয়ান তৈরি।',
+      keywords: ['উত্তরাধিকার', 'ওয়ারিশ', 'ওয়ারিশ', 'ওয়ারিশান', 'ফারায়েজ', 'বণ্টন', 'বন্টন', 'পিতা মারা', 'মৃত', 'পৈতৃক', 'inheritance', 'heir', 'succession', 'faraiz', 'পারিবারিক জমি', 'বণ্টননামা', 'বাবার মৃত্যুর পর'],
+      requiredDocuments: [
+        'স্থানীয় ইউনিয়ন পরিষদ বা পৌরসভা কর্তৃক প্রদত্ত ওয়ারিশান সনদপত্র',
+        'মৃত ব্যক্তির অফিসিয়াল মৃত্যু সনদপত্র (Death Certificate)',
+        'মৃত ব্যক্তির নামের রেকর্ডীয় খতিয়ান ও মালিকানার মূল দলিল',
+        'পারিবারিক রেজিস্ট্রিকৃত আপস বণ্টননামা দলিল (যদি সম্পাদিত হয়ে থাকে)',
+        'সকল জীবিত ওয়ারিশের জাতীয় পরিচয়পত্র'
+      ],
+      citizenNextSteps: [
+        'ফারায়েজ অনুযায়ী প্রত্যেক ওয়ারিশের প্রাপ্য অংশ হিসাব করুন।',
+        'ওয়ারিশদের সমঝোতার ভিত্তিতে উপজেলা সাব-রেজিস্ট্রি অফিসে একটি রেজিস্ট্রিকৃত বণ্টননামা দলিল সম্পাদন করুন।',
+        'বণ্টননামার দলিলের কপি সংযুক্ত করে mutation.land.gov.bd-তে ওয়ারিশান নামজারির আবেদন দাখিল করুন।'
+      ],
+      caution: 'ওয়ারিশদের মধ্যে অংশ বা দখল নিয়ে ফৌজদারি বিরোধ থাকলে স্থানীয় সালিশ বা দেওয়ানি আদালতের শরণাপন্ন হোন।'
+    },
+    {
+      id: 'khas-settlement',
+      name: 'সরকারি খাস জমি বন্দোবস্ত ও লিজ (Khas Land Settlement)',
+      nameEn: 'Government Khas Land Allotment & Lease',
+      authority: 'উপজেলা কৃষি খাস জমি বন্দোবস্ত কমিটি / সহকারী কমিশনার (ভূমি) ও উপজেলা নির্বাহী কর্মকর্তা (UNO)',
+      authorityEn: 'Upazila Khas Land Settlement Committee / AC Land & UNO',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'lease',
+      icon: '⌁',
+      officialPortalUrl: 'https://land.gov.bd/',
+      portalLabel: 'land.gov.bd / স্থানীয় উপজেলা কার্যালয়',
+      urlVerified: true,
+      isOnlineSubmission: false,
+      sourceCitation: 'R&D Reference v1.4 §20.3 #18, #19 (Agricultural & Non-agricultural Khas Policies)',
+      description: 'ভূমিহীন পরিবারের জন্য কৃষি খাস জমি বন্দোবস্ত, আশ্রয়ণ প্রকল্প অথবা সরকারি নীতিমালা অনুযায়ী বিশেষ ইজারা ও বন্দোবস্ত।',
+      keywords: ['খাস জমি', 'বন্দোবস্ত', 'লিজ', 'ভূমিহীন', 'চা বাগান লিজ', 'জলমহাল', 'সরকারি জমি', 'khas', 'settlement', 'bandobasto', 'lease', 'allotment', 'ashrayan'],
+      requiredDocuments: [
+        'ইউপি চেয়ারম্যান কর্তৃক প্রদত্ত প্রকৃত ভূমিহীন পরিবারের সনদপত্র',
+        'পরিবারের সকল সদস্যের জাতীয় পরিচয়পত্র ও ছবি',
+        'প্রস্তাবিত খাস জমির মৌজা ও দাগ সংক্রান্ত তথ্য',
+        'স্থানীয় ইউনিয়ন ভূমি কর্মকর্তার খাস জমি যাচাই প্রতিবেদন'
+      ],
+      citizenNextSteps: [
+        'উপজেলা নির্বাহী কর্মকর্তা (ইউএনও) বা এসি ল্যান্ডের কার্যালয়ে নির্ধারিত ফরমে সরাসরি আবেদন জমা দিন।',
+        'উপজেলা কৃষি খাস জমি বন্দোবস্ত কমিটির যাচাই ও অনুমোদনের জন্য অপেক্ষা করুন।',
+        'অনুমোদন পাওয়া গেলে প্রতীকী সালামি জমা দিয়ে সরকারি কবুলিয়ত দলিল সম্পাদন করুন।'
+      ],
+      caution: 'খাস জমি কোনো ব্যক্তি বা দালালের মাধ্যমে ক্রয়-বিক্রয় করা সম্পূর্ণ অবৈধ। এটি কেবল সরকারি কমিটির মাধ্যমেই বন্দোবস্তযোগ্য।'
+    },
+    {
+      id: 'deed-registration',
+      name: 'দলিল নিবন্ধন, বালাম তল্লাশ ও সার্টিফাইড নকল (Sub-Registry)',
+      nameEn: 'Deed Registration, Search & Certified Copy',
+      authority: 'উপজেলা সাব-রেজিস্ট্রি কার্যালয় (Sub-Registry Office)',
+      authorityEn: 'Sub-Registry Office, Directorate of Registration',
+      ministry: 'আইন, বিচার ও সংসদ বিষয়ক মন্ত্রণালয় (নিবন্ধন অধিদপ্তর)',
+      categoryKey: 'deeds',
+      icon: '▣',
+      officialPortalUrl: 'https://registration.gov.bd/',
+      portalLabel: 'registration.gov.bd',
+      urlVerified: true,
+      isOnlineSubmission: false,
+      sourceCitation: 'R&D Reference v1.4 §20.3 (Registration Directorate & Laws)',
+      description: 'সাব-কবলা, হেবা, দান বা বণ্টননামা দলিল রেজিস্ট্রি, পুরাতন দলিলের বালাম তল্লাশ এবং সার্টিফাইড নকল (নকলনবিস কপি) উত্তোলন।',
+      keywords: ['দলিল', 'রেজিস্ট্রি', 'সাব রেজিস্ট্রি', 'দলিল তল্লাশ', 'বায়া দলিল', 'সাব কবলা', 'হেবা', 'নকল', 'deed', 'registration', 'sub registry', 'deed copy', 'দলিলের নকল', 'দলিল রেজিস্ট্রি', 'দলিল তল্লাশ ও নকল'],
+      requiredDocuments: [
+        'হস্তান্তরকারী ও গ্রহীতার এনআইডি, ছবি ও টিআইএন (প্রযোজ্য ক্ষেত্রে)',
+        'হাল সনের দাখিলা ও বিক্রেতার নামে নামজারি খতিয়ান',
+        'পুরাতন দলিলের বালাম তল্লাশের ক্ষেত্রে দলিল নম্বর, সাল ও পক্ষগণের নাম',
+        'সরকার নির্ধারিত স্ট্যাম্প ডিউটি ও রেজিস্ট্রি ফি পরিশোধের চালান'
+      ],
+      citizenNextSteps: [
+        'নিবন্ধন অধিদপ্তরের পোর্টালে (registration.gov.bd) ফি ও নিয়মাবলী পর্যালোচনা করুন।',
+        'সংশ্লিষ্ট উপজেলা সাব-রেজিস্ট্রি কার্যালয়ে গিয়ে নির্ধারিত তল্লাশ ফি জমা দিয়ে বালাম ও ইনডেক্স তল্লাশ দিন।',
+        'তল্লাশ শেষে মহাফেজখানা/রেকর্ড শাখা থেকে দলিলের সার্টিফাইড নকলের জন্য আবেদন করুন।'
+      ],
+      caution: 'সাব-রেজিস্ট্রি অফিস আইন মন্ত্রণালয়ের অধীন; ভূমি মন্ত্রণালয়ের নামজারি বা খাজনার সাথে এর এখতিয়ার আলাদা।'
+    },
+    {
+      id: 'cht-special',
+      name: 'পার্বত্য চট্টগ্রাম বিশেষ ভূমি ব্যবস্থাপনা (CHT Customary Land Governance)',
+      nameEn: 'Chittagong Hill Tracts Special Land Administration',
+      authority: 'সার্কেল চিফ (রাজা), সংশ্লিষ্ট মৌজা হেডম্যান ও জেলা প্রশাসন (DC Office)',
+      authorityEn: 'Circle Chief (Raja), Mouza Headman & Hill District Administration',
+      ministry: 'পার্বত্য চট্টগ্রাম বিষয়ক মন্ত্রণালয় (MoCHTA)',
+      categoryKey: 'cht',
+      icon: '◭',
+      officialPortalUrl: 'https://mochta.gov.bd/',
+      portalLabel: 'mochta.gov.bd',
+      urlVerified: true,
+      isOnlineSubmission: false,
+      sourceCitation: 'R&D Reference v1.4 §20.3 #13, #14, #15, #16 (MoCHTA Laws & 1900 CHT Regulation)',
+      description: 'রাঙামাটি, খাগড়াছড়ি ও বান্দরবান পার্বত্য জেলার জন্য প্রযোজ্য বিশেষ ভূমি ব্যবস্থাপনা, মৌজা হেডম্যানের সুপারিশ ও সার্কেল চিফের অনাপত্তি।',
+      keywords: ['পার্বত্য চট্টগ্রাম', 'হেডম্যান', 'সার্কেল চিফ', 'চাকমা রাজা', 'বোমাং', 'মং', 'রাঙামাটি', 'খাগড়াছড়ি', 'বান্দরবান', 'cht', 'hill tracts', 'headman', 'circle chief', 'পার্বত্য জেলা', 'প্রথাগত ভূমি'],
+      requiredDocuments: [
+        'স্থায়ী বাসিন্দার প্রত্যয়নপত্র (সার্কেল চিফ বা হেডম্যান কর্তৃক প্রদত্ত)',
+        'মৌজা হেডম্যানের সীমানা ও মালিকানা তদন্ত প্রতিবেদন',
+        'জাতীয় পরিচয়পত্র ও আবেদনকারীর বংশপরম্পরা বিবরণী',
+        'পার্বত্য জেলা পরিষদের অনাপত্তিপত্র (প্রযোজ্য ক্ষেত্রে)'
+      ],
+      citizenNextSteps: [
+        'প্রথমে আপনার সংশ্লিষ্ট মৌজার হেডম্যানের সাথে সাক্ষাৎ করে ভূমির বিবরণ দিন ও তদন্ত প্রতিবেদন সংগ্রহ করুন।',
+        'সংশ্লিষ্ট সার্কেল চিফ (চাকমা, বোমাং বা মং সার্কেল) কার্যালয়ে অনাপত্তিপত্র বা সনদের জন্য আবেদন করুন।',
+        'পরবর্তীতে জেলা প্রশাসকের কার্যালয়ের রাজস্ব শাখায় চূড়ান্ত অনুমোদনের প্রক্রিয়া সম্পন্ন করুন।'
+      ],
+      caution: 'পার্বত্য চট্টগ্রামের ভূমি ব্যবস্থাপনা সমতল এলাকার চেয়ে সম্পূর্ণ ভিন্ন এবং ১৯০০ সালের পার্বত্য চট্টগ্রাম রেগুলেশন ও শান্তি চুক্তি আইন দ্বারা নিয়ন্ত্রিত। সাধারণ নামজারি নিয়ম সরাসরি প্রযোজ্য নয়।'
+    },
+    {
+      id: 'acquisition',
+      name: 'ভূমি অধিগ্রহণ ক্ষতিপূরণ দাবি ও আপত্তি (Land Acquisition - LA Case)',
+      nameEn: 'Land Acquisition Compensation Claim & Objection',
+      authority: 'জেলা প্রশাসকের কার্যালয়ের ভূমি অধিগ্রহণ (LA) শাখা (DC Office LA Section)',
+      authorityEn: 'Land Acquisition Section, Deputy Commissioner Office',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'acquisition',
+      icon: '⚑',
+      officialPortalUrl: 'https://land.gov.bd/',
+      portalLabel: 'land.gov.bd / জেলা প্রশাসকের এলএ শাখা',
+      urlVerified: true,
+      isOnlineSubmission: false,
+      sourceCitation: 'R&D Reference v1.4 §20.3 #21 (Acquisition & Requisition of Immovable Property Act, 2017)',
+      description: 'সরকারি উন্নয়ন প্রকল্পের জন্য জমি অধিগ্রহণে ৪ ধারা, ৭ ধারা বা ৮ ধারা নোটিশের প্রেক্ষিতে ক্ষতিপূরণ দাবি দাখিল বা আপত্তি উত্থাপন।',
+      keywords: ['অধিগ্রহণ', 'ক্ষতিপূরণ', 'এলএ কেস', 'হুকুমদখল', '৭ ধারা', '৮ ধারা', '৪ ধারা', 'acquisition', 'la case', 'compensation', 'requisition', 'জমি নিয়েছে', 'রাস্তার জন্য জমি'],
+      requiredDocuments: [
+        'ডিসি অফিস কর্তৃক জারিকৃত অধিগ্রহণের মূল নোটিশ কপি (৪/৭/৮ ধারা)',
+        'অধিগ্রহণকৃত জমির মালিকানার মূল বায়া দলিল ও আরএস/বিএস খতিয়ান',
+        'হাল সনের ভূমি উন্নয়ন কর দাখিলা রসিদ',
+        'জমিতে বিদ্যমান ঘরবাড়ি, গাছপালা বা স্থাপনার বিবরণ ও মালিকের এনআইডি'
+      ],
+      citizenNextSteps: [
+        'নোটিশে উল্লেখিত সময়সীমার মধ্যে জেলা প্রশাসকের এলএ শাখায় ক্ষতিপূরণ দাবি ফরম দাখিল করুন।',
+        'যৌথ তদন্ত (Joint Verification) কমিটির সাথে জমিতে উপস্থিত থেকে সম্পদ প্রদর্শন করুন।',
+        'স্বত্ব প্রমাণের শুনানি শেষে ডিসি অফিসের হিসাব শাখা থেকে ক্ষতিপূরণের চেক গ্রহণ করুন।'
+      ],
+      caution: 'স্থাবর সম্পত্তি অধিগ্রহণ ও হুকুমদখল আইন ২০১৭ অনুসারে নির্ধারিত সময়ের মধ্যে দাবি বা আপত্তি না জানালে ক্ষতিপূরণ প্রাপ্তিতে জটিলতা সৃষ্টি হতে পারে।'
+    },
+    {
+      id: 'boundary-survey',
+      name: 'সীমানা নির্ধারণ ও সরকারি আমিন দ্বারা পরিমাপ (Boundary Demarcation)',
+      nameEn: 'Boundary Demarcation & Government Survey',
+      authority: 'উপজেলা সহকারী কমিশনার (ভূমি) কার্যালয় / উপজেলা সেটেলমেন্ট অফিস',
+      authorityEn: 'AC Land Office / Upazila Settlement Office',
+      ministry: 'ভূমি মন্ত্রণালয় ও DLRS',
+      categoryKey: 'boundary',
+      icon: '⌖',
+      officialPortalUrl: 'https://land.gov.bd/',
+      portalLabel: 'land.gov.bd / সহকারী কমিশনার (ভূমি) কার্যালয়',
+      urlVerified: true,
+      isOnlineSubmission: false,
+      sourceCitation: 'R&D Reference v1.4 §7.2 #30, §19.3',
+      description: 'জমির আইল বা সীমানা নিয়ে বিরোধের ক্ষেত্রে সরকারি সনদপ্রাপ্ত আমিন/সার্ভেয়ার দ্বারা সরকারি জরিপ ম্যাপের ভিত্তিতে সরেজমিন পরিমাপ।',
+      keywords: ['সীমানা', 'মাপ', 'পরিমাপ', 'আমিন', 'সার্ভেয়ার', 'আইল', 'দখল', 'জবরদখল', 'বেদখল', 'ঘেরা', 'boundary', 'survey', 'measurement', 'demarcation', 'encroachment', 'আইল ঠেলা', 'জমি মাপতে'],
+      requiredDocuments: [
+        'জমির মূল দলিল ও হাল নামজারি পরচা',
+        'সংশ্লিষ্ট মৌজার সার্টিফাইড জরিপ ম্যাপের শিট',
+        'চৌহদ্দীর পার্শ্ববর্তী মালিকগণের তালিকা ও আবেদনকারীর এনআইডি'
+      ],
+      citizenNextSteps: [
+        'সহকারী কমিশনার (ভূমি) বরাবর নির্ধারিত সরকারি ফি দিয়ে সীমানা পরিমাপের আবেদন দাখিল করুন।',
+        'পক্ষগণকে নোটিশ জারির পর নির্ধারিত তারিখে সরকারি আমিনের উপস্থিতিতে সরেজমিন পরিমাপ নিশ্চিত করুন।',
+        'আমিন কর্তৃক প্রস্তুতকৃত পরিমাপ স্কেচ ও প্রতিবেদন এসি ল্যান্ড কার্যালয় থেকে গ্রহণ করুন।'
+      ],
+      caution: 'সরকারি আমিন কেবল নকশা অনুযায়ী সীমানা চিহ্নিত করে প্রতিবেদন দেন। জোরপূর্বক দখল উচ্ছেদের জন্য দেওয়ানি আদালতের ডিক্রি বা নির্বাহী ম্যাজিস্ট্রেটের সহায়তা প্রয়োজন।'
+    },
+    {
+      id: 'helpline',
+      name: 'জাতীয় ভূমি সেবা কল সেন্টার ও হেল্পডেস্ক (Land Service 16122)',
+      nameEn: 'National Land Helpline 16122 & Citizen Grievance',
+      authority: 'ভূমি মন্ত্রণালয় নাগরিক সেবা কেন্দ্র (Citizen Service Center)',
+      authorityEn: 'Citizen Service Center, Ministry of Land',
+      ministry: 'ভূমি মন্ত্রণালয় (Ministry of Land)',
+      categoryKey: 'support',
+      icon: '♧',
+      officialPortalUrl: 'https://land.gov.bd/',
+      portalLabel: 'land.gov.bd (হটলাইন: ১৬১২২)',
+      urlVerified: true,
+      isOnlineSubmission: true,
+      sourceCitation: 'R&D Reference v1.4 §20.1 #3, §7.4 #76 (Citizen Support Escalation)',
+      description: 'যেকোনো ভূমি সেবা সংক্রান্ত সার্বিক তথ্য, পরামর্শ, সিস্টেমের কারিগরি সহায়তা বা অনিয়মের অভিযোগ দাখিলের জাতীয় হেল্পলাইন।',
+      keywords: ['হেল্পলাইন', 'অভিযোগ', 'সাহায্য', 'পরামর্শ', 'কল সেন্টার', 'ফোন নম্বর', 'হটলাইন', '১৬১২২', '16122', 'help', 'support', 'complaint', 'grievance', 'সহায়তা চাই'],
+      requiredDocuments: [
+        'আবেদনকারী নাগরিকের জাতীয় পরিচয়পত্র ও মোবাইল নম্বর',
+        'পূর্ববর্তী কোনো আবেদন থাকলে তার ট্র্যাকিং নম্বর (যেমন: নামজারি কেস আইডি বা দাখিলা নম্বর)'
+      ],
+      citizenNextSteps: [
+        'সরাসরি ১৬১২২ (টোল-ফ্রি নয়) নম্বরে কল করে ভূমি কর্মকর্তার সাথে পরামর্শ করুন।',
+        'অনলাইনে land.gov.bd পোর্টালে ‘অভিযোগ’ ট্যাবে গিয়ে লিখিত অভিযোগ বা পরামর্শ নিবন্ধন করুন।'
+      ],
+      caution: 'হেল্পলাইন কর্মকর্তারা প্রক্রিয়াগত পরামর্শ প্রদান করেন; কোনো সরাসরি অফিসিয়াল আদেশ বা স্বত্ব নির্ধারণ করতে পারেন না।'
+    }
+  ];
+
+  function routeCitizenProblem(rawText = '', options = {}) {
+    const raw = String(rawText || '').trim();
+    if (!raw || raw.length < 3) {
+      return {
+        query: raw,
+        categoryKey: 'none',
+        status: 'EMPTY_INPUT',
+        confidence: 'none',
+        service: null,
+        rationale: 'অনুগ্রহ করে আপনার জমি সংক্রান্ত সমস্যাটি বিস্তারিত লিখুন (যেমন: জমি কিনেছি নামজারি কীভাবে করব, খতিয়ানে নামের ভুল, খাজনা বকেয়া, ইত্যাদি)।',
+        nextSteps: [
+          'আপনার সমস্যার বিষয় বা কী সেবা প্রয়োজন তা সংক্ষেপে লিখুন।',
+          'অথবা নিচে দেওয়া বহুল প্রচলিত উদাহরণগুলোতে ক্লিক করে দেখুন।'
+        ],
+        clarification: null,
+        guardrail: 'সতর্কতা: এটি একটি তথ্যভিত্তিক সরকারি সেবা রাউটার। কোনো আইনি স্বত্ব বা মালিকানা ঘোষণার সুযোগ এতে নেই।'
+      };
+    }
+
+    const norm = normalize(raw).toLowerCase();
+
+    // If an explicit category is requested (e.g. from a clarification selection)
+    if (options.selectedCategory) {
+      const explicitService = VERIFIED_SERVICE_DIRECTORY.find(s => s.id === options.selectedCategory || s.categoryKey === options.selectedCategory);
+      if (explicitService) {
+        return {
+          query: raw,
+          categoryKey: explicitService.categoryKey,
+          status: 'RECOMMENDED',
+          confidence: 'high',
+          service: explicitService,
+          rationale: `নাগরিকের নির্বাচিত স্পষ্টীকরণ ('${explicitService.name}') অনুযায়ী দায়িত্বপ্রাপ্ত সরকারি কর্তৃপক্ষ হলো ${explicitService.authority}।`,
+          nextSteps: explicitService.citizenNextSteps,
+          clarification: null,
+          guardrail: 'সতর্কতা: এটি একটি তথ্যভিত্তিক সেবা নির্দেশিকা। কোনো স্বত্ব, মালিকানা বা আইনি রায় ঘোষণার সুযোগ এতে নেই; প্রযোজ্য আনুষ্ঠানিক প্রক্রিয়া সংশ্লিষ্ট সরকারি দপ্তর কর্তৃক নির্ধারিত।'
+        };
+      }
+    }
+
+    // Check for broad / generic problem statement
+    const broadPhrases = [
+      'জমি নিয়ে সমস্যা', 'জমি নিয়ে সমস্যা', 'জমি সংক্রান্ত সমস্যা', 'আমার জমি',
+      'সাহায্য চাই', 'ভূমি সমস্যা', 'land problem', 'land issue', 'need help with land',
+      'problem with land', 'জমি ঝামেলা', 'সহায়তা প্রয়োজন', 'কি করব বুঝতে পারছি না'
+    ];
+    const isBroadGeneric = broadPhrases.some(p => norm.includes(normalize(p))) && norm.length < 35;
+
+    if (isBroadGeneric) {
+      return {
+        query: raw,
+        categoryKey: 'ambiguous',
+        status: 'AMBIGUOUS',
+        confidence: 'low',
+        service: null,
+        rationale: 'আপনার প্রদত্ত বিবরণটি অত্যন্ত সাধারণ ("জমি নিয়ে সমস্যা")। ভূমি মন্ত্রণালয়ে একাধিক ভিন্ন ভিন্ন সেবা ও দপ্তর রয়েছে। সুনির্দিষ্ট সেবা নির্ধারণের জন্য স্পষ্টীকরণ প্রয়োজন।',
+        nextSteps: [
+          'নিচে দেওয়া ক্যাটাগরিগুলো থেকে আপনার নির্দিষ্ট সমস্যাটি নির্বাচন করুন।',
+          'অথবা আপনার সমস্যার বিবরণটিতে আরও সুনির্দিষ্ট তথ্য (যেমন: নামজারি, খাজনা, খতিয়ান, সীমানা ইত্যাদি) যোগ করুন।'
+        ],
+        clarification: {
+          question: 'আপনার সমস্যাটি মূলত কোন বিষয়ের সাথে সম্পর্কিত?',
+          options: [
+            { text: 'নামজারি / খারিজ (ক্রয় বা হস্তান্তরের পর রেকর্ড হালনাগাদ)', categoryKey: 'mutation' },
+            { text: 'ভূমি উন্নয়ন কর / খাজনা ও বকেয়া পরিশোধ', categoryKey: 'tax' },
+            { text: 'খতিয়ান বা পর্চা অনুসন্ধান ও সার্টিফাইড নকল', categoryKey: 'khatian' },
+            { text: 'খতিয়ানের ভুল সংশোধন / মিসকেস পিটিশন', categoryKey: 'dispute-correction' },
+            { text: 'পৈতৃক সম্পত্তি বণ্টন ও উত্তরাধিকার (ফারায়েজ)', categoryKey: 'inheritance' },
+            { text: 'জমির সীমানা নিয়ে বিরোধ ও আমিন দ্বারা পরিমাপ', categoryKey: 'boundary-survey' },
+            { text: 'অন্যান্য পরামর্শ বা সরাসরি হেল্পলাইন (১৬১২২)', categoryKey: 'helpline' }
+          ]
+        },
+        guardrail: 'সতর্কতা: অনুমাননির্ভর ভুল সেবা নির্বাচন এড়াতে সুনির্দিষ্ট তথ্য দিয়ে স্পষ্টীকরণ করুন। এটি কোনো আইনি সিদ্ধান্ত বা স্বত্ব/মালিকানা নির্ধারণ নয়।'
+      };
+    }
+
+    // Score all services in VERIFIED_SERVICE_DIRECTORY
+    const scores = [];
+
+    for (const s of VERIFIED_SERVICE_DIRECTORY) {
+      let score = 0;
+      const matched = [];
+
+      for (const kw of s.keywords) {
+        const normKw = normalize(kw).toLowerCase();
+        if (norm.includes(normKw)) {
+          const weight = normKw.includes(' ') ? 3 : 1.5;
+          score += weight;
+          matched.push(kw);
+        }
+      }
+
+      if (score > 0) {
+        scores.push({
+          service: s,
+          score,
+          matched
+        });
+      }
+    }
+
+    scores.sort((a, b) => b.score - a.score);
+
+    // No keywords matched -> Out of scope / No match
+    if (scores.length === 0) {
+      return {
+        query: raw,
+        categoryKey: 'none',
+        status: 'NO_MATCH',
+        confidence: 'none',
+        service: null,
+        rationale: 'প্রদত্ত বিবরণের সাথে ভূমি প্রশাসনের কোনো অনুমোদিত সরকারি সেবা নিশ্চিতভাবে মেলেনি। অনুসন্ধানটি জমি-সংক্রান্ত না হতে পারে অথবা ভিন্ন শব্দভাণ্ডার ব্যবহৃত হয়েছে।',
+        nextSteps: [
+          'ভূমি মন্ত্রণালয়ের সার্বক্ষণিক নাগরিক সেবা হেল্পলাইন ১৬১২২ (16122)-এ কল করে সরাসরি পরামর্শ নিতে পারেন।',
+          'আপনার অনুসন্ধানে সুনির্দিষ্ট ভূমি সম্পর্কিত শব্দ ব্যবহার করুন (যেমন: নামজারি, খতিয়ান, পর্চা, খাজনা, সীমানা, অধিগ্রহণ)।',
+          'অথবা e-Bhumi "AI Land Case Builder (#2)" ব্যবহার করে নতুন একটি কেস ফাইল প্রস্তুত করুন।'
+        ],
+        clarification: null,
+        guardrail: 'সতর্কতা: eBhumi কোনো কাল্পনিক সেবা বা অননুমোদিত পোর্টাল লিঙ্ক প্রদর্শন করে না। এটি কোনো আইনি পরামর্শ বা মালিকানা সনদ নয়; সরকারি সেবার সত্যতা যাচাই সাপেক্ষ।'
+      };
+    }
+
+    // Ambiguity check: multiple top services have close scores OR query expresses multiple conjunctive intents
+    const hasConjunction = /(?:\s+(?:ও|এবং|বা|অথবা)\s+|দুটিই|উভয়|উভয়)/i.test(norm);
+    if (scores.length > 1) {
+      const topDiff = Math.abs(scores[0].score - scores[1].score);
+      const isCloseScore = topDiff < 0.5 && scores[0].score <= 3.0;
+      const isConjunctiveAmbiguity = hasConjunction && scores[0].score >= 1.5 && scores[1].score >= 1.5;
+      if (isCloseScore || isConjunctiveAmbiguity) {
+        const topCandidates = scores.slice(0, 3);
+        return {
+          query: raw,
+          categoryKey: 'ambiguous',
+          status: 'AMBIGUOUS',
+          confidence: 'medium',
+          service: null,
+          rationale: `আপনার সমস্যায় একাধিক সরকারি সেবার প্রাসঙ্গিকতা পাওয়া গেছে (${topCandidates.map(c => `'${c.service.name}'`).join(' বনাম ')}। সঠিক সেবা সুপারিশের জন্য একটি বিষয় বেছে নিন।`,
+          nextSteps: [
+            'নিচে উল্লেখিত বিকল্পগুলোর মধ্যে কোনটি আপনার প্রধান প্রয়োজন তা নির্বাচন করুন।'
+          ],
+          clarification: {
+            question: 'আপনার মূল অগ্রাধিকার কোনটি?',
+            options: topCandidates.map(c => ({
+              text: `${c.service.name} (${c.service.authority.split('/')[0].trim()})`,
+              categoryKey: c.service.id
+            }))
+          },
+          guardrail: 'সতর্কতা: একাধিক সেবা সংশ্লিষ্ট থাকলে নির্দিষ্ট বিষয়ের ভিত্তিতে আলাদা সরকারি প্রক্রিয়া অনুসরণ করতে হয়। এটি কোনো আদালতের আইনি রায় বা দলিলের মালিকানা সংক্রান্ত সিদ্ধান্ত নয়।'
+        };
+      }
+    }
+
+    const top = scores[0];
+    const service = top.service;
+    const confidence = top.score >= 3.0 ? 'high' : 'medium';
+    const uniqueMatches = [...new Set(top.matched)].slice(0, 4);
+
+    return {
+      query: raw,
+      categoryKey: service.categoryKey,
+      status: 'RECOMMENDED',
+      confidence,
+      service,
+      rationale: `আপনার বিবরণে '${uniqueMatches.join(', ')}' বিষয়ের উল্লেখ রয়েছে। সরকারি কার্যপ্রণালী অনুযায়ী এর দায়িত্বপ্রাপ্ত কর্তৃপক্ষ হলো ${service.authority} এবং প্রযোজ্য সেবা হলো '${service.name}'।`,
+      nextSteps: service.citizenNextSteps,
+      clarification: null,
+      guardrail: 'সতর্কতা: এটি একটি তথ্যভিত্তিক সরকারি সেবা রাউটার। এটি কোনো দেওয়ানি বা রাজস্ব আদালতের আইনি সিদ্ধান্ত, স্বত্ব/মালিকানা ঘোষণা বা চূড়ান্ত আদেশের বিকল্প নয়। যেকোনো পদক্ষেপ গ্রহণের পূর্বে দায়িত্বপ্রাপ্ত সরকারি কার্যালয়ে বর্তমান নির্দেশনা যাচাই করুন।'
+    };
+  }
+
+  let routerModalState = {
+    query: '',
+    result: null,
+    selectedCategory: null
+  };
+
+  function renderServiceRouterPromo(){
+    return `<div class="service-router-promo">
+      <div class="service-router-promo-icon">⚡</div>
+      <div class="service-router-promo-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+          <div>
+            <span class="eyebrow" style="color:#2a6552;margin-bottom:3px">R&amp;D FEATURE #71 · AI SERVICE ROUTER</span>
+            <h3 style="margin:0 0 4px;font-size:15px;color:#173d35">AI Service Router (সরকারি সেবা ও কর্তৃপক্ষ নির্দেশক)</h3>
+          </div>
+          <button class="btn primary small" data-action="open-service-router">সম্পূর্ণ রাউটার ড্যাশবোর্ড খুলুন ↗</button>
+        </div>
+        <p style="margin:0 0 10px;font-size:12px;color:#5a7368;line-height:1.5">আপনার সমস্যা অনুযায়ী কোন সরকারি দপ্তর ও পোর্টাল দায়িত্বপ্রাপ্ত তা জানতে নিচের ঘরে লিখুন অথবা জনপ্রিয় উদাহরণ নির্বাচন করুন:</p>
+        <div class="service-router-quick-bar">
+          <input id="serviceRouterQuickInput" type="text" placeholder="যেমন: জমি কিনেছি নামজারি কীভাবে করব, খতিয়ানে নামের ভুল সংশোধন, খাজনা পরিশোধ..." autocomplete="off"/>
+          <button class="btn primary" data-action="router-quick-search">সেবা খুঁজুন ↗</button>
+        </div>
+        <div class="preset-list" style="margin-top:8px">
+          <button class="preset-chip" data-action="router-preset" data-text="আমি জমি কিনেছি, এখন খারিজ করতে চাই">নামজারি / খারিজ (Mutation) ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="জমির খাজনা দিতে চাই, বকেয়া কর কীভাবে পরিশোধ করব?">খাজনা ও দাখিলা (Land Tax) ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="খতিয়ানের পর্চা তুলতে চাই, সার্টিফাইড কপি দরকার">পর্চা ও খতিয়ান (e-Porcha) ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="খতিয়ানে নামের বানান ভুল এসেছে, রেকর্ড সংশোধন করতে মিসকেস করতে হবে">রেকর্ড সংশোধন মিসকেস ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="বাবার মৃত্যুর পর পৈতৃক সম্পত্তি ওয়ারিশদের মধ্যে বণ্টন করতে চাই">উত্তরাধিকার ও ফারায়েজ ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="প্রতিবেশী সীমানা দখল করছে, সরকারি আমিন দিয়ে জমি মাপতে চাই">সীমানা বিরোধ ও পরিমাপ ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="আমার জমি নিয়ে সমস্যা হচ্ছে">অস্পষ্ট প্রশ্ন (Ambiguous) ↗</button>
+          <button class="preset-chip" data-action="router-preset" data-text="পাসপোর্ট রিনিউ করার নিয়ম কী?">বহির্ভূত প্রশ্ন (Out of Scope) ↗</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderServiceRouterModal(){
+    const res = routerModalState.result;
+    const q = routerModalState.query || '';
+
+    let resultHtml = '';
+
+    if (!res) {
+      resultHtml = `
+        <div style="text-align:center;padding:24px 16px;background:#f8faf9;border-radius:12px;border:1px dashed #d5e4db;margin-top:14px">
+          <span style="font-size:32px;display:block;margin-bottom:8px">🔍</span>
+          <strong style="color:#1d4336;font-size:13px;display:block">আপনার জমি সংক্রান্ত সমস্যাটি লিখুন</strong>
+          <p style="color:#60796e;font-size:11.5px;margin:4px auto 0;max-width:380px">উপরে সমস্যা লিখুন বা নিচের কোনো একটি উদাহরণে ক্লিক করুন। রাউটার স্বয়ংক্রিয়ভাবে দায়িত্বপ্রাপ্ত সরকারি কর্তৃপক্ষ ও করণীয় দেখাবে।</p>
+        </div>`;
+    } else if (res.status === 'RECOMMENDED') {
+      const s = res.service;
+      const portalBox = s.isOnlineSubmission
+        ? `<div class="service-router-official-box">
+             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+               <div>
+                 <span style="font-size:10px;font-weight:700;color:#285b45;text-transform:uppercase;letter-spacing:.5px">অনুমোদিত ডিজিটাল সেবা পোর্টাল</span>
+                 <strong style="display:block;font-size:13px;color:#154133">${esc(s.portalLabel)}</strong>
+               </div>
+               <a href="${s.officialPortalUrl}" target="_blank" rel="noopener noreferrer" class="btn primary small" style="display:inline-flex;align-items:center;gap:6px">🔗 অফিসিয়াল পোর্টাল খুলুন ↗</a>
+             </div>
+             <div style="font-size:10px;color:#617c70;margin-top:8px;display:flex;align-items:center;gap:6px">
+               <span class="pill green" style="font-size:9px;padding:2px 6px">✓ যাচাইকৃত সরকারি উৎস</span>
+               <span>ভিত্তি: ${esc(s.sourceCitation)}</span>
+             </div>
+           </div>`
+        : `<div class="service-router-official-box warning">
+             <div style="display:flex;align-items:center;gap:10px">
+               <span style="font-size:20px">🏛️</span>
+               <div style="flex:1">
+                 <strong style="display:block;font-size:12.5px;color:#855519">সরাসরি সংশ্লিষ্ট দপ্তরে আবেদন প্রযোজ্য</strong>
+                 <p style="font-size:11px;color:#8c6229;margin:2px 0 0;line-height:1.4">এই সেবার জন্য কোনো একক ডিজিটাল পোর্টাল নেই। দায়িত্বপ্রাপ্ত সরকারি কার্যালয়ে সশরীরে উপস্থিত হয়ে নির্ধারিত ফরমে আবেদন করতে হয়।</p>
+               </div>
+             </div>
+             <div style="font-size:10px;color:#87673b;margin-top:8px">
+               ভিত্তি: ${esc(s.sourceCitation)}
+             </div>
+           </div>`;
+
+      resultHtml = `
+        <div class="service-router-result-card" style="margin-top:14px">
+          <div class="service-router-result-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="pill green" style="font-size:10.5px">✓ সুপারিশকৃত সরকারি সেবা</span>
+              <span class="pill gray" style="font-size:9.5px">${esc(s.categoryKey.toUpperCase())}</span>
+            </div>
+            <span style="font-size:11px;color:#617e71;font-weight:600">ম্যাচ আস্থা: <b style="color:#1d5c44">${res.confidence === 'high' ? 'উচ্চ (High)' : 'পরিমিত (Medium)'}</b></span>
+          </div>
+
+          <div style="padding:16px 18px">
+            <h3 style="margin:0 0 4px;font-size:16px;color:#143e34">${esc(s.name)}</h3>
+            <p style="margin:0 0 12px;font-size:11.5px;color:#5a7368">${esc(s.description)}</p>
+
+            <div class="service-router-authority-box">
+              <div class="authority-icon">🏛️</div>
+              <div style="flex:1">
+                <span class="authority-label">দায়িত্বপ্রাপ্ত সরকারি কর্তৃপক্ষ ও দপ্তর</span>
+                <strong class="authority-name">${esc(s.authority)}</strong>
+                <small class="authority-sub">${esc(s.ministry)}</small>
+              </div>
+            </div>
+
+            ${portalBox}
+
+            <div class="service-router-rationale-box">
+              <strong>💡 কেন এই সেবাটি সুপারিশ করা হয়েছে:</strong>
+              <p>${esc(res.rationale)}</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0">
+              <div class="router-doc-box">
+                <strong style="display:block;font-size:11.5px;color:#184236;margin-bottom:6px">📋 প্রয়োজনীয় নথিপত্র:</strong>
+                <ul style="margin:0;padding-left:16px;font-size:11px;color:#355347;line-height:1.5">
+                  ${s.requiredDocuments.map(d => `<li>${esc(d)}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="router-doc-box">
+                <strong style="display:block;font-size:11.5px;color:#184236;margin-bottom:6px">🚶 নাগরিকের পরবর্তী করণীয় ধাপ:</strong>
+                <ol style="margin:0;padding-left:16px;font-size:11px;color:#355347;line-height:1.5">
+                  ${res.nextSteps.map(st => `<li>${esc(st)}</li>`).join('')}
+                </ol>
+              </div>
+            </div>
+
+            <div class="router-caution-box">
+              <strong>⚠️ বিশেষ সতর্কতা:</strong> ${esc(s.caution)}
+            </div>
+
+            <div class="router-guardrail-banner">
+              🔒 ${esc(res.guardrail)}
+            </div>
+
+            <div class="modal-actions" style="margin-top:16px">
+              <button type="button" class="btn primary" data-action="router-open-case" data-category="${esc(s.categoryKey)}" data-problem="${esc(q)}">📁 এই সমস্যার Land Case ফাইল তৈরি করুন →</button>
+              <button type="button" class="btn" data-action="router-reset">নতুন অনুসন্ধান ↺</button>
+              <button type="button" class="btn" data-action="close-modal">সম্পন্ন</button>
+            </div>
+          </div>
+        </div>`;
+    } else if (res.status === 'AMBIGUOUS') {
+      resultHtml = `
+        <div class="service-router-result-card ambiguous" style="margin-top:14px">
+          <div class="service-router-result-header" style="background:#fff8ee;border-color:#f1d7b1">
+            <span class="pill amber" style="font-size:10.5px">⚠️ স্পষ্টীকরণ প্রয়োজন (Ambiguous Query)</span>
+            <span style="font-size:11px;color:#855519;font-weight:600">অনুমানহীন রাউটিং</span>
+          </div>
+          <div style="padding:16px 18px">
+            <p style="margin:0 0 10px;font-size:12px;color:#78541c;line-height:1.5">${esc(res.rationale)}</p>
+            <div style="background:#fff;border:1px solid #ebd3ad;border-radius:10px;padding:12px;margin:12px 0">
+              <strong style="display:block;font-size:12.5px;color:#183d35;margin-bottom:8px">❓ ${esc(res.clarification.question)}</strong>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                ${res.clarification.options.map(opt => `
+                  <button type="button" class="btn small" data-action="router-clarify" data-cat="${esc(opt.categoryKey)}" data-problem="${esc(q)}" style="text-align:left;justify-content:flex-start;padding:8px 12px;color:#194437;background:#fbfdfc;border:1px solid #dbe7df">
+                    <span style="font-weight:700">👉 ${esc(opt.text)}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="router-guardrail-banner">
+              🔒 ${esc(res.guardrail)}
+            </div>
+            <div class="modal-actions" style="margin-top:14px">
+              <button type="button" class="btn" data-action="router-reset">নতুন সমস্যা লিখুন ↺</button>
+              <button type="button" class="btn" data-action="close-modal">বাতিল</button>
+            </div>
+          </div>
+        </div>`;
+    } else if (res.status === 'NO_MATCH') {
+      resultHtml = `
+        <div class="service-router-result-card no-match" style="margin-top:14px">
+          <div class="service-router-result-header" style="background:#fafbfb;border-color:#e2e8e4">
+            <span class="pill gray" style="font-size:10.5px">ℹ️ কোনো নির্ভরযোগ্য সেবা মেলেনি (No Official Match)</span>
+          </div>
+          <div style="padding:16px 18px">
+            <p style="margin:0 0 12px;font-size:12px;color:#456356;line-height:1.5">${esc(res.rationale)}</p>
+            <div style="background:#fff;border:1px solid #d8e5dd;border-radius:10px;padding:12px;margin:12px 0">
+              <strong style="display:block;font-size:12px;color:#183d35;margin-bottom:6px">💡 পরবর্তী করণীয় পরামর্শ:</strong>
+              <ul style="margin:0;padding-left:18px;font-size:11.5px;color:#355347;line-height:1.5">
+                ${res.nextSteps.map(st => `<li>${esc(st)}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="router-guardrail-banner">
+              🔒 ${esc(res.guardrail)}
+            </div>
+            <div class="modal-actions" style="margin-top:14px">
+              <button type="button" class="btn primary small" data-action="router-open-case" data-category="other" data-problem="${esc(q)}">📁 সাধারণ Land Case প্রস্তুত করুন</button>
+              <button type="button" class="btn" data-action="router-reset">নতুন অনুসন্ধান ↺</button>
+              <button type="button" class="btn" data-action="close-modal">বন্ধ করুন</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div>
+        <p style="font-size:11.5px;color:#60796e;margin:0 0 10px;line-height:1.5">
+          আপনার সমস্যা বর্ণনা করুন। সিস্টেম যাচাইকৃত সরকারি সেবা ডিরেক্টরি অনুযায়ী সঠিক কর্তৃপক্ষ ও অফিসিয়াল পোর্টালের দিকনির্দেশনা দেবে।
+        </p>
+
+        <form id="serviceRouterModalForm" onsubmit="return false;">
+          <div class="form-field full" style="margin-bottom:8px">
+            <label for="serviceRouterModalInput">ভূমি সমস্যা বা প্রয়োজনীয় সেবার বিবরণ <span style="color:var(--red)">*</span></label>
+            <div style="display:flex;gap:8px">
+              <input id="serviceRouterModalInput" type="text" value="${esc(q)}" placeholder="যেমন: জমি কিনেছি নামজারি কীভাবে করব, খতিয়ানে নামের ভুল সংশোধন..." style="flex:1" autocomplete="off"/>
+              <button type="button" class="btn primary" data-action="router-search">খুঁজুন ↗</button>
+            </div>
+          </div>
+        </form>
+
+        <div style="margin:10px 0 6px">
+          <span style="font-size:10.5px;color:#6b8678;font-weight:600;display:block;margin-bottom:5px">জনপ্রিয় উদাহরণসমূহ দিয়ে পরীক্ষা করুন:</span>
+          <div class="preset-list">
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="আমি জমি কিনেছি, এখন খারিজ করতে চাই">নামজারি / খারিজ (Mutation) ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="জমির খাজনা দিতে চাই, বকেয়া কর কীভাবে পরিশোধ করব?">খাজনা ও দাখিলা (Land Tax) ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="খতিয়ানের পর্চা তুলতে চাই, সার্টিফাইড কপি দরকার">পর্চা ও খতিয়ান (e-Porcha) ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="খতিয়ানে নামের বানান ভুল এসেছে, রেকর্ড সংশোধন করতে মিসকেস করতে হবে">রেকর্ড সংশোধন মিসকেস ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="বাবার মৃত্যুর পর পৈতৃক সম্পত্তি ওয়ারিশদের মধ্যে বণ্টন করতে চাই">উত্তরাধিকার ও ফারায়েজ ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="প্রতিবেশী সীমানা দখল করছে, সরকারি আমিন দিয়ে জমি মাপতে চাই">সীমানা বিরোধ ও পরিমাপ ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="আমার জমি নিয়ে সমস্যা হচ্ছে">অস্পষ্ট প্রশ্ন (Ambiguous) ↗</button>
+            <button type="button" class="preset-chip" data-action="router-preset" data-text="পাসপোর্ট রিনিউ করার নিয়ম কী?">বহির্ভূত প্রশ্ন (Out of Scope) ↗</button>
+          </div>
+        </div>
+
+        <div id="serviceRouterResultContainer">
+          ${resultHtml}
+        </div>
+      </div>`;
+  }
+
+  function openServiceRouterModal(initialText = '', options = {}){
+    routerModalState.query = initialText || '';
+    routerModalState.selectedCategory = options.selectedCategory || null;
+    routerModalState.result = initialText ? routeCitizenProblem(initialText, options) : null;
+
+    openModal('AI Service Router', renderServiceRouterModal(), 'R&D FEATURE #71 · VERIFIED GOVERNMENT SERVICE ROUTER');
+    $('.modal')?.classList.add('case-builder-modal');
+  }
+
+  function handleServiceRouterAction(action, el){
+    switch(action){
+      case 'open-service-router': {
+        const problem = el?.dataset?.problem || '';
+        openServiceRouterModal(problem);
+        break;
+      }
+
+      case 'router-quick-search': {
+        const input = $('#serviceRouterQuickInput');
+        const q = input ? input.value.trim() : '';
+        openServiceRouterModal(q);
+        break;
+      }
+
+      case 'router-preset': {
+        const text = el.dataset.text || '';
+        openServiceRouterModal(text);
+        break;
+      }
+
+      case 'router-search': {
+        const input = $('#serviceRouterModalInput');
+        const q = input ? input.value.trim() : '';
+        routerModalState.query = q;
+        routerModalState.selectedCategory = null;
+        routerModalState.result = routeCitizenProblem(q);
+        $('#modalBody').innerHTML = renderServiceRouterModal();
+        break;
+      }
+
+      case 'router-clarify': {
+        const catKey = el.dataset.cat;
+        const problem = el.dataset.problem || routerModalState.query || '';
+        routerModalState.query = problem;
+        routerModalState.selectedCategory = catKey;
+        routerModalState.result = routeCitizenProblem(problem, { selectedCategory: catKey });
+        $('#modalBody').innerHTML = renderServiceRouterModal();
+        break;
+      }
+
+      case 'router-reset': {
+        routerModalState.query = '';
+        routerModalState.selectedCategory = null;
+        routerModalState.result = null;
+        $('#modalBody').innerHTML = renderServiceRouterModal();
+        break;
+      }
+
+      case 'router-open-case': {
+        closeModal();
+        const catKey = el.dataset.category || 'other';
+        const problem = el.dataset.problem || routerModalState.query || '';
+        startLandCaseBuilder(problem, { categoryKey: catKey });
+        break;
+      }
+    }
+  }
+
   function aiAssistant(){
-    return `${heading('ASSISTED GUIDANCE','AI land assistant','Ask for general service guidance, document explanations, or help preparing a checklist.',`<button class="btn primary" data-action="start-land-case-builder">＋ নতুন Land Case তৈরি করুন</button><button class="btn" data-action="clear-chat">↺ New conversation</button>`)}
+    return `${heading('ASSISTED GUIDANCE','AI land assistant','Ask for general service guidance, document explanations, or help preparing a checklist.',`<button class="btn primary" data-action="open-service-router">⚡ AI Service Router (#71)</button><button class="btn" data-action="start-land-case-builder">＋ নতুন Land Case</button><button class="btn" data-action="clear-chat">↺ New conversation</button>`)}
     ${demoBanner()}
+    ${renderServiceRouterPromo()}
     <div class="case-builder-promo">
       <div class="case-builder-promo-icon">✳</div>
       <div class="case-builder-promo-text">
@@ -1493,7 +3459,7 @@
     <div class="content-grid">
       <section class="panel chat-panel">${panelHead('Ask e-Bhumi','Demo assistant with predefined guidance; no live AI model is connected.')}
         <div class="chat-messages" id="chatMessages">
-          ${state.chat.length?state.chat.map(m=>`<div class="chat-bubble ${m.role==='user'?'user':''}">${esc(m.text)}</div>`).join(''):`<div class="chat-bubble">Hello! I can help you understand e-Bhumi services, prepare a document checklist, or explain what a Khatian/Dag reference means. I cannot verify legal ownership or make official decisions.</div><div class="feature-meta">${['What is a Khatian?','Mutation checklist','Prepare for land purchase','আমার জমি নিয়ে সমস্যা হচ্ছে (Case Builder)'].map(q=>`<button class="btn small" data-action="chat-suggestion" data-text="${q}">${q}</button>`).join('')}</div>`}
+          ${state.chat.length?state.chat.map(m=>`<div class="chat-bubble ${m.role==='user'?'user':''}">${m.html?m.html:esc(m.text)}</div>`).join(''):`<div class="chat-bubble">Hello! I can help you understand e-Bhumi services, find the responsible authority via AI Service Router (#71), prepare a document checklist, or explain what a Khatian/Dag reference means. I cannot verify legal ownership or make official decisions.</div><div class="feature-meta">${['জমি কিনেছি নামজারি কীভাবে করব? (Router #71)','দলিল ও খতিয়ানের গরমিল কীভাবে মেলাব? (Reconcile #55)','খাজনা ও দাখিলা কীভাবে দেব?','What is a Khatian?','আমার জমি নিয়ে সমস্যা হচ্ছে (Case Builder)'].map(q=>`<button class="btn small" data-action="chat-suggestion" data-text="${q}">${q}</button>`).join('')}</div>`}
         </div>
         <form class="chat-input" id="chatForm"><input id="chatInput" placeholder="Ask about a land service…" autocomplete="off"/><button class="btn primary" type="submit">Send ↑</button></form>
       </section>
@@ -1504,7 +3470,7 @@
   }
 
   function casebook(){
-    return `${heading('SUPPORT & DISPUTES','Cases & complaints','Create and track support requests, service complaints, evidence bundles, and escalation history.',`<button class="btn primary" data-action="start-land-case-builder">＋ নতুন Land Case তৈরি করুন</button><button class="btn" data-action="new-complaint">＋ New complaint</button>`)}
+    return `${heading('SUPPORT & DISPUTES','Cases & complaints','Create and track support requests, service complaints, evidence bundles, and escalation history.',`<button class="btn primary" data-action="start-land-case-builder">＋ নতুন Land Case তৈরি করুন</button><button class="btn" data-action="start-reconciliation">⚖ নথিপত্র তুলনা (Reconcile #55)</button><button class="btn" data-action="new-complaint">＋ New complaint</button>`)}
     ${demoBanner()}
     <div class="stats-grid">
       ${stat('Open complaints','02','⚑','1|awaiting response','warning')}
@@ -1848,7 +3814,11 @@
       const input = $('#chatInput');
       const q = input.value.trim();
       if(!q) return;
-      state.chat.push({role:'user',text:q}, {role:'assistant',text:answerFor(q)});
+      const ans = answerFor(q);
+      const assistantMsg = typeof ans === 'object' && ans.html
+        ? { role: 'assistant', text: ans.text, html: ans.html }
+        : { role: 'assistant', text: String(ans) };
+      state.chat.push({ role: 'user', text: q }, assistantMsg);
       persist();
       renderPage();
       const msgs = $('#chatMessages');
@@ -1930,20 +3900,81 @@
 
   function answerFor(q){
     const t = q.toLowerCase();
-    if(t.includes('khatian') || t.includes('porcha')) {
-      return 'A Khatian is a land record/record-of-rights reference, while Porcha commonly refers to a copy or extract of that record. The exact record type and legal effect depend on the applicable survey and official record. Confirm the source, survey, Mouza, Khatian and Dag references with the competent land office. This demo cannot verify ownership.';
+
+    // Check specific direct intents first
+    if(t.includes('reconciliation') || t.includes('গরমিল') || t.includes('তুলনা') || t.includes('reconcile')) {
+      return 'নথিপত্রের তথ্য তুলনা ও গরমিল শনাক্তকরণের জন্য "Record Reconciliation Engine (#55)" ব্যবহার করুন। Documents অথবা Casebook পেজে গিয়ে "⚖ নথিপত্র তুলনা (Reconcile #55)" বাটনে ক্লিক করুন। এটি দুটি দলিলের মালিকের নাম, দাগ, খতিয়ান, মৌজা এবং জমির পরিমাণ যাচাই করে নাগরিক-বান্ধব বিশ্লেষণ প্রদান করে।';
     }
-    if(t.includes('mutation') || t.includes('namjari')) {
-      return 'A mutation (Namjari) service generally concerns updating land records following a qualifying change. Before applying, gather the relevant deed or transfer/inheritance evidence, current record references, applicant identification requirements, and any service-specific checklist. Exact required documents, fees and timelines require official validation. Follow the competent authority’s current instructions.';
+
+    // Run deterministic AI Service Router (#71)
+    const routed = routeCitizenProblem(q);
+    if (routed.status === 'RECOMMENDED') {
+      const s = routed.service;
+      const portalHtml = s.isOnlineSubmission
+        ? `<div style="margin:8px 0"><a href="${s.officialPortalUrl}" target="_blank" rel="noopener noreferrer" style="color:#185343;font-weight:700;text-decoration:underline">🔗 সরকারি পোর্টাল: ${esc(s.portalLabel)} ↗</a> <span class="pill green" style="font-size:9.5px">যাচাইকৃত সরকারি উৎস</span></div>`
+        : `<div style="margin:8px 0"><span class="pill amber" style="font-size:9.5px">সরাসরি দপ্তরে আবেদন প্রযোজ্য</span> <small style="color:#5f796c">(কোনো একক অনলাইন পোর্টাল নেই)</small></div>`;
+
+      return {
+        text: `সুপারিশকৃত সরকারি সেবা: ${s.name} (${s.authority})\n\nকেন এই সেবা: ${routed.rationale}\n\nঅফিসিয়াল পোর্টাল: ${s.officialPortalUrl || 'সংশ্লিষ্ট কার্যালয়'}\n\nকরণীয়:\n${routed.nextSteps.map((st, i) => `${i+1}. ${st}`).join('\n')}\n\n${routed.guardrail}`,
+        html: `<div class="chat-router-card">
+          <div class="chat-router-badge">⚡ R&amp;D Feature #71: AI Service Router</div>
+          <h4 style="margin:4px 0 2px;font-size:13.5px;color:#184236">${esc(s.name)}</h4>
+          <div style="font-size:11.5px;color:#3d6555;margin-bottom:6px"><strong>দায়িত্বপ্রাপ্ত কর্তৃপক্ষ:</strong> ${esc(s.authority)}</div>
+          ${portalHtml}
+          <div style="font-size:11.5px;color:#284a3d;line-height:1.5;margin:8px 0;background:#f5faf7;padding:8px 10px;border-radius:8px">
+            <strong>কেন এই সেবা:</strong> ${esc(routed.rationale)}
+          </div>
+          <div style="font-size:11.5px;color:#284a3d;margin-top:6px">
+            <strong>পরবর্তী করণীয় ধাপ:</strong>
+            <ol style="margin:4px 0 0;padding-left:18px;line-height:1.5">
+              ${routed.nextSteps.map(st => `<li>${esc(st)}</li>`).join('')}
+            </ol>
+          </div>
+          <div style="font-size:10px;color:#7e958a;margin-top:8px;border-top:1px dashed #d5e4db;padding-top:6px">
+            🔒 ${esc(routed.guardrail)}
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn small primary" data-action="router-open-case" data-category="${esc(s.categoryKey)}" data-problem="${esc(q)}">📁 এই সমস্যার Land Case তৈরি করুন</button>
+            <button class="btn small" data-action="open-service-router" data-problem="${esc(q)}">বিস্তারিত রাউটার খুলুন ↗</button>
+          </div>
+        </div>`
+      };
+    } else if (routed.status === 'AMBIGUOUS') {
+      return {
+        text: `স্পষ্টীকরণ প্রয়োজন: ${routed.rationale}\n\n${routed.clarification.question}\n${routed.clarification.options.map((o, i) => `${i+1}. ${o.text}`).join('\n')}`,
+        html: `<div class="chat-router-card" style="border-color:#f1cfa0;background:#fffdfa">
+          <div class="chat-router-badge" style="background:#fff1dc;color:#875416">⚠️ R&amp;D Feature #71: স্পষ্টীকরণ প্রয়োজন</div>
+          <p style="margin:6px 0;font-size:12px;color:#704e1b">${esc(routed.rationale)}</p>
+          <strong style="display:block;font-size:12px;color:#184236;margin-top:6px">${esc(routed.clarification.question)}</strong>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">
+            ${routed.clarification.options.map(opt => `<button class="btn small" data-action="router-clarify" data-cat="${esc(opt.categoryKey)}" data-problem="${esc(q)}" style="text-align:left">${esc(opt.text)} →</button>`).join('')}
+          </div>
+        </div>`
+      };
+    } else if (routed.status === 'NO_MATCH' && (q.length > 15 || t.includes('help') || t.includes('সেবা'))) {
+      return {
+        text: `${routed.rationale}\n\nপরামর্শ:\n${routed.nextSteps.map((st, i) => `${i+1}. ${st}`).join('\n')}\n\n${routed.guardrail}`,
+        html: `<div class="chat-router-card" style="border-color:#d7e2dc;background:#fafbfb">
+          <div class="chat-router-badge" style="background:#edf2ef;color:#4c675b">ℹ️ R&amp;D Feature #71: সেবা মেলেনি</div>
+          <p style="margin:6px 0;font-size:12px;color:#456356">${esc(routed.rationale)}</p>
+          <div style="font-size:11.5px;color:#284a3d;margin-top:6px">
+            <strong>পরামর্শ:</strong>
+            <ul style="margin:4px 0 0;padding-left:18px;line-height:1.5">
+              ${routed.nextSteps.map(st => `<li>${esc(st)}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="font-size:10px;color:#7e958a;margin-top:8px;border-top:1px dashed #d5e4db;padding-top:6px">
+            🔒 ${esc(routed.guardrail)}
+          </div>
+        </div>`
+      };
     }
+
     if(t.includes('purchase') || t.includes('buy') || t.includes('seller')) {
       return 'Before a purchase, organise a due-diligence checklist: compare record references and survey history, inspect the deed chain, verify the seller’s authority and co-sharer context, check taxes and any encumbrance/litigation through authorised sources, and compare the parcel on an authoritative map. This is not a title opinion; obtain qualified legal and official verification.';
     }
     if(t.includes('সমস্যা') || t.includes('case builder') || t.includes('case') || t.includes('problem')) {
-      return 'আপনার জমি সংক্রান্ত সমস্যা গুছিয়ে নিতে এবং নথিপত্রের চেকলিস্ট তৈরি করতে আমাদের নতুন "AI Land Case Builder" ব্যবহার করুন। পেজের উপরের "নতুন Land Case তৈরি করুন" বাটনে ক্লিক করে ধাপে ধাপে আপনার সমস্যাটি নথিভুক্ত করতে পারেন।';
-    }
-    if(t.includes('tax') || t.includes('dakhila')) {
-      return 'For land development tax, keep the holding or land reference, relevant ownership/record details and previous receipts available. Use the official government service for current dues and payment. Do not rely on amounts shown in this demo; the payment screen uses illustrative data only.';
+      return 'আপনার জমি সংক্রান্ত সমস্যা গুছিয়ে নিতে এবং নথিপত্রের চেকলিস্ট তৈরি করতে আমাদের "AI Land Case Builder" ব্যবহার করুন। পেজের উপরের "নতুন Land Case তৈরি করুন" বাটনে ক্লিক করে ধাপে ধাপে আপনার সমস্যাটি নথিভুক্ত করতে পারেন।';
     }
     return 'I can help with general service guidance and checklists. Please share the service name or document type (avoid unnecessary personal data). Any legal interpretation, ownership claim, official fee, deadline, or government record must be verified against an authoritative source. This frontend is a demo and has no live government data or AI backend connected.';
   }
@@ -1980,12 +4011,35 @@
     const service = el.dataset.service;
 
     switch(action){
+      case 'open-service-router':
+      case 'router-quick-search':
+      case 'router-preset':
+      case 'router-search':
+      case 'router-clarify':
+      case 'router-reset':
+      case 'router-open-case':
+        handleServiceRouterAction(action, el);
+        break;
+
       case 'start-land-case-builder':
         startLandCaseBuilder(el.dataset.text || '');
         break;
 
       case 'open-land-case':
         openLandCaseDetail(id);
+        break;
+
+      case 'start-reconciliation':
+      case 'document-compare':
+      case 'reconcile-preset':
+      case 'reconcile-select-doc-a':
+      case 'reconcile-select-doc-b':
+      case 'reconcile-next':
+      case 'reconcile-prev':
+      case 'reconcile-link-case':
+      case 'reconcile-create-case':
+      case 'reconcile-view-attached':
+        handleReconciliationAction(action, el);
         break;
 
       case 'wizard-preset':
@@ -2045,7 +4099,11 @@
           <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Category</div><div class="detail-value">${esc(doc[2])}</div></div><div><div class="detail-label">Last Updated</div><div class="detail-value">${esc(doc[5])}</div></div></div>
           <div class="detail-row" style="margin-top:12px"><div><div class="detail-label">Integrity Status</div><div class="detail-value" style="font-family:monospace;font-size:10px">SHA-256 verified · e-Sign pending</div></div></div>
           <div class="warning-panel" style="margin-top:14px">Stored in local demo sandbox. Before legal use, verify physical certified copy or authoritative digital Porcha.</div>
-          <div class="modal-actions"><button class="btn" data-action="close-modal">Close</button><button class="btn primary" data-action="document-guidance">Verification checklist →</button></div>
+          <div class="modal-actions">
+            <button class="btn" data-action="close-modal">Close</button>
+            <button class="btn" data-action="document-compare" data-id="${esc(doc[0])}">⚖ অন্য দলিলের সাথে তুলনা করুন</button>
+            <button class="btn primary" data-action="document-guidance">Verification checklist →</button>
+          </div>
         `, 'DOCUMENT VAULT');
         break;
       }
@@ -2518,8 +4576,8 @@
   async function init(){
     restore();
     document.documentElement.lang = state.lang;
-    $('#languageToggle').innerHTML = state.lang === 'bn' ? 'English <span>⌄</span>' : 'বাংলা <span>⌄</span>';
-    state.page = nav.some(n => n.id === location.hash.slice(1)) ? location.hash.slice(1) : 'dashboard';
+    const hashPage = (typeof location !== 'undefined' && location.hash) ? location.hash.slice(1) : '';
+    state.page = nav.some(n => n.id === hashPage) ? hashPage : 'dashboard';
     try {
       const r = await fetch('data/features.json');
       if(r.ok) {
@@ -2585,6 +4643,12 @@
         if (!Array.isArray(local.landCases)) local.landCases = [];
         if (Array.isArray(s.applications)) applications.splice(0, applications.length, ...s.applications);
         if (Array.isArray(s.docs)) docs.splice(0, docs.length, ...s.docs);
+        if (!docs.some(d => d[0] === 'DOC-0082')) {
+          docs.splice(1, 0, ['DOC-0082','Mutation Porcha · demo','Land record','Verified','green','05 Jun 2025']);
+        }
+        if (!docs.some(d => d[0] === 'DOC-0083')) {
+          docs.splice(3, 0, ['DOC-0083','Historical deed · sample','Uploaded document','Needs review','amber','18 Mar 1985']);
+        }
         Object.assign(state, s.state || {});
       }
     } catch {
@@ -2813,5 +4877,11 @@
     }
   });
 
-  init();
+  if (typeof globalThis !== 'undefined') {
+    globalThis.routeCitizenProblem = routeCitizenProblem;
+    globalThis.VERIFIED_SERVICE_DIRECTORY = VERIFIED_SERVICE_DIRECTORY;
+  }
+  if (typeof window !== 'undefined' && typeof document !== 'undefined' && document.body) {
+    init();
+  }
 })();
