@@ -14,3 +14,5 @@ Government APIs, real payment collection, OTP/NID, official digital signatures, 
 ## Preserved edition
 
 All 18 original citizen navigation options are restored with their dedicated pages. The original Overview composition and font stack are retained. Added 660 demo applications, 1,060 sample files, 24 parcels and persisted preparation preferences. See PRESERVATION.md. No role workflow or catalogue entry was removed.
+
+The separate [Land Intelligence feature guide](LAND_INTELLIGENCE.md) documents the new Truth Card/ownership graph, evidence, timeline, task, report and linked-review module. The original requirement registry IDs and count remain unchanged.

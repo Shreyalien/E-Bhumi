@@ -5,6 +5,7 @@ const now=()=>new Date().toISOString(),id=p=>p+'-'+crypto.randomBytes(8).toStrin
 const hash=v=>crypto.createHash('sha256').update(v).digest('hex');
 const password=(v,salt=crypto.randomBytes(16).toString('hex'))=>({salt,hash:crypto.scryptSync(v,salt,64).toString('hex')});
 const geography=require('./geography.cjs');
+const {seedLandDossiers,handleLandDossiers}=require('./land-dossiers.cjs');
 const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v+'T00:00:00Z'))&&new Date(v+'T00:00:00Z').toISOString().slice(0,10)===v;
 const dhakaDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const safeUser=u=>({id:u.id,name:u.name,email:u.email,role:u.role,active:u.active});
@@ -16,6 +17,7 @@ function createPlatform({dataDir,seedDemo=true}){
  const audit=(user,event,resource,details={})=>{const previous=db.audit.at(-1)?.hash||'GENESIS';const row={id:id('AUD'),at:now(),actor:user?.id||'system',role:user?.role||'system',event,resource,details,previous};row.hash=hash(JSON.stringify(row));db.audit.push(row);};
  if(!db.users.length){for(const role of Object.keys(roles)){db.users.push({id:id('USR'),name:roles[role].split(' / ').at(-1)+' Demo',email:role+'@demo.ebhumi.local',role,active:true,password:password('BhumiDemo!2026'),created:now()});}audit(null,'seed-demo-accounts','system');save();}
  if(seedDemo&&require('./seed-demo.cjs').seedDemo(db,audit))save();
+ if(seedDemo&&seedLandDossiers(db,audit))save();
  const sessions=new Map(),attempts=new Map();
  const notify=(userId,title,reference)=>db.notifications.push({id:id('NTF'),userId,title,reference,read:false,at:now()});
  const service=id=>services.find(s=>s.id===id)||fail(400,'Unknown service');
@@ -69,6 +71,7 @@ function createPlatform({dataDir,seedDemo=true}){
     if(auth)sessions.delete(auth.token);const token=crypto.randomBytes(32).toString('hex'),csrf=crypto.randomBytes(24).toString('hex');sessions.set(token,{userId:found.id,csrf,expires:Date.now()+8*3600000});audit(found,'login',found.id);save();return send(200,{user:safeUser(found),csrf},{'Set-Cookie':`eb_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800`});
    }
    if(route==='/logout'&&method==='POST'){sessions.delete(auth.token);return send(200,{ok:true},{'Set-Cookie':'eb_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0'});}
+   if(handleLandDossiers({db,user:u,body,method,route,url,send,save,audit,notify,canRead,canReview,fail,id,now,validDate,services}))return;
    if(route==='/me'&&method==='GET')return send(200,{user:safeUser(u),csrf:auth.session.csrf,capabilities:capabilities[u.role],settings:db.settings});
    if(route==='/preferences'&&method==='GET')return send(200,{preferences:db.preferences?.[u.id]||{}});
    if(route==='/preferences'&&method==='PATCH'){
@@ -148,7 +151,7 @@ for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body
     const d={id:id('DOC'),ownerId:u.id,name,category,content:body.content,size:bytes.length,sha256:hash(bytes),created:now()};db.documents.push(d);audit(u,'upload-sample',d.id,{size:d.size});save();const {content,...metadata}=d;return send(201,{document:metadata});
    }
    const dm=route.match(/^\/documents\/([^/]+)$/);if(dm&&method==='GET'){
-    const d=db.documents.find(d=>d.id===dm[1]);if(!d||!(d.ownerId===u.id||db.applications.some(a=>a.documentIds.includes(d.id)&&canRead(u,a))))fail(404,'Document not found');audit(u,'download-evidence',d.id);save();return send(200,{document:d});
+    const d=db.documents.find(d=>d.id===dm[1]);if(!d||!(d.ownerId===u.id||db.applications.some(a=>a.documentIds.includes(d.id)&&canRead(u,a))||(db.landDossiers||[]).some(l=>l.linkedApplicationIds.some(key=>db.applications.some(a=>a.id===key&&canRead(u,a)))&&[...l.owners,...l.facts,...l.timeline].some(item=>item.documentIds.includes(d.id)))))fail(404,'Document not found');audit(u,'download-evidence',d.id);save();return send(200,{document:d});
    }
    if(route==='/payments'&&method==='GET')return send(200,{payments:db.payments.filter(p=>p.ownerId===u.id||['finance','auditor'].includes(u.role))});
    if(route==='/payments'&&method==='POST'){

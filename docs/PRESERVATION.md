@@ -56,3 +56,7 @@ Do not remove .data to obtain the demo data. Restart the new Node server; the ad
 ## Calculator restored
 
 The original 18 entries remain, with Land Calculator added under LAND TOOLS. It uses existing fonts, panels and buttons. Five preparation worksheets and calculation export are available.
+
+## Screenshot-inspired depth — v5.3
+
+Truth Card & Ownership is an additional entry; every previous citizen route remains. Three demo worksheets per citizen/representative illustrate graphs, provenance, timeline/boundaries and obligations without increasing service application fixtures. Original landing/font/lease/CHT styles and the existing translation/theme controls remain. [Implementation and gallery](LAND_INTELLIGENCE.md).

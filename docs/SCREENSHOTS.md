@@ -1,6 +1,6 @@
 # Preserved Citizen Workspace — 17 October 2026
 
-Actual authenticated browser renders with the compact sample store. Original font stack and all 18 original sidebar entries plus Calculator were checked. Desktop 1440 × 1000; mobile 390 × 844. Every pictured record is demo data.
+Actual authenticated browser renders with the compact sample store. Original font stack and all 18 original sidebar entries plus Calculator and Truth Card were checked. Desktop 1440 × 1000; mobile 390 × 844. Every pictured record is demo data.
 
 ## dashboard
 
@@ -87,3 +87,7 @@ Actual authenticated browser renders with the compact sample store. Original fon
 <img src="screenshots-preserved/mobile-navigation.png" alt="Preserved mobile navigation" width="320">
 
 Earlier role-platform screenshots remain in screenshots-v4. [Capture method](SCREENSHOT_CAPTURE.md) · [README](../README.md)
+
+## Truth Cards, graph and desk review
+
+[Current land intelligence gallery](LAND_INTELLIGENCE.md#gallery) includes source-aware facts, relationship graph, boundaries/timeline, tasks, reports, assigned local review and mobile graph.

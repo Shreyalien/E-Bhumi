@@ -43,6 +43,8 @@ flowchart TB
 | Module | Responsibility |
 | --- | --- |
 | `server-v4.cjs` | Loopback HTTP server, allowed static files, security headers and portal routing |
+| `lib/land-dossiers.cjs` | Private worksheet persistence, source provenance, graph validation, linked-case access, local review and immutable report snapshots |
+| `land-intelligence.js` | Truth Card, interactive relationship SVG, timeline/boundary, tasks, evidence, report and office-routing UI |
 | `workflows.js` | Dedicated demand/receipt, case, appointment and calculator UI using the existing design components |
 | `lib/platform.cjs` | Account/session operations, API validation, ownership/role policy, transitions and durable local state |
 | `lib/catalog.cjs` | 33 service definitions, service-specific questions, evidence, review role and outcome |
@@ -78,3 +80,7 @@ Government registry/GIS/identity APIs, official signatures, real payments, posta
 Appointment availability is an aggregate local simulation with four requests per office/date/time. Submission and reschedule recheck capacity on the server. Owner changes require a matching revision and reason; reschedule removes the old outcome and assignment, cancellation removes the old outcome and enters Cancelled. Government inventory is not queried.
 
 Demo edition 7 trims only untouched generated records, retaining user changes and reconciled payments. It preserves all 33 services with three examples per demo owner.
+
+## Land intelligence access
+
+Owners create and edit their private worksheet. Linking a matching own application shares its facts/evidence with the service desk only when that desk can read the application. Only the assigned reviewer of an active linked request can add a local review note. Source labels cannot be upgraded to official verification. Every write checks revision; content changes invalidate the freshness of earlier local notes. Snapshots retain their own SHA-256. See [feature depth and reference mapping](LAND_INTELLIGENCE.md).

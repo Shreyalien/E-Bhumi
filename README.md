@@ -6,7 +6,7 @@
 
 A citizen-first land-service preparation workspace for Bangladesh.
 
-**19 citizen pages (18 preserved + Calculator) · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
+**20 citizen pages (18 preserved + Calculator + Truth Card) · 33 service workflows · 10 role platforms · 460 tracked requirements · Local sandbox**
 
 [Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
@@ -27,7 +27,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Item | Current delivery |
 | --- | --- |
 | Entry point | Public landing page with service links and FAQs |
-| Navigation | 19 workspace routes with shareable hash URLs |
+| Navigation | 20 workspace routes with shareable hash URLs |
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no package installation needed |
@@ -86,7 +86,7 @@ To operate a sample process, use an editable draft or submitted case, then sign 
 
 ## Screenshots
 
-Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 19 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
+Workspace screenshots were refreshed on 17 October 2026 from the current source. The unchanged landing capture is retained. All displayed records are demonstration sample data. For the complete visual gallery of all 20 workspaces, see [Screenshot Gallery](docs/SCREENSHOTS.md).
 
 ### Regional and lease views
 
@@ -133,11 +133,24 @@ These screens illustrate regional preparation contexts. Their labels and explana
 | Assistant / `#ai-assistant` | Predefined guidance, prompts and saved conversation | No live AI model, retrieval or OCR |
 | Cases / `#casebook` | Five case/complaint routes, evidence, correction, hearings, outcome and linked review/appeal drafts | Revenue requests go to local officer; complaints to support; no legal filing |
 | Appointments / `#appointments` | Local capacity checks, support confirmation, token/calendar download, owner reschedule and cancellation | No government inventory or confirmed real office visit |
+| Truth Card / `#truth-card` | Private facts, proposed relationship graph, evidence, timeline/boundaries, obligations, linked desk review and saved reports | No government ownership verification or legal share determination |
 | Calculator / `#calculator` | Area conversion, discrepancy, proposed shares, custom local unit and budget worksheets; JSON export | User-entered conventions/costs; no legal share or official fee calculation |
 | Notifications / `#notifications` | Sample category filters and persistent mark-all-read | No SMS/email/push provider |
 | Analytics / `#analytics` | Sample charts, report previews and workspace data export | Charts reflect local records, not government statistics |
 | Catalogue / `#feature-catalog` | 460 requirements, filters, incremental results, details and export | Catalogue coverage does not imply implementation |
 | Administration / `#admin` | Citizen account controls; separate admin portal enforces staff access and intake settings | Citizen role cannot use privileged administration |
+
+### Truth Card & মালিকানা সম্পর্ক
+
+Create a parcel worksheet, separate DEMO and USER_REPORTED facts, connect predecessor/party relationships and inspect proposed interests in an interactive Land DNA Graph. Compare deed/record areas, attach sample evidence, track dated events and four-sided boundaries, and manage preparation tasks.
+
+Link the worksheet to your matching service application to share it with the eligible desk. The assigned reviewer can leave a local note; later edits mark earlier notes for re-review. Save report snapshots with integrity digests and download JSON or printable HTML. Percentages are proposed inputs, not legal inheritance shares or ownership verification.
+
+| Truth Card | Ownership relationship graph |
+| --- | --- |
+| ![Source-aware land facts](docs/screenshots-land/truth-card.png) | ![Interactive ownership relationship worksheet](docs/screenshots-land/ownership-graph.png) |
+
+[Feature depth, screenshot-to-feature mapping and full gallery](docs/LAND_INTELLIGENCE.md). Service Guidance also includes division/district demo office routing and assisted appointment preparation.
 
 ### Requirement registry
 
@@ -148,7 +161,9 @@ The source of truth for catalogue entries is [`data/features.json`](e-Bhumi-Fron
 ```mermaid
 flowchart TD
     Login[Citizen or representative login] --> Guide[Read service description and evidence checklist]
-    Guide --> Draft[Applicant and land-specific draft]
+    Guide --> Worksheet[Optional Truth Card, proposed relationships and evidence questions]
+    Worksheet --> Draft[Applicant and land-specific draft]
+    Guide --> Draft
     Draft --> Evidence[Attach sample evidence]
     Evidence --> Submit[Submit to service-role queue]
     Submit --> Claim[Eligible staff claims request]
@@ -183,7 +198,8 @@ Rejection retains the reason and history. A separate review/appeal-preparation s
 4. Create a draft using sample information. Find it in **My Applications** and reload to check persistence.
 5. Open **Due Diligence**, mark the checks you have reviewed and save a page note.
 6. Use **Export page data** or **Back up workspace**. These downloads remain preparation material.
-7. Browse the **Feature Catalogue** to inspect scope and integration dependencies.
+7. Open **Truth Card & Ownership** to edit a sample relationship graph, evidence sources and tasks, then save a preparation report.
+8. Browse the **Feature Catalogue** to inspect scope and integration dependencies.
 
 ## Architecture
 
@@ -198,12 +214,13 @@ flowchart LR
     Public["Existing landing page"]:::blueBox --> Login["Role login"]:::blueBox
     Login --> Citizen["Original citizen shell and overview"]:::blueBox
     Login --> Staff["Separate staff and oversight portals"]:::blueBox
-    Citizen --> Tools["Payments, cases, visits and calculator"]:::blueBox
+    Citizen --> Tools["Payments, cases, visits, calculator and Truth Cards"]:::blueBox
     Tools --> API["Node HTTP API"]:::blueServer
     Citizen --> API
     Staff --> API
     API --> Guards["Session, CSRF, owner and role checks"]:::blueBox
     Guards --> Workflows["Validated service state transitions"]:::blueBox
+    Workflows --> Dossiers["Private worksheets and assigned local review"]:::blueData
     Workflows --> Catalogue["33 service definitions"]:::blueData
     Workflows --> Store["Atomic local JSON and sample evidence"]:::blueData
     Workflows --> Audit["Hash-linked events and notifications"]:::blueData
@@ -219,6 +236,8 @@ e-Bhumi-Frontend/
 ├── index.html, assets/landing.css    Existing landing appearance
 ├── login.html, auth.js              Account login and safe route return
 ├── portal.html, portal.js           Role portal and workflow UI
+├── land-intelligence.js/css         Truth Card, graph, timeline, tasks and reports
+├── lib/land-dossiers.cjs            Worksheet validation, policy and snapshots
 ├── workflows.js                    Payments, cases, appointments and calculators
 ├── citizen.js, preserved.css        Original citizen/lease/CHT presentation
 ├── lib/catalog.cjs                 Service questions, evidence and role mapping
@@ -233,11 +252,11 @@ e-Bhumi-Frontend/
 
 ## Data and persistence
 
-Version 5.2 stores accounts, application histories, uploaded sample bytes, hashes, payments and notifications in `e-Bhumi-Frontend/.data/platform.json`. Drafts and preparation preferences belong to an authenticated account. The store is created on first startup; it is excluded from Git and static file serving.
+Version 5.3 stores accounts, application histories, uploaded sample bytes, hashes, payments and notifications in `e-Bhumi-Frontend/.data/platform.json`. Drafts and preparation preferences belong to an authenticated account. The store is created on first startup; it is excluded from Git and static file serving.
 
 Sessions use an HttpOnly/SameSite cookie and end on server restart. Passwords use salted scrypt. Mutation APIs enforce CSRF/origin checks, object ownership, review role and revision. This is a single-process local sandbox, not a certified production platform; the JSON store is not encrypted and there is no malware scanner or external identity verification.
 
-The demo citizen and representative each receive 99 sample requests: three per service (draft, submitted and one rotating later-stage scenario). Fresh stores contain 198 requests, 318 sample evidence files and 24 parcels. Migration removes only untouched excess generated scenarios; user-created, edited or finance-reconciled requests and saved preferences remain. Restarting does not duplicate fixtures. Newly registered accounts have private, initially empty workspaces.
+The demo citizen and representative each receive 99 sample requests: three per service (draft, submitted and one rotating later-stage scenario). Fresh stores contain 198 requests, 318 sample evidence files and 24 parcels. Migration removes only untouched excess generated scenarios; user-created, edited or finance-reconciled requests and saved preferences remain. Restarting does not duplicate fixtures. Demo users also have three land worksheets each, some linked to existing submitted/review cases. These do not increase the 99 service applications per demo account. Newly registered accounts have private, initially empty workspaces.
 
 Stop the server before backing up or restoring the entire .data folder. Never commit it. Prior browser-local V3 state is not automatically imported into the account store. Use only sample personal/land information in the sandbox.
 
@@ -248,6 +267,7 @@ Stop the server before backing up or restoring the entire .data folder. Never co
 - Catalogue search text is indexed once instead of rebuilt on every filter operation.
 - Results render incrementally, initially 20 cards rather than the entire catalogue.
 - Delegated actions reduce repeated per-button event bindings.
+- Land worksheet lists return report summaries; full snapshots load only when needed.
 - Landing artwork uses CSS geometry instead of large image assets.
 
 These describe implementation choices. No Lighthouse score, load-time improvement percentage or production performance benchmark is claimed. Fonts follow the existing CSS stack; rendering depends on fonts available to the browser.
@@ -265,7 +285,7 @@ cd e-Bhumi-Frontend
 npm run check
 ```
 
-The reviewed build passes API lifecycle and regression tests, all 19 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
+The reviewed build passes API lifecycle and regression tests, all 20 citizen route checks, original font-stack checks, lease filtering/detail controls, CHT circle selection and request handoff, persistent preparation tools and mobile checks. The browser test uses a Node request bridge to the actual local server where Chromium loopback is isolated. See [validation](VALIDATION.md).
 
 ## Troubleshooting
 

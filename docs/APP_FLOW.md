@@ -27,3 +27,7 @@ Owners see their records. Service staff see submitted records for their role; th
 After support issuance, the owner can download a demo token and UTC calendar event for the chosen Dhaka time. Owner rescheduling invalidates the token/outcome, resets assignment and returns to Submitted for fresh support confirmation. Cancellation creates terminal Cancelled; old tokens are unavailable. Every change checks owner, revision, required reason and slot validity/capacity.
 
 Completed/rejected revenue cases offer a separate review/appeal draft with the source case reference and land context. No source evidence or decision is silently changed.
+
+## Truth Card to service handoff
+
+A private parcel worksheet holds facts/sources, proposed relationships, history, boundary references and user tasks. Findings lead to a new linked service draft with parcel context prefilled. The applicant still completes eligibility, service questions and evidence before submission. A draft link does not expose the worksheet to staff. Submitted links follow service-role access, and only the assigned active reviewer can leave a local desk note. Owner edits require re-review of earlier content; unlinking revokes the service desk access. Reports are saved versioned snapshots, not ownership certificates.

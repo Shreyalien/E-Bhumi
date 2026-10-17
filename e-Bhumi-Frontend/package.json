@@ -1,12 +1,12 @@
 {
   "name": "e-bhumi-role-platform",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "private": true,
   "description": "Bangladesh land-service sandbox with server-side role workflows",
   "scripts": {
     "start": "node server.cjs",
-    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/catalog.cjs && node --check citizen.js && node --check lib/seed-demo.cjs && node --check lib/geography.cjs && node --check workflows.js",
-    "test": "node --test tests/platform.test.cjs tests/preserved.test.cjs tests/workflows.test.cjs"
+    "check": "node --check portal.js && node --check auth.js && node --check server-v4.cjs && node --check lib/platform.cjs && node --check lib/catalog.cjs && node --check citizen.js && node --check lib/seed-demo.cjs && node --check lib/geography.cjs && node --check workflows.js && node --check land-intelligence.js && node --check lib/land-dossiers.cjs",
+    "test": "node --test tests/platform.test.cjs tests/preserved.test.cjs tests/workflows.test.cjs tests/land-dossiers.test.cjs"
   },
   "engines": {
     "node": ">=18"
