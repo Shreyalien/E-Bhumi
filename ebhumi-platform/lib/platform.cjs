@@ -27,6 +27,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
  if(seedDemo&&seedLandDossiers(db,audit))save();
  if(seedDemo&&seedHoldings(db,audit))save();
  if(seedDemo){let added=false;for(const role of Object.keys(desks)){if(db.users.some(u=>u.email===role+'@demo.ebhumi.local'))continue;db.users.push({id:id('USR'),name:desks[role],email:role+'@demo.ebhumi.local',role,active:true,password:password('BhumiDemo!2026'),created:now()});added=true;}if(added){audit(null,'seed-new-desk-accounts','system');save();}}
+ if(seedDemo&&newWorkflowVersion===2&&require('./demo-flows.cjs').seedDemoFlows(db,services,audit))save();
  if(!db.uiLanguageEdition){db.preferences=db.preferences||{};for(const user of db.users)db.preferences[user.id]={...(db.preferences[user.id]||{}),language:'bn'};db.uiLanguageEdition=1;audit(null,'bangla-default-migration','system');save();}
  const sessions=new Map(sessionState.filter(([,s])=>s.expires>Date.now())),attempts=new Map(attemptState.filter(([,a])=>a.until>Date.now()).slice(-2000));
  const notify=(userId,title,reference)=>db.notifications.push({id:id('NTF'),userId,title,reference,read:false,at:now()});
@@ -57,7 +58,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
   const send=(status,body,headers={})=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...headers});res.end(JSON.stringify(body));};
   try{
    const route=url.pathname.slice(4),method=req.method;let auth=authenticate(req),u=auth?.user;
-   const publicRoute=route==='/catalog'||route==='/login'||route==='/register'||route.startsWith('/terrain/');
+   const publicRoute=route==='/catalog'||route==='/login'||route==='/register';
    if(!u&&!publicRoute)fail(401,'Please log in.');
    if(!['GET','POST','PATCH'].includes(method))fail(405,'Method not allowed');
    let body={};if(method!=='GET'){
@@ -102,6 +103,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
     if(body.notificationSettings!==undefined&&(!plain(body.notificationSettings)||Object.values(body.notificationSettings).some(v=>typeof v!=='boolean')))fail(400,'Invalid notification settings');
 for(const key of ['chat','savedSearches','watches','shares','favorites'])if(body[key]!==undefined&&(!Array.isArray(body[key])||body[key].length>100))fail(400,'Invalid preference list');for(const key of ['checks','notes','notificationSettings'])if(body[key]!==undefined&&(!body[key]||typeof body[key]!=='object'||Array.isArray(body[key])))fail(400,'Invalid preference object');if(JSON.stringify(body).length>100000)fail(400,'Preference payload too large');db.preferences=db.preferences||{};const allowed=['chat','checks','savedSearches','watches','shares','favorites','notes','language','notificationSettings'];db.preferences[u.id]={...(db.preferences[u.id]||{}),...Object.fromEntries(Object.entries(body).filter(([k])=>allowed.includes(k)))};save();return send(200,{preferences:db.preferences[u.id]});}
    if(route==='/profile'&&method==='PATCH'){const name=text(body.name,'Display name',80);let nextPassword;if(body.password){if(typeof body.password!=='string'||body.password.length<12||body.password.length>128)fail(400,'Password must be 12–128 characters');const check=password(String(body.currentPassword||''),u.password.salt);if(check.hash!==u.password.hash)fail(403,'Current password is incorrect');nextPassword=password(body.password);}u.name=name;if(nextPassword){u.password=nextPassword;for(const [key,s]of sessions)if(s.userId===u.id&&key!==auth.token)sessions.delete(key);}audit(u,'update-profile',u.id);save();return send(200,{user:safeUser(u)});}
+   if(route==='/demo-flows'&&method==='GET')return send(200,{edition:db.roleDemoEdition||0,role:u.role,roles,services:services.map(s=>({id:s.id,name:s.name,route:s.reviewRoute,outputs:s.procedure.outputs,source:s.source,guidance:s.procedure.guidance||[]})),examples:db.applications.filter(a=>a.demoExample&&canRead(u,a)).map(a=>({id:a.id,serviceId:a.serviceId,status:a.status,currentDesk:currentDesk(a,service(a.serviceId).reviewer),index:a.deskWorkflow.index,stages:a.deskWorkflow.stages,kind:a.demoExample.kind})),legacyCases:(db.legacyCases||[]).filter(a=>a.demoExample&&canReadLegacy(u,a)).map(a=>({id:a.id,status:a.status,role:a.stages[a.index]})),scope:'Synthetic examples only. Existing real/user-created records are never reseeded.'});
    if(route==='/applications'&&method==='GET')return send(200,{applications:db.applications.filter(a=>canRead(u,a)).map(view)});
    if(route==='/applications'&&method==='POST'){
     if(!canCreate(u))fail(403,'Your role cannot create citizen applications');if(!db.settings.acceptApplications)fail(409,'New applications are temporarily paused');

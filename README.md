@@ -19,9 +19,19 @@ Primary interface defaults to Bangla, with seamless bilingual toggle to English.
 
 > **Demo status:** e-Bhumi is an independent prototype, not an official Government of Bangladesh service. Land references, geometry, statuses and amounts are illustrative. It does not establish ownership, accept real payments, submit official applications or reserve government appointments.
 
+## Current update — v5.9.0
+
+All 24 roles now include a **Demo workflows & examples** library: 104 application examples and four separate vested-property desk examples. Every service has active desk work and a completed outcome example. New mutation requests include the initial AC Land order before union enquiry; existing saved requests keep their history. [Role guide, workflow evidence and palette screenshots](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
+
+| Light blue day | Coordinated blue night |
+| --- | --- |
+| ![Light theme](docs/screenshots-role-themes/meghna-light.png) | ![Night theme](docs/screenshots-role-themes/meghna-dark.png) |
+
+Four palettes support day/night mode with light alternate sidebars, consistent panels, original fonts and verified text contrast. Validation: 139 automated cases plus all 24 role platforms and 192 palette/mode combinations.
+
 ## Statutory Law Library, Research & Role Desks — v5.7.0
 
-- **Integrated Statutory Law Library**: Available across all 24 roles with 35 curated statutory references, 12 thematic subjects, search, bookmarking, private case annotations, and links to official government full texts. See [Law Library & Source Register](docs/LAW_LIBRARY.md).
+- **Integrated Statutory Law Library**: Available across all 24 roles with 41 curated law and service references, 12 thematic subjects, search, bookmarking, private case annotations, and links to official government full texts. See [Law Library & Source Register](docs/LAW_LIBRARY.md).
 - **Vested Property & Heirship Dossiers**: Historical gazette listings, legacy-to-modern RS/BS Dag correlations, multi-branch heirship genealogical graphs, lease history, court cases, external orders, secure vault evidence, and private desk reviews. See [Legacy Property Research Implementation](docs/LEGACY_PROPERTY_RESEARCH.md).
 - **24 Specialized Roles**: 33 full service-specific specialist workflows, conditional ministry/divisional/legal referrals with guaranteed return handoffs, and a consolidated role directory preserving complete visual and operational identity.
 
@@ -46,7 +56,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no third-party package installation needed |
-| Cloud deployment | Vercel Serverless Function deployment with `/tmp` data sandbox |
+| Cloud deployment | Vercel Node.js Function with shared private state |
 | Storage | Persistent server JSON with protected sample evidence; account-scoped preparation preferences |
 | Languages | Native Bangla primary default; interactive English toggle across all pages |
 | Official integrations | Not connected (isolated sandbox prototype) |

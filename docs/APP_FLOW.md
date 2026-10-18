@@ -74,7 +74,7 @@ See the [research matrix](BD_SERVICE_RESEARCH.md) for all service profiles and s
 ```mermaid
 flowchart LR
     C[নাগরিকের আবেদন] --> F[প্রযোজ্য filing payment]
-    F --> U[ইউনিয়ন / প্রথম desk]
+    F --> U[সেবাভিত্তিক প্রথম desk; নামজারিতে AC Land]
     U --> V[যাচাই ও কারণসহ সুপারিশ]
     V --> N[পরবর্তী desk ও নতুন assignment]
     N --> A[শেষ desk-এর সিদ্ধান্ত]
@@ -85,6 +85,10 @@ flowchart LR
 ```
 
 [Role matrix](ROLE_WORKFLOWS.md) · [Lease/auction research](BD_LEASE_AUCTION_RESEARCH.md).
+
+## Executable role examples — v5.9
+
+Every role has a Demo workflows library with 33 service routes. New mutation/inheritance requests follow **AC Land initial order → union enquiry → technical review example → final AC Land desk**. The final desk can request a hearing when needed, decide after checks, then issue after applicable demo payment. Existing cases keep their stored route. Tax payment uses a dedicated example holding/demand and generates the demo Dakhila without manual approval. Consultation returns to the referring desk. [Examples, palette screenshots and validation](ROLE_DEMOS_AND_THEMES_v5.9.md).
 
 ## Evidence-preparation flow — v5.6
 

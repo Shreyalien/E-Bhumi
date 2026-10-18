@@ -155,125 +155,10 @@ function isInsidePoly(px, py, poly) {
   return inside;
 }
 
-function runClientTerrainAnalysis(presetId, customCoords = null, targetGradeInput = null) {
-  const preset = HILL_PRESETS[presetId] || HILL_PRESETS['batali-hill'];
-  const coords = customCoords || preset.polygon;
-
-  if (presetId === 'benchmark-flat-100m' || preset.isFlatBenchmark) {
-    return buildReport({
-      name: HILL_PRESETS['benchmark-flat-100m'].name,
-      projected: 10000.0,
-      surface: 10000.0,
-      ratio: 1.0,
-      minZ: 20.0,
-      maxZ: 20.0,
-      meanZ: 20.0,
-      meanSlope: 0.0,
-      maxSlope: 0.0,
-      classes: { '0-5°': 100.0, '5-15°': 0.0, '15-30°': 0.0, '30-45°': 0.0, '>45°': 0.0 },
-      landslidePct: 0.0,
-      cutVol: 0.0,
-      fillVol: 0.0,
-      targetZ: 20.0,
-      coords
-    });
-  }
-
-  const metricPts = coords.map(([lat, lon]) => wgs84ToUtm46N(lat, lon));
-  const projectedArea = calcProjectedAreaM2(metricPts);
-
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  metricPts.forEach(pt => {
-    if (pt.x < minX) minX = pt.x;
-    if (pt.x > maxX) maxX = pt.x;
-    if (pt.y < minY) minY = pt.y;
-    if (pt.y > maxY) maxY = pt.y;
-  });
-
-  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-  const radius = Math.max(Math.sqrt((maxX - minX) ** 2 + (maxY - minY) ** 2) / 2, 50.0);
-  const baseElev = preset.baseElevation || 25.0;
-  const peakElev = preset.peakElevation || (baseElev + 80.0);
-  const hillHeight = Math.max(peakElev - baseElev, 10.0);
-
-  function getZ(x, y) {
-    const dx = (x - cx) / radius, dy = (y - cy) / radius;
-    const r2 = dx * dx + dy * dy;
-    return Math.max(baseElev, baseElev + hillHeight * Math.exp(-r2 * 2.2) + 4.0 * Math.sin(dx * 4.5) * Math.cos(dy * 3.5));
-  }
-
-  const step = 15.0;
-  let cellProjTotal = 0, cellSurfTotal = 0;
-  let minZ = Infinity, maxZ = -Infinity, sumZ = 0;
-  let sumSlope = 0, maxSlope = 0, count = 0;
-  let c0_5 = 0, c5_15 = 0, c15_30 = 0, c30_45 = 0, c45 = 0;
-  let cutVol = 0, fillVol = 0;
-  const targetZ = targetGradeInput !== null && !isNaN(targetGradeInput) ? Number(targetGradeInput) : (baseElev + hillHeight * 0.4);
-
-  for (let x = minX + step / 2; x <= maxX; x += step) {
-    for (let y = minY + step / 2; y <= maxY; y += step) {
-      if (!isInsidePoly(x, y, metricPts)) continue;
-
-      const z = getZ(x, y);
-      if (z < minZ) minZ = z;
-      if (z > maxZ) maxZ = z;
-      sumZ += z;
-
-      const dz_dx = (getZ(x + step, y) - getZ(x - step, y)) / (2 * step);
-      const dz_dy = (getZ(x, y + step) - getZ(x, y - step)) / (2 * step);
-      const slopeRad = Math.atan(Math.sqrt(dz_dx * dz_dx + dz_dy * dz_dy));
-      const slopeDeg = (slopeRad * 180) / Math.PI;
-
-      sumSlope += slopeDeg;
-      if (slopeDeg > maxSlope) maxSlope = slopeDeg;
-
-      const clampedSlope = Math.min(slopeRad, (85 * Math.PI) / 180);
-      const cellArea = step * step;
-      const cellSurf = cellArea / Math.cos(clampedSlope);
-
-      cellProjTotal += cellArea;
-      cellSurfTotal += cellSurf;
-      count++;
-
-      if (slopeDeg < 5) c0_5++;
-      else if (slopeDeg < 15) c5_15++;
-      else if (slopeDeg < 30) c15_30++;
-      else if (slopeDeg < 45) c30_45++;
-      else c45++;
-
-      const diff = z - targetZ;
-      if (diff > 0) cutVol += diff * cellArea;
-      else fillVol += Math.abs(diff) * cellArea;
-    }
-  }
-
-  const ratio = count > 0 ? Math.max(1.0, cellSurfTotal / cellProjTotal) : 1.0;
-  const surfaceArea = projectedArea * ratio;
-  const cTot = Math.max(count, 1);
-
-  return buildReport({
-    name: preset.name,
-    projected: projectedArea,
-    surface: surfaceArea,
-    ratio,
-    minZ,
-    maxZ,
-    meanZ: count > 0 ? sumZ / count : baseElev,
-    meanSlope: count > 0 ? sumSlope / count : 0.0,
-    maxSlope,
-    classes: {
-      '0-5° (Flat)': Number(((c0_5 / cTot) * 100).toFixed(1)),
-      '5-15° (Moderate)': Number(((c5_15 / cTot) * 100).toFixed(1)),
-      '15-30° (Moderately Steep)': Number(((c15_30 / cTot) * 100).toFixed(1)),
-      '30-45° (Steep)': Number(((c30_45 / cTot) * 100).toFixed(1)),
-      '>45° (Extreme / Cliff)': Number(((c45 / cTot) * 100).toFixed(1))
-    },
-    landslidePct: Number((((c30_45 + c45) / cTot) * 100).toFixed(1)),
-    cutVol,
-    fillVol,
-    targetZ,
-    coords
-  });
+function runClientTerrainAnalysis(presetId,customCoords=null,targetGradeInput=null){
+ const target=targetGradeInput===null||targetGradeInput===''?undefined:Number(targetGradeInput);
+ const d=BhumiTerrain.analyzeTerrain({presetId,...(customCoords?{polygon:customCoords}:{}),...(target===undefined?{}:{targetElevation:target})});
+ return {presetId:d.presetId,name:d.name,projected_m2:d.projected_area_m2,surface_m2:d.surface_area_m2,ratio:d.ratio,diff_m2:d.difference_m2,diff_pct:d.difference_pct,units:{projected:d.units.projected,surface:d.units.surface_3d},elevation:{min:d.elevation.min_m,max:d.elevation.max_m,mean:d.elevation.mean_m},slope:{mean:d.slope.mean_deg,max:d.slope.max_deg,classes:d.slope.classes_pct},landslide_pct:d.landslide_risk_zone_pct,earthwork:{cut:d.earthwork.cut_volume_m3,fill:d.earthwork.fill_volume_m3,target:d.earthwork.target_elevation_m},coords:d.polygon,mode:d.mode};
 }
 
 function buildReport(d) {
@@ -317,7 +202,7 @@ function renderHillTerrainHTML(results = null) {
   const fmt = (n, dec = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 
   return `
-  <section class="panel hill-terrain-panel" id="hillTerrainPanel" style="margin-top:20px; border-top: 3px solid #2d6a4f;">
+  <section class="panel hill-terrain-panel" id="hillTerrainPanel" data-preset="${r.presetId}" data-target="${r.earthwork.target}" style="margin-top:20px; border-top: 3px solid #2d6a4f;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
       <div>
         <span class="eyebrow" style="color:#2d6a4f;">GEOSPATIAL TERRAIN ENGINE · METRIC UTM 46N (EPSG:32646)</span>
@@ -325,8 +210,8 @@ function renderHillTerrainHTML(results = null) {
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg>
           <span>পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষক</span>
         </h2>
-        <p class="muted" style="margin:0; font-size:13.5px; line-height:1.6; max-width:820px;">
-          বাংলাদেশে খতিয়ান ও মৌজা ম্যাপে কেবল দ্বিমাত্রিক আনুভূমিক (Projected) জমি নথিভুক্ত থাকে। কিন্তু পাহাড় ও টিলায় বাস্তব ভূমি পৃষ্ঠতল (True 3D Ground Surface) অনেক বড়। চট্টগ্রাম, বান্দরবান, রাঙ্গামাটি, খাগড়াছড়ি ও সিলেটের পাহাড়ের সঠিক ক্ষেত্রফল ও ভূমিধস ঝুঁকি এখানে গণনা করুন।
+        <p role="note"><b>শুধু কৃত্রিম নমুনা / Synthetic demonstration.</b> বাস্তব DEM, মাঠজরিপ বা ভূমিধসের পূর্বাভাস ব্যবহার করা হয়নি। পৃষ্ঠতলের ক্ষেত্রফল মালিকানার আয়তন বাড়ায় না।</p><p class="muted" style="margin:0; font-size:13.5px; line-height:1.6; max-width:820px;">
+          বাংলাদেশে খতিয়ান ও মৌজা ম্যাপে কেবল দ্বিমাত্রিক আনুভূমিক (Projected) জমি নথিভুক্ত থাকে। কিন্তু পাহাড় ও টিলায় বাস্তব ভূমি পৃষ্ঠতল (True 3D Ground Surface) অনেক বড়। স্থানগুলোর নাম দিয়ে তৈরি কৃত্রিম পৃষ্ঠের ক্ষেত্রফল ও ঢাল তুলনা করুন; এটি বাস্তব পাহাড়ের মাপ বা ঝুঁকির মূল্যায়ন নয়।
         </p>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
@@ -375,7 +260,7 @@ function renderHillTerrainHTML(results = null) {
         <small style="color:#22543d; font-weight:600;">${fmt(r.units.surface.decimal, 2)} শতক / ${fmt(r.units.surface.acre, 3)} একর</small>
       </div>
       <div class="panel metric" style="border-left:4px solid #b7791f; background:#fffaf0;">
-        <span style="color:#7b341e;">পাহাড়ে অতিরিক্ত জমি (Topographic Gain)</span>
+        <span style="color:#7b341e;">কৃত্রিম পৃষ্ঠের পার্থক্য (Surface difference)</span>
         <strong style="color:#7b341e;">+${fmt(r.diff_m2, 1)} m²</strong>
         <small style="color:#7b341e; font-weight:600;">+${fmt(r.diff_pct, 1)}% পৃষ্ঠতল বৃদ্ধি (+${fmt(r.units.surface.decimal - r.units.projected.decimal, 2)} শতক)</small>
       </div>
@@ -467,7 +352,7 @@ function renderHillTerrainHTML(results = null) {
             </b>
           </div>
           <p style="margin:4px 0 0 0; font-size:12px; color:#4a5568;">
-            এই পাহাড়ের <b>${r.landslide_pct}%</b> অংশে ঢাল ৩০ ডিগ্রির বেশি। বাংলাদেশ পরিবেশ সংরক্ষণ আইন ও ইমারত নির্মাণ বিধিমালা অনুযায়ী ৩০° এর বেশি খাড়া ঢালে পাহাড় কাটা ও নির্মাণ ঝুঁকিপূর্ণ ও নিষিদ্ধ।
+            এই কৃত্রিম মডেলের <b>${r.landslide_pct}%</b> cell-এ ঢাল ৩০ ডিগ্রির বেশি। এটি ভূমিধসের সম্ভাবনা বা কোনো আইনি নিষেধাজ্ঞার পরীক্ষা নয়। বাস্তব কাজের আগে প্রযোজ্য আইন, অনুমতি ও বিশেষজ্ঞ মূল্যায়ন প্রয়োজন।
           </p>
         </div>
 
@@ -480,7 +365,7 @@ function renderHillTerrainHTML(results = null) {
 
     <!-- Official Notice -->
     <div style="margin-top:14px; padding:10px 14px; background:#fffaf0; border-left:4px solid #dd6b20; border-radius:4px; font-size:12px; color:#7b341e;">
-      <b>সার্ভে ও আইনি তথ্য সতর্কতা:</b> এই হিসেবটি টপোগ্রাফিক ও কারিগরি বিশ্লেষণের সাহায্যকারী টুল। এটি কোনো আইনি দলিলের প্রমাণ নয়। বাংলাদেশে বৈধ মালিকানা ও খতিয়ান সার্ভে অফ বাংলাদেশ (SoB) ও ভূমি রেকর্ড ও জরিপ অধিদপ্তর (DLR&S) দ্বারা নির্ধারিত। পার্বত্য চট্টগ্রামে (CHT) ভূমিস্বত্ব ১৯০০ সালের রেগুলেশন অনুসারে হেডম্যান ও সার্কেল চিফের এখতিয়ারাধীন।
+      <b>সার্ভে ও আইনি তথ্য সতর্কতা:</b> এই হিসেবটি টপোগ্রাফিক ও কারিগরি বিশ্লেষণের সাহায্যকারী টুল। এটি কোনো আইনি দলিলের প্রমাণ নয়। মালিকানা নির্ধারণে প্রযোজ্য আইন, নথি ও সক্ষম কর্তৃপক্ষের সিদ্ধান্ত প্রয়োজন। পার্বত্য চট্টগ্রামে জেলা প্রশাসন, প্রথাগত কর্তৃপক্ষ ও অন্যান্য প্রযোজ্য প্রতিষ্ঠানের এখতিয়ার যাচাই করুন। এই টুল পাহাড় কাটার অনুমতি বা নিরাপত্তা সনদ দেয় না।
     </div>
   </section>
   `;
@@ -527,7 +412,7 @@ function attachHillTerrainListeners() {
         'ম্যাপ (Street)': streetLayer
       }, null, { position: 'topright' }).addTo(hillMap);
 
-      const r = runClientTerrainAnalysis(selectVal);
+      const r = runClientTerrainAnalysis(selectVal,null,document.getElementById('hillTargetElev')?.value);
       const poly = L.polygon(preset.polygon, {
         color: '#f59e0b',
         fillColor: '#10b981',
@@ -553,8 +438,12 @@ function attachHillTerrainListeners() {
     }
   }
 
+  const panelResult=document.getElementById('hillTerrainPanel');
+  if(panelResult?.dataset.preset&&select)select.value=panelResult.dataset.preset;
+  if(panelResult?.dataset.target)document.getElementById('hillTargetElev').value=panelResult.dataset.target;
   if (btnCalc && select) {
     btnCalc.onclick = () => {
+      try{
       const presetId = select.value;
       const targetZ = document.getElementById('hillTargetElev')?.value;
       const res = runClientTerrainAnalysis(presetId, null, targetZ);
@@ -563,9 +452,10 @@ function attachHillTerrainListeners() {
         panel.outerHTML = renderHillTerrainHTML(res);
         attachHillTerrainListeners();
         if (typeof toast === 'function') {
-          toast(`পাহাড় বিশ্লেষণ সম্পন্ন: ${res.name} (অনুপাত: ${res.ratio.toFixed(3)}x)`);
+          toast(`কৃত্রিম পৃষ্ঠের হিসাব সম্পন্ন: ${res.name} (${res.ratio.toFixed(3)}x)`);
         }
       }
+      }catch(error){if(typeof toast==='function')toast(error.message);}
     };
   }
 
@@ -578,8 +468,8 @@ function attachHillTerrainListeners() {
   if (btnCsv) {
     btnCsv.onclick = () => {
       const selectVal = document.getElementById('hillPresetSelect')?.value || 'batali-hill';
-      const r = runClientTerrainAnalysis(selectVal);
-      const csv = `Parameter,Value\nSite Name,"${r.name}"\nProjected Area (m2),${r.projected_m2}\nTrue 3D Surface Area (m2),${r.surface_m2}\nArea Ratio,${r.ratio}\nAdditional Surface (%),${r.diff_pct}\nProjected Decimal,${r.units.projected.decimal}\nSurface Decimal,${r.units.surface.decimal}\nProjected Acre,${r.units.projected.acre}\nSurface Acre,${r.units.surface.acre}\nMean Elevation (m),${r.elevation.mean}\nMean Slope (deg),${r.slope.mean}\nLandslide Risk Zone (%),${r.landslide_pct}\nMetric CRS,"EPSG:32646 (UTM Zone 46N)"\n`;
+      const r = runClientTerrainAnalysis(selectVal,null,document.getElementById('hillTargetElev')?.value);
+      const csv = `Parameter,Value\nMode,Synthetic demonstration - not measured DEM\nTarget Elevation (m),${r.earthwork.target}\nCut Volume (m3),${r.earthwork.cut}\nFill Volume (m3),${r.earthwork.fill}\nSite Name,"${r.name}"\nProjected Area (m2),${r.projected_m2}\nSynthetic 3D Surface Area (m2),${r.surface_m2}\nArea Ratio,${r.ratio}\nAdditional Surface (%),${r.diff_pct}\nProjected Decimal,${r.units.projected.decimal}\nSurface Decimal,${r.units.surface.decimal}\nProjected Acre,${r.units.projected.acre}\nSurface Acre,${r.units.surface.acre}\nMean Elevation (m),${r.elevation.mean}\nMean Slope (deg),${r.slope.mean}\nSynthetic Steep-Slope Share (%),${r.landslide_pct}\nMetric CRS,"EPSG:32646 (UTM Zone 46N)"\n`;
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -593,7 +483,7 @@ function attachHillTerrainListeners() {
   if (btnGeoJson) {
     btnGeoJson.onclick = () => {
       const selectVal = document.getElementById('hillPresetSelect')?.value || 'batali-hill';
-      const r = runClientTerrainAnalysis(selectVal);
+      const r = runClientTerrainAnalysis(selectVal,null,document.getElementById('hillTargetElev')?.value);
       const geojson = {
         type: 'FeatureCollection',
         features: [{
@@ -604,12 +494,14 @@ function attachHillTerrainListeners() {
             surface_3d_area_m2: r.surface_m2,
             area_ratio: r.ratio,
             mean_slope_deg: r.slope.mean,
-            landslide_risk_pct: r.landslide_pct,
-            crs: 'EPSG:32646 (UTM 46N)'
+            synthetic_steep_slope_pct: r.landslide_pct,
+            mode: 'synthetic-demonstration',
+            geometry_crs: 'WGS84 longitude/latitude',
+            calculation_crs: 'EPSG:32646 (UTM 46N)'
           },
           geometry: {
             type: 'Polygon',
-            coordinates: [r.coords.map(([lat, lon]) => [lon, lat])]
+            coordinates: [[...r.coords,r.coords[0]].map(([lat, lon]) => [lon, lat])]
           }
         }]
       };

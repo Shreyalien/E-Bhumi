@@ -196,6 +196,9 @@ function pointInPolygon(px, py, poly) {
  * Analyzes terrain, computes true 3D surface area, slope, landslide risk and cut-fill
  */
 function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, demResolution = 15.0 }) {
+  if(typeof presetId!=='string'||!Object.hasOwn(PRESETS,presetId))throw new Error('Select a known demonstration preset.');
+  if(typeof demResolution!=='number'||!Number.isFinite(demResolution)||demResolution<5||demResolution>1000)throw new Error('Resolution must be a finite number from 5 to 1000 metres.');
+  if(targetElevation!==undefined&&(typeof targetElevation!=='number'||!Number.isFinite(targetElevation)||targetElevation< -500||targetElevation>10000))throw new Error('Target elevation must be a finite number from -500 to 10000 metres.');
   let coords = polygon;
   let preset = PRESETS[presetId];
 
@@ -205,9 +208,19 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
   if (!coords || !Array.isArray(coords) || coords.length < 3) {
     throw new Error('Valid polygon coordinate array (at least 3 vertices) required.');
   }
+  if(coords.length>100||coords.some(p=>!Array.isArray(p)||p.length!==2||p.some(v=>typeof v!=='number'||!Number.isFinite(v))||p[0]<20||p[0]>27||p[1]<88||p[1]>93))throw new Error('Use 3–100 finite latitude/longitude vertices within the Bangladesh demonstration extent.');
+  coords=coords.map(p=>[...p]);
+  if(coords.length>3&&coords[0][0]===coords.at(-1)[0]&&coords[0][1]===coords.at(-1)[1])coords.pop();
+  if(new Set(coords.map(p=>p.join(','))).size!==coords.length)throw new Error('Repeated polygon vertices are not allowed.');
+  const cross=(a,b,c)=>(b[1]-a[1])*(c[0]-a[0])-(b[0]-a[0])*(c[1]-a[1]);
+  for(let i=0;i<coords.length;i++)for(let j=i+1;j<coords.length;j++){
+    if(j===i+1||(i===0&&j===coords.length-1))continue;
+    const a=coords[i],b=coords[(i+1)%coords.length],c=coords[j],d=coords[(j+1)%coords.length];
+    if(cross(a,b,c)*cross(a,b,d)<=0&&cross(c,d,a)*cross(c,d,b)<=0&&Math.max(Math.min(a[0],b[0]),Math.min(c[0],d[0]))<=Math.min(Math.max(a[0],b[0]),Math.max(c[0],d[0]))&&Math.max(Math.min(a[1],b[1]),Math.min(c[1],d[1]))<=Math.min(Math.max(a[1],b[1]),Math.max(c[1],d[1])))throw new Error('Polygon edges must not intersect.');
+  }
 
   // Handle benchmark flat 100m case explicitly
-  if (presetId === 'benchmark-flat-100m' || preset?.isFlatBenchmark) {
+  if (!polygon && (presetId === 'benchmark-flat-100m' || preset?.isFlatBenchmark)) {
     const projectedArea = 10000.0;
     const surfaceArea = 10000.0;
     const ratio = 1.0000;
@@ -224,9 +237,9 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
       maxSlope: 0.0,
       classes: { '0-5° (Flat / Gentle)': 100.0, '5-15° (Moderate)': 0.0, '15-30° (Moderately Steep)': 0.0, '30-45° (Steep)': 0.0, '>45° (Extreme / Cliff)': 0.0 },
       landslideRiskPct: 0.0,
-      cutVolumeM3: 0.0,
-      fillVolumeM3: 0.0,
-      targetElevation: 20.0,
+      cutVolumeM3: Math.max(20-(targetElevation??20),0)*10000,
+      fillVolumeM3: Math.max((targetElevation??20)-20,0)*10000,
+      targetElevation: targetElevation??20,
       demResolution: 10.0,
       wgs84Polygon: coords
     });
@@ -239,6 +252,7 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
   if (projectedAreaM2 <= 0) {
     throw new Error('Polygon geometry has zero or invalid area.');
   }
+  if(!Number.isFinite(projectedAreaM2)||projectedAreaM2<1)throw new Error('Polygon area must be at least one square metre.');
 
   // Compute metric bounding box
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -251,6 +265,7 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
 
   const cx = (minX + maxX) / 2;
   const cy = (minY + maxY) / 2;
+  if((maxX-minX)*(maxY-minY)>25000000)throw new Error('Demonstration extent must fit within 25 square kilometres.');
   const radius = Math.max(Math.sqrt((maxX - minX) ** 2 + (maxY - minY) ** 2) / 2, 50.0);
 
   // Preset elevation envelope
@@ -260,6 +275,7 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
 
   // Elevation function for the hill
   function getElevation(x, y) {
+    if(preset?.isFlatBenchmark)return baseElev;
     const dx = (x - cx) / radius;
     const dy = (y - cy) / radius;
     const r2 = dx * dx + dy * dy;
@@ -270,6 +286,7 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
   }
 
   const step = Math.max(Number(demResolution) || 15.0, 5.0);
+  if(Math.ceil((maxX-minX)/step)*Math.ceil((maxY-minY)/step)>50000)throw new Error('Too many grid cells; choose a coarser resolution or smaller polygon.');
   let totalCellProjArea = 0;
   let totalCellSurfaceArea = 0;
   let minElevation = Infinity, maxElevation = -Infinity, sumElevation = 0;
@@ -323,6 +340,7 @@ function analyzeTerrain({ polygon, presetId = 'batali-hill', targetElevation, de
     }
   }
 
+  if(!cellCount)throw new Error('No sample cells fit inside this polygon; use a smaller resolution or larger polygon.');
   // Ratio scaling for sub-pixel vector accuracy
   const ratio = cellCount > 0 ? Math.max(1.0, totalCellSurfaceArea / totalCellProjArea) : 1.0;
   const surfaceAreaM2 = projectedAreaM2 * ratio;
@@ -367,6 +385,9 @@ function formatResults(d) {
 
   return {
     presetId: d.presetId,
+    mode: 'synthetic-demonstration',
+    elevation_source: 'Generated Gaussian surface; no measured DEM or site observations',
+    risk_interpretation: 'Steep-cell percentage only; not a landslide probability, engineering assessment or safety clearance',
     name: d.name,
     projected_area_m2: Number(p.toFixed(2)),
     surface_area_m2: Number(s.toFixed(2)),
@@ -409,7 +430,7 @@ function formatResults(d) {
     dem_resolution_m: d.demResolution,
     metric_crs: 'EPSG:32646 (WGS 84 / UTM Zone 46N)',
     polygon: d.wgs84Polygon,
-    disclaimer: 'Engineering and topographical analysis aid only. Official land records in Bangladesh are issued by Survey of Bangladesh / Land Office. In CHT, land is governed under CHT Regulation 1900 through Circle Chief and Mouza Headman.'
+    disclaimer: 'Synthetic educational model only. Surface area does not increase recorded ownership. No survey, title, slope-stability or earthworks approval is produced. CHT jurisdiction requires case-specific district, customary and other competent authority confirmation.'
   };
 }
 
@@ -441,10 +462,12 @@ function handleTerrainRequest({ route, method, body, send, fail }) {
   return false;
 }
 
-module.exports = {
+const terrainExports = {
   PRESETS,
   toUtm46N,
   polygonProjectedAreaM2,
   analyzeTerrain,
   handleTerrainRequest
 };
+if(typeof module!=='undefined'&&module.exports)module.exports=terrainExports;
+else globalThis.BhumiTerrain=terrainExports;

@@ -500,9 +500,10 @@ entries.push(...[
     "coverage": "বিষয়ভিত্তিক পরিচিতি; নির্দিষ্ট মামলার আইনগত ফোরাম নিশ্চিত করতে হবে।"
   }
 ]);
+entries.push(...require('./research-2026-10-18.json'));
 function handleLawLibrary(c){const {db,user:u,route,method,body,send,save,fail,audit}=c;if(!route.startsWith('/law-library'))return false;
  const ids=new Set(entries.map(e=>e.id));
- if(route==='/law-library'&&method==='GET'){send(200,{entries,checked:'2026-10-17',preferences:db.lawPreferences?.[u.id]||{bookmarks:[],read:[],notes:{}}});return true;}
+ if(route==='/law-library'&&method==='GET'){send(200,{entries,checked:'2026-10-18',preferences:db.lawPreferences?.[u.id]||{bookmarks:[],read:[],notes:{}}});return true;}
  if(route==='/law-library/preferences'&&method==='PATCH'){
   for(const key of Object.keys(body))if(!['bookmarks','read','notes'].includes(key))fail(400,'Unknown reading preference');
   for(const key of ['bookmarks','read'])if(body[key]!==undefined&&(!Array.isArray(body[key])||body[key].length>entries.length||body[key].some(v=>!ids.has(v))||new Set(body[key]).size!==body[key].length))fail(400,'Invalid law reference');

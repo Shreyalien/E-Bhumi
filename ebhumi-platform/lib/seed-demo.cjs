@@ -5,7 +5,7 @@ function seedDemo(db,audit){
  if(db.demoEdition>=7)return false;
  // Trim only untouched generated scenarios. User-created and edited requests survive.
  const keep=new Set();for(const role of ['citizen','representative'])for(const [si,s] of services.entries())for(const vi of [0,1,2+si%8])keep.add('DEMO-'+role.toUpperCase()+'-'+s.id.toUpperCase()+'-'+String(vi+1).padStart(2,'0'));
- const removed=new Set(db.applications.filter(a=>a.demo&&a.revision===1&&!keep.has(a.id)&&!db.payments.some(p=>p.applicationId===a.id&&p.reconciledBy)).map(a=>a.id));
+ const removed=new Set(db.applications.filter(a=>a.demo&&!a.demoExample&&a.revision===1&&!keep.has(a.id)&&!db.payments.some(p=>p.applicationId===a.id&&p.reconciledBy)).map(a=>a.id));
  db.applications=db.applications.filter(a=>!removed.has(a.id));const linked=new Set(db.applications.flatMap(a=>a.documentIds));
  db.documents=db.documents.filter(d=>!d.demo||linked.has(d.id));db.payments=db.payments.filter(p=>!removed.has(p.applicationId));db.notifications=db.notifications.filter(n=>!n.demo||!removed.has(n.reference));
  const statuses=['Draft','Submitted','UnderReview','CorrectionRequested','HearingScheduled','AwaitingPayment','PaymentFailed','ReadyForDelivery','Completed','Rejected'];

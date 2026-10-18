@@ -7,14 +7,14 @@
   <meta name="description" content="e-Bhumi — Bangladesh land services workspace demo frontend." />
   <title>e-Bhumi | Land Services Workspace</title>
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+
+
+
+  <link rel="stylesheet" href="/assets/leaflet.css" crossorigin="" />
+  <script src="/assets/leaflet.js" crossorigin="" defer></script>
   <link rel="stylesheet" href="assets/styles.css" />
   <link rel="stylesheet" href="/interface.css" />
-</head>
+<link rel="stylesheet" href="/themes.css"></head>
 <body>
   <a class="skip-link" href="#pageContent">Skip to content</a>
   <div class="app-shell">
@@ -51,7 +51,7 @@
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
   <div class="ai-floating-container" id="aiFloatingContainer"><button type="button" class="ai-floating-btn" id="aiFloatingBtn" aria-label="Open AI Land Assistant"><span class="ai-spark-anim" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span><span class="ai-floating-label">এআই সহকারী</span></button><div class="ai-floating-card hidden" id="aiFloatingCard" hidden style="display:none;"><div class="ai-card-head"><div style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#68d391" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg><div><b>এআই ভূমি সহকারী</b><small>AI Land Assistant · Smart Guidance</small></div></div><button type="button" class="ai-card-close" id="aiCardClose" aria-label="Close assistant">✕</button></div><div class="ai-card-body" id="aiFloatingMessages"><div class="ai-bubble ai-bubble-assistant">নমস্কার / আসসালামু আলাইকুম। আমি e-Bhumi এআই সহকারী। নামজারি, ই-পর্চা, খাজনা ও পাহাড়ি জমির ৩ডি পরিমাপ সংক্রান্ত যে কোনো প্রশ্ন জিজ্ঞাসা করতে পারেন।</div><div class="ai-quick-chips"><button type="button" class="ai-chip" data-ask="নামজারি করতে কী কী প্রস্তুতি লাগবে?">নামজারি প্রস্তুতি</button><button type="button" class="ai-chip" data-ask="অনলাইনে ই-পর্চা ও খতিয়ান কীভাবে তুলব?">ই-পর্চা আবেদন</button><button type="button" class="ai-chip" data-ask="খাজনা ও দাখিলা কীভাবে পরিশোধ করব?">খাজনা ও দাখিলা</button><button type="button" class="ai-chip" data-ask="পাহাড়ে ৩ডি জমি ও ঢাল কীভাবে মাপা হয়?">পাহাড় ৩ডি পরিমাপ</button></div></div><form class="ai-card-input" id="aiFloatingForm"><input type="text" id="aiFloatingInput" placeholder="আপনার প্রশ্ন লিখুন (যেমন: নামজারি)..." autocomplete="off" required><button type="submit" class="btn primary small" id="aiFloatingSend">পাঠান</button></form><div class="ai-card-foot"><a href="#ai-assistant" id="aiOpenFullWorkspace">পূর্ণাঙ্গ এআই ওয়ার্কস্পেস খুলুন ↗</a></div></div></div>
   <script src="/assets/gsap.min.js" defer></script>
-  <script src="/hill-terrain.js" defer></script>
+  <script src="/terrain-engine.js" defer></script><script src="/hill-terrain.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
