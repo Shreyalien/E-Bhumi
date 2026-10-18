@@ -9,6 +9,7 @@
 - Law filters retain their stored values when the visible labels change language. User input, private notes, uploaded evidence, historical records and identifiers are not rewritten for translation.
 - Repeated sample-account and sidebar notices were reduced. One prominent workspace notice and output watermarks still distinguish sample activity from official filing and real payment.
 - Assistant controls and prepared guidance use the selected language. A user's message remains exactly as entered.
+- Request details and catalogue UI have 110 explicit language pairs. The service column in a queue is translated as interface copy while applicant names, field values and evidence contents remain unchanged. Land Passport detail and relationship-graph tabs also use separate labels.
 
 ## Licence scope
 
