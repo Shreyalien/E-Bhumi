@@ -35,7 +35,7 @@ The original green-and-white palette is preserved. A compact bilingual topbar dr
 
 ## Statutory Law Library, Research & Role Desks — v5.7.0
 
-- **Integrated Statutory Law Library**: Available across all 24 roles with 41 curated law and service references, 12 thematic subjects, search, bookmarking, private case annotations, and links to official government full texts. See [Law Library & Source Register](docs/LAW_LIBRARY.md).
+- **Integrated Statutory Law Library**: Available across all 24 roles with 42 curated law and service references, 12 thematic subjects, search, bookmarking, private case annotations, and links to official government full texts. See [Law Library & Source Register](docs/LAW_LIBRARY.md).
 - **Vested Property & Heirship Dossiers**: Historical gazette listings, legacy-to-modern RS/BS Dag correlations, multi-branch heirship genealogical graphs, lease history, court cases, external orders, secure vault evidence, and private desk reviews. See [Legacy Property Research Implementation](docs/LEGACY_PROPERTY_RESEARCH.md).
 - **24 Specialized Roles**: 33 full service-specific specialist workflows, conditional ministry/divisional/legal referrals with guaranteed return handoffs, and a consolidated role directory preserving complete visual and operational identity.
 
