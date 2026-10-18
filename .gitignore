@@ -30,4 +30,7 @@ Thumbs.db
 .data/
 **/tests/hosted-*/
 **/tests/interface-*/
+**/tests/locale-audit-*/
+**/tests/bilingual-*/
 .env*
+.codex-test-temp/
