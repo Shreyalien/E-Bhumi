@@ -21,6 +21,8 @@ Primary interface defaults to Bangla, with seamless bilingual toggle to English.
 
 ## Current update — v5.9.0
 
+Final authentication review: exact Unicode passwords (including leading/trailing spaces), byte-safe Bangla JSON requests, bounded login inputs, password-change session revocation and return to the requested page after re-login are verified. The law library now distinguishes the February 2026 record/map fee circular from historical demo checkout fixtures, and draft survey records from final records. [Final audit and sources](docs/FINAL_AUDIT_2026-10-18.md).
+
 All 24 roles now include a **Demo workflows & examples** library: 104 application examples and four separate vested-property desk examples. Every service has active desk work and a completed outcome example. New mutation requests include the initial AC Land order before union enquiry; existing saved requests keep their history. [Role guide, workflow evidence and palette screenshots](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
 
 | Meghna daylight | Meghna nightfall |
