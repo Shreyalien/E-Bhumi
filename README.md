@@ -23,11 +23,11 @@ Primary interface defaults to Bangla, with seamless bilingual toggle to English.
 
 All 24 roles now include a **Demo workflows & examples** library: 104 application examples and four separate vested-property desk examples. Every service has active desk work and a completed outcome example. New mutation requests include the initial AC Land order before union enquiry; existing saved requests keep their history. [Role guide, workflow evidence and palette screenshots](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
 
-| Light blue day | Coordinated blue night |
+| Original blue day | Original blue night |
 | --- | --- |
 | ![Light theme](docs/screenshots-role-themes/meghna-light.png) | ![Night theme](docs/screenshots-role-themes/meghna-dark.png) |
 
-Four palettes support day/night mode with light alternate sidebars, consistent panels, original fonts and verified text contrast. Validation: 139 automated cases plus all 24 role platforms and 192 palette/mode combinations.
+The original four colour palettes and their day/night appearance have been restored at the owner’s request. Demo workflows, role examples, fonts and layout remain intact. The workflow release passed 139 automated cases; palette screenshots below show the restored appearance.
 
 ## Statutory Law Library, Research & Role Desks — v5.7.0
 

@@ -35,24 +35,21 @@ The [official tax manuals](https://ldtax.gov.bd/manual) and [published fee refer
 
 The one-time `roleDemoEdition` migration adds deterministic IDs without resetting existing applications, edited examples, accounts or uploaded documents. Example content is generated independently; it never copies a user's edited request or uploaded evidence. New citizen registrations remain empty and private. Demo cases respect ownership, current desk, prior handoff and oversight permissions. Old v1-only configurations retain the compact v1 seed rather than receiving v2 workflows.
 
-## Theme fixes
+## Original colours restored
 
-- Green retains its established identity. Alternate blue, clay and slate day sidebars use light surfaces instead of dark fills.
-- Night mode uses one consistent neutral canvas and panel system with a coordinated accent for each variant. Hardcoded green backgrounds on the main canvas, metrics, sidebar, tables, icons and assistant controls were replaced with shared tokens.
-- Text, muted labels, links, inputs, select options and primary buttons have coordinated foreground/background colours. Reduced-motion preferences disable visual transitions.
-- Original font stacks and composition are retained. Map artwork remains illustrative and is not recoloured into authoritative survey data.
+The owner requested the previous colours after reviewing the theme update. The original Padma, Meghna, Sundarban and Surma palettes, sidebar fills, component colours and day/night appearance are restored from the pre-update styles. The demo stylesheet now contains layout rules only. Original font stacks, composition, reduced-motion support and all role/workflow additions remain intact.
 
 | Blue day | Blue night |
 | --- | --- |
 | ![Light blue](screenshots-role-themes/meghna-light.png) | ![Blue night](screenshots-role-themes/meghna-dark.png) |
 | Clay day | Clay night |
-| ![Light clay](screenshots-role-themes/sundarban-light.png) | ![Clay night](screenshots-role-themes/sundarban-dark.png) |
+| ![Original clay](screenshots-role-themes/sundarban-light.png) | ![Clay night](screenshots-role-themes/sundarban-dark.png) |
 
 ## Verification
 
 - 139 automated test cases passed: prior lifecycle/security regressions plus all 33 new service examples resolved using actual APIs, consultations returned to LA, VP handoff, outcome hashes, owner isolation and idempotent restart.
 - All 24 roles passed the 33-service example-library and mobile checks.
-- 192 role/theme/mode combinations passed targeted WCAG AA text contrast checks (4.5:1 minimum), including selected navigation, inputs, primary buttons, metrics and muted labels where present. This is targeted automated verification, not a complete accessibility certification.
+- The browser regression checks all 192 role/theme/mode combinations against the original alternate sidebar colours, selected palette/mode and preserved font stack. The previous contrast results applied to the replaced palette and are not claims about the restored colours.
 - Screenshot renders are in `docs/screenshots-role-themes/`. Browser automation relays actual local responses when loopback is isolated; no fake API results are substituted.
 
 ```powershell
