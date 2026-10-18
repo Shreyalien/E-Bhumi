@@ -27,9 +27,9 @@ All 24 roles now include a **Demo workflows & examples** library: 104 applicatio
 | --- | --- |
 | ![Light theme](docs/screenshots-role-themes/meghna-light.png) | ![Night theme](docs/screenshots-role-themes/meghna-dark.png) |
 
-The original green-and-white palette is preserved. **Appearance** opens a bilingual collection of live palette previews: Padma Green, Meghna Blue, Earth Clay and Surma Slate, with separate daylight/nightfall choices and saved browser preferences. Alternate palettes coordinate the canvas, sidebar, cards, forms, tables and buttons; status colours retain their meaning. Demo workflows, role examples, fonts and layout remain intact.
+The original green-and-white palette is preserved. A compact bilingual topbar dropdown switches between Padma Green, Meghna Blue, Earth Clay and Surma Slate; the existing moon/sun button controls night/day mode. Meghna uses river-blue tones, while Surma uses a distinct muted plum-slate family. Preferences stay saved in the browser. Alternate palettes coordinate the canvas, sidebar, cards, forms, tables and buttons; status colours retain their meaning. Demo workflows, role examples, fonts and layout remain intact.
 
-![Appearance collection in night mode](docs/screenshots-role-themes/citizen-appearance-night.png)
+![Compact colour selector in night mode](docs/screenshots-role-themes/citizen-appearance-night.png)
 
 ## Statutory Law Library, Research & Role Desks — v5.7.0
 

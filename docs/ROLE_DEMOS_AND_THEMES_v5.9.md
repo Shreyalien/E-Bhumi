@@ -39,9 +39,9 @@ The one-time `roleDemoEdition` migration adds deterministic IDs without resettin
 
 The original Padma green/white colours and existing green night mode remain unchanged. The three alternative palettes have coordinated daylight and nightfall shades: Meghna Blue, Earth Clay and Surma Slate. Muted surfaces, readable text, matching sidebars and restrained primary buttons replace the previous mix of green controls and differently coloured sidebars. Warning, error and status colours remain semantic. Map artwork remains illustrative.
 
-The topbar palette button opens **আপনার পছন্দের আবহ / A workspace in your colours**. Four miniature workspace previews update with the selected display mode. Native radio controls support keyboard selection, Escape closes the dialog and restores focus, and the layout fits a mobile screen. Palette and display mode are saved locally and synchronized across tabs; an unset display preference respects the operating system. English/Bangla labels follow the platform language. Workflow, account and application data are unaffected.
+A compact native dropdown in the topbar selects the palette; the existing moon/sun button switches night/day mode. The large preview dialog and descriptive cards have been removed. Meghna remains river blue, while Surma uses a clearly different muted plum-slate family. The native control supports keyboard use without covering the workspace. Palette and mode are saved locally and synchronized across tabs; an unset display preference respects the operating system. Labels follow the English/Bangla platform language.
 
-| Appearance collection | Mobile appearance |
+| Compact desktop selector | Compact mobile selector |
 | --- | --- |
 | ![Night collection](screenshots-role-themes/citizen-appearance-night.png) | ![Mobile picker](screenshots-role-themes/appearance-mobile.png) |
 
@@ -55,7 +55,7 @@ The topbar palette button opens **আপনার পছন্দের আব�
 
 - 139 automated test cases passed: prior lifecycle/security regressions plus all 33 new service examples resolved using actual APIs, consultations returned to LA, VP handoff, outcome hashes, owner isolation and idempotent restart.
 - All 24 roles passed the 33-service example-library and mobile checks.
-- The browser regression checks 192 role/theme/mode combinations, original green/white computed colours, coordinated alternate sidebars and selected normal-text contrast targets (4.5:1). These are targeted checks, not a complete accessibility certification. Appearance controls, persistence, bilingual labels, focus return and mobile dialog bounds are also checked.
+- The browser regression checks 192 role/theme/mode combinations, original green/white computed colours, coordinated alternate sidebars and selected normal-text contrast targets (4.5:1). These are targeted checks, not a complete accessibility certification. The compact selector, persistence, bilingual labels, mobile control bounds and a separate blue/slate hue family are also checked.
 - Screenshot renders are in `docs/screenshots-role-themes/`. Browser automation relays actual local responses when loopback is isolated; no fake API results are substituted.
 
 ```powershell
