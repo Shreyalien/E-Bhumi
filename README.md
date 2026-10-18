@@ -399,6 +399,10 @@ Never commit credentials, real identity files or private land records. Report se
 
 ## License and authority
 
-The project references [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). This edition builds on the supplied local project and its preserved visual design.
+This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 **LandLords**.
 
-No license grant is included in this delivery; confirm redistribution rights with the maintainer. e-Bhumi is not affiliated with or operated by the Government of Bangladesh. Always confirm official records, current rules and legal requirements with the competent authority.
+**Project contributors**
+- Pronob Das ([`@Pronob155`](https://github.com/Pronob155))
+- Shreya Golder ([`@Shreyalien`](https://github.com/Shreyalien))
+
+Third-party libraries and assets remain subject to their own license terms. e-Bhumi is not affiliated with or operated by the Government of Bangladesh. Always confirm official records, current rules and legal requirements with the competent authority.
