@@ -29,5 +29,4 @@ Thumbs.db
  
 .data/
 **/tests/hosted-*/
-public/
 .env*
