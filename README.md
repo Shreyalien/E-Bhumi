@@ -9,7 +9,7 @@ A citizen-first land-service preparation workspace for Bangladesh.
 
 **24 citizen routes (21 preserved + Law Library + Vested Property + Role Directory) · 33 service workflows · 24 role platforms · 460 tracked requirements · Local & Cloud sandbox**
 
-[Quick start](#quick-start) · [Live Deployment](#live-deployment) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Architecture](#architecture) · [Roadmap](#roadmap)
+[Quick start](#quick-start) · [Live Deployment](#live-deployment) · [Screenshots](#screenshots) · [Features](#features-and-page-guide) · [App flow](#app-flow) · [Procedure flows](#researched-procedure-flows--v54) · [Architecture](#architecture) · [Roadmap](#roadmap)
 
 </div>
 
@@ -73,6 +73,7 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 - [Features and page guide](#features-and-page-guide)
 - [App flow](#app-flow)
 - [Five-minute walkthrough](#five-minute-walkthrough)
+- [Researched procedure flows — v5.4](#researched-procedure-flows--v54)
 - [Architecture](#architecture)
 - [Data and persistence](#data-and-persistence)
 - [Performance approach](#performance-approach)
@@ -205,6 +206,7 @@ The v5.4 workflow engine adds service-specific preparation schedules, required d
 The following diagram documents the retained v1 case lifecycle. New cases use the service-family diagram below.
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true, 'primaryColor': '#1b4d3e', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#2e7d63', 'lineColor': '#52a384', 'secondaryColor': '#16382e', 'tertiaryColor': '#122620' }}}%%
 flowchart TD
     Login[Citizen or representative login] --> Guide[Read service description and evidence checklist]
     Guide --> Worksheet[Optional Truth Card, proposed relationships and evidence questions]
@@ -252,6 +254,7 @@ Rejection retains the reason and history. A separate review/appeal-preparation s
 New applications use procedure v2. Existing saved/demo applications retain their v1 lifecycle. A caller cannot request v1 through the public API.
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true, 'primaryColor': '#1b4d3e', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#2e7d63', 'lineColor': '#52a384', 'secondaryColor': '#16382e', 'tertiaryColor': '#122620' }}}%%
 flowchart TD
     P[Prepare authority, schedules and evidence] --> C[Server completeness check]
     C --> M{Service family}
@@ -264,13 +267,13 @@ flowchart TD
     X -->|Reject| J[Reason and history retained]
     X -->|Approve| D[Decision checkout when applicable]
     D --> O[Issue service artifacts]
-    O -->|Digital| END[Completed local workflow]
+    O -->|Digital| Finished[Completed local workflow]
     O -->|Post / collection| A[Dispatch reference and citizen acknowledgement]
-    A --> END
+    A --> Finished
     M -->|Land tax| H[Owned holding and unpaid demand]
     H --> T[Demand quote and payment simulation]
     T --> K[Dakhila and receipt artifacts]
-    K --> END
+    K --> Finished
 ```
 
 Every amount is a test fixture; there is no live government submission or payment. Hearing is conditional, not mandatory for every mutation. Digital copy release still uses the local records desk; there is no official registry lookup.
@@ -280,6 +283,7 @@ Every amount is a test fixture; there is no live government submission or paymen
 The V5 reference's role-based application flow and local server architecture are integrated while retaining this project's existing visual identity and explanatory README structure.
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true, 'primaryColor': '#1b4d3e', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#2e7d63', 'lineColor': '#52a384', 'secondaryColor': '#16382e', 'tertiaryColor': '#122620' }}}%%
 flowchart LR
     Public["Existing landing page"] --> Login["Role login"]
     Login --> Citizen["Original citizen shell and overview"]
