@@ -25,13 +25,7 @@ Final authentication review: exact Unicode passwords (including leading/trailing
 
 All 24 roles now include a **Demo workflows & examples** library: 104 application examples and four separate vested-property desk examples. Every service has active desk work and a completed outcome example. New mutation requests include the initial AC Land order before union enquiry; existing saved requests keep their history. [Role guide, workflow evidence and palette screenshots](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
 
-| Meghna daylight | Meghna nightfall |
-| --- | --- |
-| ![Light theme](docs/screenshots-role-themes/meghna-light.png) | ![Night theme](docs/screenshots-role-themes/meghna-dark.png) |
-
-The original green-and-white palette is preserved. A compact bilingual topbar dropdown switches between Padma Green, Meghna Blue, Earth Clay and Surma Slate; the existing moon/sun button controls night/day mode. Meghna uses river-blue tones, while Surma uses a distinct muted plum-slate family. Preferences stay saved in the browser. Alternate palettes coordinate the canvas, sidebar, cards, forms, tables and buttons; status colours retain their meaning. Demo workflows, role examples, fonts and layout remain intact.
-
-![Compact colour selector in night mode](docs/screenshots-role-themes/citizen-appearance-night.png)
+The original green-and-white palette is preserved. A compact bilingual topbar dropdown switches between Padma Green, Meghna Blue, Earth Clay and Surma Slate; the existing moon/sun button controls night/day mode. Meghna uses river-blue tones, while Surma uses a distinct muted plum-slate family. Preferences stay saved in the browser. Alternate palettes coordinate the canvas, sidebar, cards, forms, tables and buttons; status colours retain their meaning. Demo workflows, role examples, fonts and layout remain intact. For full palette screenshots and gallery, see [Role Themes & Demos Guide](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
 
 ## Statutory Law Library, Research & Role Desks — v5.7.0
 
