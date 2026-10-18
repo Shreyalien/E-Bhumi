@@ -270,11 +270,11 @@
   }
 
   function servicesPage(){
-    return `${heading('SERVICE DIRECTORY','Land services','Browse service guidance, required information, estimated process steps, and application entry points.',`<button class="btn primary" data-action="open-service-router">⚡ AI Service Router (#71)</button><button class="btn" data-action="service-compare">⇄ Compare services</button>`)}
+    return `${heading('SERVICE DIRECTORY','Land services','Browse service guidance, required information, estimated process steps, and application entry points.',`<button class="btn primary" data-action="open-service-router">AI Service Router (#71)</button><button class="btn" data-action="service-compare">⇄ Compare services</button>`)}
     ${demoBanner()}
     <div class="service-router-banner">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <span style="font-size:24px">⚡</span>
+        <span class="router-spark-icon" style="display:inline-flex;align-items:center;color:#1b5e48;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></span>
         <div style="flex:1">
           <strong style="color:#183d35;font-size:13px">কোন সরকারি সেবাটি আপনার প্রয়োজন নিশ্চিত নন? (AI Service Router #71)</strong>
           <p style="margin:2px 0 0;font-size:11.5px;color:#5a7368">আপনার জমি-সংক্রান্ত সমস্যা সহজ ভাষায় লিখুন। সিস্টেম যাচাইকৃত সরকারি সেবা ডিরেক্টরি অনুযায়ী সঠিক কর্তৃপক্ষ ও পোর্টালের দিকনির্দেশনা দেবে।</p>
@@ -431,9 +431,9 @@
           <div class="feature-meta">
             <button class="btn small" data-action="measure">⌁ Measure area</button>
             <button class="btn small" data-action="coordinates">⌖ Coordinates</button>
-            <button class="btn small primary" data-action="hill-terrain">⛰️ Hill 3D Area</button>
+            <button class="btn small primary" data-action="hill-terrain">Hill 3D Topographic Area</button>
             <button class="btn small" data-action="print-map">▤ Print map</button>
-            <button class="btn small" data-action="save-map">♡ Save view</button>
+            <button class="btn small" data-action="save-map">Save bookmark</button>
           </div>
         </section>
       </aside>
@@ -4700,8 +4700,111 @@
 
     renderNav();
     renderPage();
+    initAiFloatingChatbot();
   }
 
+  function initAiFloatingChatbot(){
+    const container = document.getElementById('aiFloatingContainer');
+    const btn = document.getElementById('aiFloatingBtn');
+    const card = document.getElementById('aiFloatingCard');
+    const close = document.getElementById('aiCardClose');
+    const form = document.getElementById('aiFloatingForm');
+    const input = document.getElementById('aiFloatingInput');
+    const messages = document.getElementById('aiFloatingMessages');
+    if (!container || !btn || !card || !form || !input || !messages) return;
+
+    function toggleCard(open){
+      const isCurrentlyHidden = card.hidden || card.classList.contains('hidden') || card.style.display === 'none';
+      const shouldOpen = open !== undefined ? open : isCurrentlyHidden;
+      card.hidden = !shouldOpen;
+      card.classList.toggle('hidden', !shouldOpen);
+      card.style.display = shouldOpen ? 'flex' : 'none';
+      if (shouldOpen){
+        setTimeout(() => input.focus(), 50);
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    btn.onclick = e => { e.stopPropagation(); toggleCard(); };
+    if (close) close.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleCard(false); };
+
+    document.addEventListener('click', e => {
+      const isCurrentlyHidden = card.hidden || card.classList.contains('hidden') || card.style.display === 'none';
+      if (!isCurrentlyHidden && !container.contains(e.target)){
+        toggleCard(false);
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape'){
+        const isCurrentlyHidden = card.hidden || card.classList.contains('hidden') || card.style.display === 'none';
+        if (!isCurrentlyHidden) toggleCard(false);
+      }
+    });
+
+    container.addEventListener('click', e => {
+      const chip = e.target.closest('.ai-chip');
+      if (chip && chip.dataset.ask){
+        e.preventDefault();
+        handleUserQuery(chip.dataset.ask);
+      }
+      const closeAi = e.target.closest('[data-close-ai]');
+      if (closeAi) toggleCard(false);
+      const hillBtn = e.target.closest('[data-open-hill]');
+      if (hillBtn){
+        toggleCard(false);
+        openModal('পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষক', typeof renderHillTerrainHTML === 'function' ? renderHillTerrainHTML() : '<p>Loading engine...</p>', 'TOPOGRAPHIC TERRAIN ENGINE');
+        if (typeof attachHillTerrainListeners === 'function') attachHillTerrainListeners();
+      }
+    });
+
+    function getAssistantResponse(query){
+      const q = normalize(query);
+      if (/পাহাড়|hill|terrain|ঢাল/.test(q)){
+        return { text: 'পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষণে বাস্তব জমি মানচিত্রের চেয়ে বেশি থাকে। GIS ম্যাপে স্যাটেলাইট ভিউ ও "Hill 3D Topographic Area" ব্যবহার করে বাস্তব পৃষ্ঠতল পরিমাপ করুন।', serviceId: 'gis' };
+      }
+      if (/নামজারি|namjari|mutation/.test(q)){
+        return { text: 'ই-নামজারি (Mutation) আবেদনের জন্য মালিকানা দলিল, খতিয়ান, ওয়ারিশ সনদ ও ভূমি কর দাখিলা প্রয়োজন। আবেদন প্রস্তুত করতে সরাসরি নামজারি সেবায় যান।', serviceId: 'services' };
+      }
+      if (/পর্চা|porcha|khatian|খতিয়ান/.test(q)){
+        return { text: 'ই-পর্চা বা সার্টিফাইড খতিয়ান কপির জন্য আপনার মৌজা, খতিয়ান নম্বর ও দাগ নম্বর দিয়ে অনলাইন রেকর্ড অনুসন্ধান করুন।', serviceId: 'services' };
+      }
+      if (/tax|খাজনা|কর|dakhila/.test(q)){
+        return { text: 'ভূমি উন্নয়ন কর (LD Tax) প্রদানের জন্য হোল্ডিং নম্বর ও কর পরিশোধের বছর নির্বাচন করুন। পেমেন্ট সম্পন্ন হলে ডিজিটাল দাখিলা পাওয়া যাবে।', serviceId: 'payments' };
+      }
+      return { text: 'আপনার প্রশ্নের জন্য সংশ্লিষ্ট সেবায় আবেদন করতে পারেন। e-Bhumi প্ল্যাটফর্মে নামজারি, পর্চা, খাজনা ও পাহাড়ি জমির ৩ডি পরিমাপ উপলব্ধ রয়েছে।', serviceId: null };
+    }
+
+    function handleUserQuery(query){
+      if (!query || !query.trim()) return;
+      const cleanQuery = query.trim();
+      const userBubble = document.createElement('div');
+      userBubble.className = 'ai-bubble ai-bubble-user';
+      userBubble.textContent = cleanQuery;
+      messages.appendChild(userBubble);
+      messages.scrollTop = messages.scrollHeight;
+
+      setTimeout(() => {
+        const resp = getAssistantResponse(cleanQuery);
+        const assistantBubble = document.createElement('div');
+        assistantBubble.className = 'ai-bubble ai-bubble-assistant';
+        assistantBubble.innerHTML = `<div>${esc(resp.text)}</div>` +
+          (resp.serviceId ? `<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+            <a class="btn small primary" href="#${esc(resp.serviceId)}" data-close-ai="true">সেবায় সরাসরি যান ↗</a>
+            ${resp.serviceId === 'gis' ? '<button type="button" class="btn small" data-open-hill="true">পাহাড় ৩ডি বিশ্লেষক ↗</button>' : ''}
+          </div>` : '');
+        messages.appendChild(assistantBubble);
+        messages.scrollTop = messages.scrollHeight;
+      }, 120);
+    }
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      const val = input.value;
+      input.value = '';
+      handleUserQuery(val);
+    };
+  }
 
   const storageKey = 'ebhumi.workspace.v3';
   let featureIndex = new Map();

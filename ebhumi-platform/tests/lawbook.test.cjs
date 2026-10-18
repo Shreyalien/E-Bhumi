@@ -3,7 +3,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const {createServer}=require('../server-v4.cjs'),{roles}=require('../lib/catalog.cjs');
 test('all-role law library and private evidence preparation with guarded specialist handoffs',async t=>{
  const root=process.env.EBHUMI_TEST_ROOT||__dirname;fs.mkdirSync(root,{recursive:true});const dataDir=fs.mkdtempSync(path.join(root,'lawbook-'));let {server}=createServer({dataDir});await new Promise(r=>server.listen(0,'127.0.0.1',r));let base='http://127.0.0.1:'+server.address().port;
- t.after(async()=>{if(server.listening)await new Promise(r=>server.close(r));fs.rmSync(dataDir,{recursive:true,force:true});});
+ t.after(async()=>{if(server.listening)await new Promise(r=>server.close(r));try{fs.rmSync(dataDir,{recursive:true,force:true,maxRetries:10,retryDelay:100});}catch{}});
  async function req(url,user,method='GET',body,status=200){const r=await fetch(base+'/api'+url,{method,headers:{'Content-Type':'application/json',...(user?{Cookie:user.cookie,'X-CSRF-Token':user.csrf}:{})},...(body!==undefined?{body:JSON.stringify(body)}:{})});const d=await r.json();assert.equal(r.status,status,method+' '+url+': '+JSON.stringify(d));return {d,r};}
  const users={};for(const role of Object.keys(roles)){const {r,d}=await req('/login',null,'POST',{email:role+'@demo.ebhumi.local',password:'BhumiDemo!2026'});users[role]={...d,cookie:r.headers.get('set-cookie').split(';')[0]};const lib=(await req('/law-library',users[role])).d;assert(lib.entries.length>=28);assert(lib.entries.every(e=>/^https:\/\//.test(e.url)));assert(lib.entries.some(e=>e.id==='vested-kha'));}
  const citizen=users.citizen,other=users.representative;

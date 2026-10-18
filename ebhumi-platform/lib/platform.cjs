@@ -57,7 +57,7 @@ function createPlatform({dataDir,seedDemo=true,newWorkflowVersion=2,deskRouting=
   const send=(status,body,headers={})=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...headers});res.end(JSON.stringify(body));};
   try{
    const route=url.pathname.slice(4),method=req.method;let auth=authenticate(req),u=auth?.user;
-   const publicRoute=route==='/catalog'||route==='/login'||route==='/register';
+   const publicRoute=route==='/catalog'||route==='/login'||route==='/register'||route.startsWith('/terrain/');
    if(!u&&!publicRoute)fail(401,'Please log in.');
    if(!['GET','POST','PATCH'].includes(method))fail(405,'Method not allowed');
    let body={};if(method!=='GET'){

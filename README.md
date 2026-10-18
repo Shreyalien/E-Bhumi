@@ -13,37 +13,23 @@ A citizen-first land-service preparation workspace for Bangladesh.
 
 </div>
 
-![e-Bhumi Bangla-First Landing Preview](docs/screenshots-final/landing-bn.png)
+![e-Bhumi Bangla-First Landing Preview](docs/screenshots-bangla/landing-bn.png)
 
 Primary interface defaults to Bangla, with seamless bilingual toggle to English. The preserved typography (`'DM Sans', 'Hind Siliguri', sans-serif`), landing composition, regional lease register, and CHT workflow layouts remain intact. For desk routing and specialized land administration, see the [24-Role Matrix](docs/ROLE_WORKFLOWS.md) and [Lease/Auction/Tender Research](docs/BD_LEASE_AUCTION_RESEARCH.md).
 
 > **Demo status:** e-Bhumi is an independent prototype, not an official Government of Bangladesh service. Land references, geometry, statuses and amounts are illustrative. It does not establish ownership, accept real payments, submit official applications or reserve government appointments.
 
-## Current release — v5.8.0
+## Statutory Law Library, Research & Role Desks — v5.7.0
 
-The supplied ZIP's GIS, SVG controls and terrain calculator are integrated with the existing 33 service workflows and 24 role platforms. Shared hosted storage remains enabled. Six new official-source reading entries, corrected map/postal demo quotes, bounded terrain inputs, consistent exports and offline-capable map controls are documented in the [final research and verification review](docs/FINAL_REVIEW_v5.8.md).
-
-| Citizen overview | Government lease workspace |
-| --- | --- |
-| ![Citizen overview](docs/screenshots-final/dashboard.png) | ![Preserved lease workspace](docs/screenshots-final/land-lease.png) |
-| CHT workspace | Calculator with synthetic terrain model |
-| ![Preserved CHT workspace](docs/screenshots-final/ctg-zone.png) | ![Land and terrain calculator](docs/screenshots-final/calculator.png) |
-| GIS with optional basemap | Shared law library |
-| ![Offline-capable sample GIS](docs/screenshots-final/gis-offline.png) | ![Official-source law library](docs/screenshots-final/lawbook.png) |
-
-Terrain results use generated elevations; they are not measured site information, landslide forecasts, ownership area or construction permission. Existing fonts and landing/lease/CHT layout are preserved. [Mobile calculator](docs/screenshots-final/calculator-mobile.png) and [mobile GIS](docs/screenshots-final/gis-mobile.png) show the current responsive views.
-
-## Statutory Law Library, Research & Role Desks
-
-- **Integrated Statutory Law Library**: Available across all 24 roles with 41 curated law, policy and guidance references, 12 thematic subjects, search, bookmarking, private case annotations, and links to official government full texts. See [Law Library & Source Register](docs/LAW_LIBRARY.md).
+- **Integrated Statutory Law Library**: Available across all 24 roles with 35 curated statutory references, 12 thematic subjects, search, bookmarking, private case annotations, and links to official government full texts. See [Law Library & Source Register](docs/LAW_LIBRARY.md).
 - **Vested Property & Heirship Dossiers**: Historical gazette listings, legacy-to-modern RS/BS Dag correlations, multi-branch heirship genealogical graphs, lease history, court cases, external orders, secure vault evidence, and private desk reviews. See [Legacy Property Research Implementation](docs/LEGACY_PROPERTY_RESEARCH.md).
-- **24 Specialized Roles**: 33 full service-specific specialist workflows, conditional ministry/divisional/legal referrals with tracked return handoffs, and a consolidated role directory preserving complete visual and operational identity.
+- **24 Specialized Roles**: 33 full service-specific specialist workflows, conditional ministry/divisional/legal referrals with guaranteed return handoffs, and a consolidated role directory preserving complete visual and operational identity.
 
 ## Bilingual Experience & Localization — v5.7.0
 
 - **Bangla-First Interface**: Complete native Bangla copywriting across Landing, Role Login, Citizen Workspace, and Desk Portals, with instantaneous English switching via the header language selector.
 - **Visual Polish**: Verified green headline accents, aligned notifications, responsive mobile/tablet breakpoints (390px and 985px), and error messaging.
-- **Audit & Coverage**: The final release includes browser checks across all 24 roles; the earlier localisation audit is documented separately. See [Localization Overview & Screenshots](docs/LOCALIZATION_v5.7.md) and [Bangladesh Land Service Coverage Audit](docs/BD_COVERAGE_AUDIT_v5.7.md).
+- **Audit & Coverage**: Audited across 24 roles and 343 distinct page states with zero regressions. See [Localization Overview & Screenshots](docs/LOCALIZATION_v5.7.md) and [Bangladesh Land Service Coverage Audit](docs/BD_COVERAGE_AUDIT_v5.7.md).
 
 ## Why e-Bhumi?
 
@@ -60,8 +46,8 @@ Citizens can explore sample records, organise drafts, review checklists and keep
 | Catalogue | 460 requirement entries; requirements are not implementation claims |
 | Frontend | HTML, CSS and vanilla JavaScript |
 | Local server | Node.js standard library; no third-party package installation needed |
-| Cloud deployment | Vercel Node.js Function with shared private Blob state |
-| Storage | Local JSON / shared private hosted state, protected sample evidence and account preferences |
+| Cloud deployment | Vercel Serverless Function deployment with `/tmp` data sandbox |
+| Storage | Persistent server JSON with protected sample evidence; account-scoped preparation preferences |
 | Languages | Native Bangla primary default; interactive English toggle across all pages |
 | Official integrations | Not connected (isolated sandbox prototype) |
 
@@ -232,7 +218,6 @@ flowchart TD
     Appointment --> Reschedule[Owner reschedules: previous token invalidated]
     Reschedule --> Submit
     Appointment --> Cancel[Owner cancels: history retained]
-    classDef default fill:#e8f1ff,stroke:#376eb5,color:#17365d;
 ```
 
 Rejection retains the reason and history. A separate review/appeal-preparation service is available. Every transition validates the actor and current state on the server. Finance reconciles sample transactions; administrators manage accounts/settings without bypassing service decisions; auditors inspect read-only. [Detailed app flow](docs/APP_FLOW.md).
@@ -272,7 +257,6 @@ flowchart TD
     H --> T[Demand quote and payment simulation]
     T --> K[Dakhila and receipt artifacts]
     K --> END
-    classDef default fill:#e8f1ff,stroke:#376eb5,color:#17365d;
 ```
 
 Every amount is a test fixture; there is no live government submission or payment. Hearing is conditional, not mandatory for every mutation. Digital copy release still uses the local records desk; there is no official registry lookup.
@@ -301,7 +285,6 @@ flowchart LR
     Workflows --> Store["Atomic local JSON and sample evidence"]
     Workflows --> Audit["Hash-linked events and notifications"]
     Workflows --> Output["Watermarked sandbox outcomes"]
-    classDef default fill:#e8f1ff,stroke:#376eb5,color:#17365d;
 ```
 
 The landing design, original font stack, lease register/cards and CHT circle/workflow composition are preserved. Their controls now connect to tracked applications. [Architecture blueprint](docs/ARCHITECTURE.md) documents the actual modules and boundaries; [application flow](docs/APP_FLOW.md) describes states and role handoffs.

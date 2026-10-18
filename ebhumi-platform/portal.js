@@ -15,8 +15,7 @@ async function api(path,{method='GET',body}={}){const r=await fetch('/api'+path,
 function toast(text){const el=$('#toast');if(!el)return;el.textContent=BhumiLanguage.text(text);el.hidden=false;clearTimeout(toast.timer);if(typeof gsap!=='undefined'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){gsap.killTweensOf(el);gsap.fromTo(el,{y:14,opacity:0,scale:0.96},{y:0,opacity:1,scale:1,duration:0.25,ease:'power2.out',clearProps:'transform'});toast.timer=setTimeout(()=>{gsap.to(el,{y:-8,opacity:0,duration:0.2,ease:'power2.in',onComplete:()=>{el.hidden=true;gsap.set(el,{clearProps:'all'});}});},4000);}else{toast.timer=setTimeout(()=>el.hidden=true,4500);}}
 function modal(title,html){const m=$('#modal');$('#modalTitle').textContent=title;$('#modalContent').innerHTML=html;if(!m.open)m.showModal();if(typeof gsap!=='undefined'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){gsap.fromTo(m,{opacity:0,scale:0.96,y:10},{opacity:1,scale:1,y:0,duration:0.24,ease:'power2.out',clearProps:'transform'});}}
 function closeModal(){const m=$('#modal');if(!m.open)return;if(typeof gsap!=='undefined'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){gsap.to(m,{opacity:0,scale:0.97,y:6,duration:0.16,ease:'power2.in',onComplete:()=>{m.close();gsap.set(m,{clearProps:'all'});}});}else{m.close();}}
-function animatePageEntrance(){if(typeof gsap==='undefined'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const elements=document.querySelectorAll('#content .panel, #content .card, #content .table-wrap');if(elements.length)gsap.fromTo(elements,{opacity:0.35,y:8},{opacity:1,y:0,duration:0.25,stagger:0.03,ease:'power1.out',clearProps:'transform,opacity'});}
-
+function animatePageEntrance(){if(typeof gsap==='undefined'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const elements=document.querySelectorAll('#content .panel, #content .card, #content .table-wrap');if(elements.length)gsap.fromTo(elements,{opacity:0.35,y:8},{opacity:1,y:0,duration:0.25,stagger:0.03,ease:'power1.out',clearProps:'transform,opacity'});const metrics=document.querySelectorAll('#content .panel.metric strong');metrics.forEach(m=>{const v=parseInt(m.textContent,10);if(!isNaN(v)&&v>0){const o={c:0};gsap.to(o,{c:v,duration:0.4,ease:'power1.out',onUpdate:()=>{m.textContent=Math.round(o.c);}});}});}
 function download(name,text,type='application/json'){const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function date(v){return v?new Date(v).toLocaleString(state.preferences?.language==='bn'?'bn-BD':'en-GB',{timeZone:'Asia/Dhaka',dateStyle:'medium',timeStyle:'short'}):'—';}
 const bnStatuses={Draft:'খসড়া (Draft)',Submitted:'দাখিলকৃত (Submitted)',UnderReview:'পর্যালোচনায় (Under Review)',CorrectionRequested:'সংশোধন প্রয়োজন',HearingScheduled:'শুনানি নির্ধারিত',AwaitingPayment:'ফি অপেক্ষমাণ',ReadyForDelivery:'সরবরাহ প্রস্তুতি',Completed:'সম্পন্ন (Completed)',Rejected:'প্রত্যাখ্যাত (Rejected)',Withdrawn:'প্রত্যাহারকৃত (Withdrawn)',Cancelled:'বাতিল (Cancelled)',PaymentFailed:'পেমেন্ট ব্যর্থ'};
@@ -68,12 +67,11 @@ function documentsPage(){return heading('EVIDENCE VAULT','ডকুমেন্�
 function hearings(){const list=state.applications.filter(a=>a.status==='HearingScheduled');return heading('CALENDAR','শুনানি ও office review','Future hearing timestamps come from staff actions; these are not government bookings.')+`<div class="grid">${list.map(a=>`<article class="card"><span class="badge amber">${date(a.hearingAt)}</span><h3>${esc(a.service.name)}</h3><p>${esc(a.id)}<br>${esc(a.details.applicant)}</p><a class="btn" href="#application/${a.id}">Open hearing file →</a></article>`).join('')||'<section class="panel"><p>No hearings scheduled.</p></section>'}</div>`;}
 function landPage(){return heading('PARCEL CONTEXT','জমির passport ও timeline','Sample record history is kept separate from your submitted evidence and decisions.')+`<div class="grid">${state.parcels.map(p=>`<article class="card"><span class="badge gray">${p.source} · ${p.survey}</span><h3>${p.id} · ${esc(p.mouza)}</h3><p>Khatian ${p.khatian} · ${p.area} decimal<br>${esc(p.upazila)}, ${esc(p.district)}</p><a class="btn" href="#parcel/${p.id}">Timeline & evidence context ↗</a></article>`).join('')}</div>`;}
 function parcelDetail(p){const apps=state.applications.filter(a=>normalize(a.details.dag||'').includes(p.id.slice(4)));return heading('LAND PASSPORT',p.id,p.mouza+' · '+p.area+' decimal')+`<div class="grid two"><section class="panel"><h2>Sample record timeline</h2><div class="timeline">${p.timeline.map(t=>`<article><b>${esc(t.year)} · ${esc(t.label)}</b><p>DEMO source, not government verified.</p></article>`).join('')}</div></section><section class="panel"><h2>Evidence & discrepancy review</h2><p>Compare your deed area, record area, names and chain references. A difference signals a question for official review; it does not establish fraud or title.</p><a class="btn" href="#tools">Open comparison tools →</a></section></div><section class="panel"><h2>Visible applications mentioning this Dag</h2>${applicationTable(apps)}</section>`;}
-function gisPage(){return heading('SCHEMATIC GIS','Parcel map & list','Illustrative parcel geometry over an optional OpenStreetMap basemap. Boundaries and areas are independent demo fixtures.')+`<div class="split"><section class="panel"><div class="toolbar"><label class="check"><input id="mapParcels" type="checkbox" checked>Parcels</label><label class="check"><input id="mapWater" type="checkbox" checked>Water</label><label class="check"><input id="mapLabels" type="checkbox" checked>Labels</label>${btn('−','map-zoom','data-scale="0.9"')}${btn('+','map-zoom','data-scale="1.1"')}${btn('⛰️ Hill 3D Area','hill-gis-btn')}</div><p id="mapNetworkStatus" role="status">Sample parcel boundaries; external basemap is optional.</p><div id="leafletMap" style="height:380px; width:100%; border-radius:10px; margin-bottom:12px; border:1px solid var(--line); z-index:1; overflow:hidden;"></div><div class="map-canvas" id="mapCanvas" style="display:none"><div class="map-river"></div>${state.parcels.map((p,i)=>`<button style="left:${5+(i%6)*15}%;top:${10+Math.floor(i/6)*21}%;width:13%;height:17%" class="plot ${p.id===state.selectedParcel?'selected':''}" data-action="select-parcel" data-id="${p.id}" aria-label="Select ${p.id}">${p.id}</button>`).join('')}</div></section><section class="panel" id="mapInfo">${mapInfo()}</section></div><section class="panel"><h2>Accessible parcel list</h2><div class="actions">${state.parcels.map(p=>btn(p.id+' · '+p.area+' decimal','select-parcel',`data-id="${p.id}"`)).join('')}</div></section>`;}
-let _leafletMapInstance = null, _leafletPolygons = {};
+function gisPage(){return heading('SCHEMATIC GIS','Parcel map & list','This is an illustrative sample map with cadastral parcel geometry.')+`<div class="split"><section class="panel"><div class="toolbar"><label class="check"><input id="mapParcels" type="checkbox" checked>Parcels</label><label class="check"><input id="mapWater" type="checkbox" checked>Water</label><label class="check"><input id="mapLabels" type="checkbox" checked>Labels</label><label style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;margin-left:6px;"><span>স্তর / View:</span><select id="mapLayerSelect" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;font-family:inherit;background:var(--bg-canvas,#f7faf8);color:inherit;"><option value="satellite" selected>স্যাটেলাইট ভিউ (Esri Satellite)</option><option value="street">মৌজা ও সড়ক নকশা (Street Map)</option></select></label><label style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;margin-left:6px;"><span>স্থান ও পাহাড় / Site:</span><select id="mapSiteSelect" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;font-family:inherit;background:var(--bg-canvas,#f7faf8);color:inherit;"><option value="savar">আমিন বাজার, সাভার (Savar Plain Land)</option><option value="batali-hill">বাটালি পাহাড়, চট্টগ্রাম (Batali Hill 3D Area)</option><option value="chimbuk-hill">চিম্বুক পাহাড়, বান্দরবান (Chimbuk Hill 3D Area)</option><option value="keokradong">কেওক্রাডং শৈলশিরা, রুমা (Keokradong Ridge)</option><option value="chandranath">চন্দ্রনাথ পাহাড়, সীতাকুণ্ড (Chandranath Sitakunda)</option><option value="jaflong-ridge">জাফলং পাহাড় ও টিলা, সিলেট (Jaflong Sylhet)</option></select></label>${btn('−','map-zoom','data-scale="0.9"')}${btn('+','map-zoom','data-scale="1.1"')}${btn('Hill 3D Topographic Area','hill-gis-btn')}</div><div id="leafletMap" style="height:400px; width:100%; border-radius:10px; margin-bottom:12px; border:1px solid var(--line); z-index:1; overflow:hidden;"></div><div class="map-canvas" id="mapCanvas" style="display:none"><div class="map-river"></div>${state.parcels.map((p,i)=>`<button style="left:${5+(i%6)*15}%;top:${10+Math.floor(i/6)*21}%;width:13%;height:17%" class="plot ${p.id===state.selectedParcel?'selected':''}" data-action="select-parcel" data-id="${p.id}" aria-label="Select ${p.id}">${p.id}</button>`).join('')}</div></section><section class="panel" id="mapInfo">${mapInfo()}</section></div><section class="panel"><h2>Accessible parcel list</h2><div class="actions">${state.parcels.map(p=>btn(p.id+' · '+p.area+' decimal','select-parcel',`data-id="${p.id}"`)).join('')}</div></section>`;}
+let _leafletMapInstance = null, _leafletPolygons = {}, _leafletBaseLayers = {}, _leafletHillLayer = null;
 function initLeafletMap(containerId = 'leafletMap') {
   const container = document.getElementById(containerId);
-  if (!container) return;
-  if(typeof L==='undefined'){container.hidden=true;const fallback=$('#mapCanvas');if(fallback)fallback.style.display='';return;}
+  if (!container || typeof L === 'undefined') return;
   if (container._leaflet_id && _leafletMapInstance) {
     setTimeout(() => _leafletMapInstance.invalidateSize(), 100);
     return;
@@ -82,18 +80,122 @@ function initLeafletMap(containerId = 'leafletMap') {
     const map = L.map(containerId, {
       center: [23.7848, 90.3348],
       zoom: 16,
-      fadeAnimation: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-      zoomAnimation: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       zoomControl: true,
       attributionControl: true
     });
     _leafletMapInstance = map;
-    const baseTiles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors | e-Bhumi GIS'
-    }).addTo(map);
-    map._baseTiles=baseTiles;
-    baseTiles.on('tileerror',()=>{const status=$('#mapNetworkStatus');if(status)status.textContent='Basemap unavailable. Sample parcel shapes and the accessible parcel list remain available.';});
+      attribution: 'Tiles &copy; Esri, Earthstar Geographics | e-Bhumi Satellite'
+    });
+
+    const streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors © CARTO | e-Bhumi GIS'
+    });
+
+    satelliteLayer.addTo(map);
+    _leafletBaseLayers = {
+      satellite: satelliteLayer,
+      street: streetLayer
+    };
+
+    L.control.layers({
+      'স্যাটেলাইট ভিউ (Satellite)': satelliteLayer,
+      'মৌজা নকশা (Street Map)': streetLayer
+    }, null, { position: 'topright' }).addTo(map);
+
+    map.on('baselayerchange', (e) => {
+      const sel = document.getElementById('mapLayerSelect');
+      if (sel) sel.value = e.name.includes('Satellite') ? 'satellite' : 'street';
+    });
+
+    const select = document.getElementById('mapLayerSelect');
+    if (select) {
+      select.onchange = (e) => {
+        if (e.target.value === 'street') {
+          if (map.hasLayer(satelliteLayer)) map.removeLayer(satelliteLayer);
+          if (!map.hasLayer(streetLayer)) map.addLayer(streetLayer);
+        } else {
+          if (map.hasLayer(streetLayer)) map.removeLayer(streetLayer);
+          if (!map.hasLayer(satelliteLayer)) map.addLayer(satelliteLayer);
+        }
+      };
+    }
+
+    const siteSelect = document.getElementById('mapSiteSelect');
+    if (siteSelect) {
+      siteSelect.onchange = (e) => {
+        const val = e.target.value;
+        if (_leafletHillLayer) {
+          map.removeLayer(_leafletHillLayer);
+          _leafletHillLayer = null;
+        }
+
+        if (val === 'savar') {
+          map.flyTo([23.7848, 90.3348], 16, { duration: 1.2 });
+          Object.values(_leafletPolygons).forEach(poly => {
+            if (!map.hasLayer(poly)) map.addLayer(poly);
+          });
+          const mi = document.getElementById('mapInfo');
+          if (mi) mi.innerHTML = mapInfo();
+        } else if (typeof HILL_PRESETS !== 'undefined' && HILL_PRESETS[val]) {
+          const hill = HILL_PRESETS[val];
+          const r = typeof runClientTerrainAnalysis === 'function' ? runClientTerrainAnalysis(val) : null;
+          
+          map.flyTo(hill.center || hill.polygon[0], 15, { duration: 1.5 });
+
+          Object.values(_leafletPolygons).forEach(poly => {
+            if (map.hasLayer(poly)) map.removeLayer(poly);
+          });
+
+          _leafletHillLayer = L.polygon(hill.polygon, {
+            color: '#f59e0b',
+            fillColor: '#10b981',
+            fillOpacity: 0.45,
+            weight: 3.5
+          }).addTo(map);
+
+          const hillInfoHtml = `
+            <div style="font-family:'Hind Siliguri','Plus Jakarta Sans',sans-serif;font-size:13px;line-height:1.5;">
+              <b style="color:#173e33;font-size:14px;">${hill.name}</b><br>
+              <span style="color:#527367;">${hill.region || 'বাংলাদেশ'} · Metric UTM 46N</span><br>
+              <hr style="border:0;border-top:1px solid #e2e8f0;margin:6px 0;">
+              <span>আনুভূমিক রেকর্ড (Projected): <b>${r ? Number(r.projected_m2).toLocaleString('en-US', {maximumFractionDigits:1}) : ''} m²</b> (${r ? (r.units.projected.decimal).toFixed(2) : ''} শতক)</span><br>
+              <span>প্রকৃত ৩ডি পৃষ্ঠতল (True 3D): <b style="color:#2d6a4f;">${r ? Number(r.surface_m2).toLocaleString('en-US', {maximumFractionDigits:1}) : ''} m²</b> (${r ? (r.units.surface.decimal).toFixed(2) : ''} শতক)</span><br>
+              <span>পাহাড়ে অতিরিক্ত জমি: <b style="color:#b45309;">+${r ? r.diff_pct.toFixed(1) : ''}% (+${r ? Number(r.diff_m2).toLocaleString('en-US', {maximumFractionDigits:1}) : ''} m²)</b></span><br>
+              <span>উচ্চতা ব্যবধান: <b>${hill.baseElevation}m</b> - <b>${hill.peakElevation}m</b> (গড় ঢাল: ${r ? r.slope.mean.toFixed(1) : ''}°)</span>
+            </div>
+          `;
+
+          _leafletHillLayer.bindPopup(hillInfoHtml).openPopup();
+
+          const mi = document.getElementById('mapInfo');
+          if (mi && r) {
+            mi.innerHTML = `
+              <h2>${hill.name}</h2>
+              <div class="badge green">Mountain 3D Topographic Analysis</div>
+              <p style="margin:8px 0;font-size:13px;color:#527367;">${hill.desc}</p>
+              <div class="panel metric" style="margin:8px 0;border-left:4px solid #2d6a4f;background:#f0fff4;">
+                <span style="color:#22543d;">প্রকৃত ৩ডি পাহাড় পৃষ্ঠতল ক্ষেত্রফল</span>
+                <strong style="color:#22543d;">${Number(r.surface_m2).toLocaleString('en-US', {maximumFractionDigits:1})} m²</strong>
+                <small style="color:#22543d;font-weight:600;">${(r.units.surface.decimal).toFixed(2)} শতক (${(r.units.surface.acre).toFixed(3)} একর)</small>
+              </div>
+              <div class="panel metric" style="margin:8px 0;border-left:4px solid #b7791f;background:#fffaf0;">
+                <span style="color:#7b341e;">পাহাড়ে অতিরিক্ত বাস্তব জমি (Topographic Gain)</span>
+                <strong style="color:#7b341e;">+${r.diff_pct.toFixed(1)}% (+${Number(r.diff_m2).toLocaleString('en-US', {maximumFractionDigits:1})} m²)</strong>
+                <small style="color:#7b341e;">খতিয়ানের চেয়ে +${(r.units.surface.decimal - r.units.projected.decimal).toFixed(2)} শতক অতিরিক্ত ভূমি</small>
+              </div>
+              <div class="actions" style="margin-top:10px;">
+                <button class="btn primary" data-action="hill-gis-btn">বিস্তারিত ঢাল ও মাটি কাটার হিসাব ↗</button>
+              </div>
+            `;
+          }
+        }
+      };
+    }
 
     const parcelDefs = [
       { id: 'DAG-1842', coords: [[23.7850, 90.3330], [23.7855, 90.3345], [23.7848, 90.3350], [23.7842, 90.3335]], color: '#2d6a4f', name: 'DAG-1842', area: '12.50 decimal' },
@@ -104,19 +206,18 @@ function initLeafletMap(containerId = 'leafletMap') {
 
     _leafletPolygons = {};
     parcelDefs.forEach(p => {
-      const reference=state.parcels.find(item=>item.id===p.id);if(reference){p.area=reference.area+' decimal';p.mouza=reference.mouza;}
       const isSel = p.id === state.selectedParcel;
       const poly = L.polygon(p.coords, {
-        color: p.color,
+        color: isSel ? '#ffffff' : p.color,
         fillColor: p.color,
-        fillOpacity: isSel ? 0.65 : 0.28,
-        weight: isSel ? 3 : 1.5
+        fillOpacity: isSel ? 0.65 : 0.42,
+        weight: isSel ? 3.5 : 2.2
       }).addTo(map);
-      poly.bindTooltip(p.id,{permanent:true,direction:'center'});
+
       poly.bindPopup(`
-        <div style="font-family:inherit;font-size:13px;line-height:1.5;">
+        <div style="font-family:'Hind Siliguri','Plus Jakarta Sans',sans-serif;font-size:13px;line-height:1.5;">
           <b style="font-size:14px;color:#173e33">${p.name}</b><br>
-          <span>মৌজা: ${esc(p.mouza||'DEMO')}</span><br>
+          <span>মৌজা: আমিন বাজার (Savar)</span><br>
           <span>পরিমাপ: <b>${p.area}</b></span><br>
           <div style="margin-top:6px;"><a href="#parcel/${p.id}" style="color:#266b56;font-weight:600;text-decoration:underline;">খতিয়ান পাসপোর্ট ↗</a></div>
         </div>
@@ -165,7 +266,7 @@ function settingsPage(){return heading('PLATFORM CONTROL','Sandbox settings','Ch
 function profile(){const isBn=state.preferences?.language==='bn';return heading(isBn?'আপনার একাউন্ট':'YOUR ACCOUNT',state.user.name,roleName()).replace('<h1>','<h1 data-user-content>')+`<form id="profileForm" class="panel"><div class="form-grid"><label>${isBn?'নাম / Display name':'Display name'}<input name="name" value="${esc(state.user.name)}" required maxlength="80"></label><label>${isBn?'ইমেইল (রিড অনলি)':'Email (read only)'}<input value="${esc(state.user.email)}" readonly></label><label>${isBn?'বর্তমান পাসওয়ার্ড':'Current password (for password change)'}<input name="currentPassword" type="password" autocomplete="current-password"></label><label>${isBn?'নতুন পাসওয়ার্ড (ঐচ্ছিক, ১২+ অক্ষর)':'New password (optional, 12+ characters)'}<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label></div><p class="help">${isBn?'রোল পরিবর্তন কেবলমাত্র অ্যাডমিনিস্ট্রেটর করতে পারেন।':'Role changes require an administrator; there is no client-side role switch.'}</p><div class="actions"><button class="btn primary">${isBn?'সংরক্ষণ করুন':'Save account'}</button></div></form><section class="panel" style="border-color:#e4bcb2"><h2 style="color:#b84e47">${isBn?'সেশন সমাপ্তি / লগআউট':'Sign out of session'}</h2><p class="muted">${isBn?'এই ডিভাইসের বর্তমান সেশন সমাপ্ত করে লগইন পৃষ্ঠায় ফিরে যান।':'End your active session on this device and return to the login screen.'}</p><div class="actions">${btn(isBn?'সেশন সমাপ্তি / লগআউট':'Sign out of this session','logout','class="btn danger"')}</div></section>`;}
 function notificationsPage(){return heading('UPDATES','বিজ্ঞপ্তি','Notifications are created from actual local case transitions.')+`<section class="panel"><div class="actions">${btn('Mark all read','read-notices')}</div>${[...state.notifications].reverse().map(n=>`<article class="evidence"><b>${n.read?'':'● '}${esc(n.title)}</b><p>${date(n.at)}</p><a class="source-link" href="#${String(n.reference).startsWith('LEG-')?'legacy-cases':'application'}/${n.reference}">Open application →</a></article>`).join('')||'<p class="empty">No notifications yet.</p>'}</section>`;}
 async function render(){const revision=++renderId;nav();const [page='dashboard',id]=location.hash.slice(1).split('/');const allowed=new Set(menuItems().map(([key])=>key));if(!allowed.has(page)&&!['service','wizard','application','parcel','land-search','my-land','land-lease','ctg-zone','due-diligence','ai-assistant','casebook','appointments','calculator','truth-card','land-dossier','analytics','feature-catalog','admin','land','tools','features'].includes(page)){location.hash='dashboard';return;}let html;
-try{if((['service','wizard','land-lease','ctg-zone','casebook','appointments','ai-assistant','due-diligence','land-search'].includes(page)&&!applicant())||(page==='admin'&&!applicant()&&state.user.role!=='admin'))throw Error('This portal cannot create citizen applications.');switch(page){case'truth-card':html=landDossiersPage();break;case'land-dossier':html=await landDossierPage(id);break;case'land-search':html=landSearchPage();break;case'my-land':html=landPage();break;case'land-lease':html=leaseWorkspace();break;case'ctg-zone':html=chtWorkspace();break;case'due-diligence':html=diligenceWorkspace();break;case'ai-assistant':html=assistantWorkspace();break;case'casebook':html=caseRegister('Cases & Complaints','Track evidence, decisions and next steps for each case.',['revenue-case','review','appeal','rent-case','complaint']);break;case'appointments':html=appointmentsWorkspace();break;case'calculator':html=calculatorWorkspace();break;case'analytics':html=citizenAnalytics();break;case'feature-catalog':html=await featurePage();break;case'admin':html=applicant()?citizenAdministration():await usersPage();break;case'dashboard':html=dashboard();break;case'services':html=servicesPage();break;case'service':{const s=service(id);if(!s)throw Error('Service not found');html=serviceDetail(s);break;}case'wizard':{const a=getApp(id);if(!a)throw Error('Application not found');html=wizard(a);break;}case'application':{const a=getApp(id);if(!a)throw Error('Application not found');html=detail(a);break;}case'applications':case'queue':html=applicationsPage(page==='queue');break;case'documents':html=documentsPage();break;case'payments':html=paymentsPage();break;case'hearings':html=hearings();break;case'land':html=landPage();break;case'parcel':{const p=state.parcels.find(p=>p.id===id);if(!p)throw Error('Parcel not found');html=parcelDetail(p);break;}case'gis':html=gisPage();break;case'tools':html=toolsPage();break;case'support':html=supportPage();break;case'knowledge':html=knowledge();break;case'features':html=await featurePage();break;case'reports':html=reports();break;case'audit':html=await auditPage();break;case'users':html=await usersPage();break;case'settings':html=settingsPage();break;case'profile':html=profile();break;case'notifications':html=notificationsPage();break;default:html=dashboard();}if(revision!==renderId)return;if(_leafletMapInstance){_leafletMapInstance.remove();_leafletMapInstance=null;_leafletPolygons={};}$('#content').innerHTML=html+(applicant()?pageNotes(): '');animatePageEntrance();document.title=($('#content h1')?.textContent||'Workspace')+' | '+state.user.role+' | e-Bhumi';if(page==='gis')setTimeout(()=>initLeafletMap('leafletMap'),50);if((page==='tools'||page==='calculator')&&typeof attachHillTerrainListeners==='function')setTimeout(()=>attachHillTerrainListeners(),50);}catch(error){$('#content').innerHTML=`<section class="panel"><h1>Unable to open this view</h1><p class="error">${esc(error.message)}</p><a href="#dashboard" class="btn">Return to overview</a></section>`;}}
+try{if((['service','wizard','land-lease','ctg-zone','casebook','appointments','ai-assistant','due-diligence','land-search'].includes(page)&&!applicant())||(page==='admin'&&!applicant()&&state.user.role!=='admin'))throw Error('This portal cannot create citizen applications.');switch(page){case'truth-card':html=landDossiersPage();break;case'land-dossier':html=await landDossierPage(id);break;case'land-search':html=landSearchPage();break;case'my-land':html=landPage();break;case'land-lease':html=leaseWorkspace();break;case'ctg-zone':html=chtWorkspace();break;case'due-diligence':html=diligenceWorkspace();break;case'ai-assistant':html=assistantWorkspace();break;case'casebook':html=caseRegister('Cases & Complaints','Track evidence, decisions and next steps for each case.',['revenue-case','review','appeal','rent-case','complaint']);break;case'appointments':html=appointmentsWorkspace();break;case'calculator':html=calculatorWorkspace();break;case'analytics':html=citizenAnalytics();break;case'feature-catalog':html=await featurePage();break;case'admin':html=applicant()?citizenAdministration():await usersPage();break;case'dashboard':html=dashboard();break;case'services':html=servicesPage();break;case'service':{const s=service(id);if(!s)throw Error('Service not found');html=serviceDetail(s);break;}case'wizard':{const a=getApp(id);if(!a)throw Error('Application not found');html=wizard(a);break;}case'application':{const a=getApp(id);if(!a)throw Error('Application not found');html=detail(a);break;}case'applications':case'queue':html=applicationsPage(page==='queue');break;case'documents':html=documentsPage();break;case'payments':html=paymentsPage();break;case'hearings':html=hearings();break;case'land':html=landPage();break;case'parcel':{const p=state.parcels.find(p=>p.id===id);if(!p)throw Error('Parcel not found');html=parcelDetail(p);break;}case'gis':html=gisPage();break;case'tools':html=toolsPage();break;case'support':html=supportPage();break;case'knowledge':html=knowledge();break;case'features':html=await featurePage();break;case'reports':html=reports();break;case'audit':html=await auditPage();break;case'users':html=await usersPage();break;case'settings':html=settingsPage();break;case'profile':html=profile();break;case'notifications':html=notificationsPage();break;default:html=dashboard();}if(revision!==renderId)return;$('#content').innerHTML=html+(applicant()?pageNotes(): '');animatePageEntrance();document.title=($('#content h1')?.textContent||'Workspace')+' | '+state.user.role+' | e-Bhumi';if(page==='gis')setTimeout(()=>initLeafletMap('leafletMap'),50);if((page==='tools'||page==='calculator')&&typeof attachHillTerrainListeners==='function')setTimeout(()=>attachHillTerrainListeners(),50);}catch(error){$('#content').innerHTML=`<section class="panel"><h1>Unable to open this view</h1><p class="error">${esc(error.message)}</p><a href="#dashboard" class="btn">Return to overview</a></section>`;}}
 async function replaceApp(a){const index=state.applications.findIndex(x=>x.id===a.id);if(index>=0)state.applications[index]=a;else state.applications.unshift(a);}
 async function saveWizard(a){const form=$('#wizardForm');if(!form)return a;const details={...a.details};for(const [name,value]of new FormData(form)){if(name.startsWith('d_'))details[name.slice(2)]=String(value);}if(state.step===0)details.eligibility=Boolean(form.querySelector('[name=d_eligibility]')?.checked);if(details.area)details.area=normalize(details.area);const data=await api('/applications/'+a.id,{method:'PATCH',body:{revision:a.revision,details,documentIds:a.documentIds}});await replaceApp(data.application);return data.application;}
 async function uploadEvidence(a,category,name,content){const {document:d}=await api('/documents',{method:'POST',body:{name,category,content}});state.documents.unshift(d);const {application}=await api('/applications/'+a.id,{method:'PATCH',body:{revision:a.revision,details:a.details,documentIds:[...a.documentIds,d.id]}});await replaceApp(application);toast('Sample evidence saved & hashed');render();}
@@ -198,12 +299,12 @@ const actionHandlers={
   print(){window.print();},
   'edit-user'(el){const u=state.users.find(u=>u.id===el.dataset.id);modal('Edit role/access',`<form id="accessForm" data-id="${u.id}"><p>${esc(u.name)} · ${esc(u.email)}</p><label>Role<select name="role">${Object.entries(state.catalog.roles).map(([k,v])=>`<option value="${k}" ${k===u.role?'selected':''}>${esc(v)}</option>`).join('')}</select></label><label class="check"><input type="checkbox" name="active" ${u.active?'checked':''}>Account active</label><p class="help">Saving revokes this account's current login sessions.</p><button class="btn primary">Save access</button><p class="error" id="modalError" role="alert"></p></form>`);},
   async 'read-notices'(){await api('/notifications/read',{method:'POST',body:{}});await refresh();render();},
-  'hill-gis-btn'(){location.hash='calculator';},
+  'hill-gis-btn'(){modal('পাহাড় ৩ডি পৃষ্ঠতল ও ঢাল বিশ্লেষক (3D Hill Surface & Slope Analyzer)', typeof renderHillTerrainHTML==='function'?renderHillTerrainHTML():'');if(typeof attachHillTerrainListeners==='function')attachHillTerrainListeners();},
   async logout(){try{await api('/logout',{method:'POST',body:{}});}catch(e){}location.assign('/login.html');}
 };
 async function doTransition(a,action,extra={}){const data=await api('/applications/'+a.id+'/action',{method:'POST',body:{action,revision:a.revision,...extra}});await replaceApp(data.application);await refresh();toast('Saved: '+data.application.status);render();}
 document.addEventListener('click',async e=>{const close=e.target.closest('[data-close-modal]');if(close)closeModal();const el=e.target.closest('[data-action]');if(!el)return;e.preventDefault();const handler=actionHandlers[el.dataset.action];if(!handler)return;el.disabled=true;try{await handler(el);}catch(error){toast(error.message);const target=$('#modalError')||$('#formError');if(target)target.textContent=error.message;if(/changed/.test(error.message)){await refresh();render();}}finally{el.disabled=false;}});
-document.addEventListener('change',async e=>{try{if(e.target.id==='d_division'){const district=$('#d_district');district.innerHTML='<option value="">Select…</option>'+(divisions[e.target.value]||[]).map(d=>`<option>${esc(d)}</option>`).join('');}if(e.target.dataset.uploadCategory){const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024)throw Error('Maximum sample file size is 2 MiB');const content=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.onerror=reject;r.readAsDataURL(file);});await uploadEvidence(getApp(e.target.dataset.application),e.target.dataset.uploadCategory,file.name,content);}if(e.target.id==='applicationStatus')filterApplications();if(e.target.id==='serviceCategory')filterServices();if(e.target.id==='featurePriority'){state.featurePriority=e.target.value;state.featureLimit=20;$('#featureResults').innerHTML=featureCards();}if(e.target.id==='featureModule'){state.featureModule=e.target.value;state.featureLimit=20;$('#featureResults').innerHTML=featureCards();}if(e.target.id==='mapWater'){$('.map-river').hidden=!e.target.checked;if(_leafletMapInstance?._baseTiles){if(e.target.checked)_leafletMapInstance._baseTiles.addTo(_leafletMapInstance);else _leafletMapInstance.removeLayer(_leafletMapInstance._baseTiles);}}if(e.target.id==='mapParcels'){$$('.plot').forEach(p=>p.classList.toggle('hidden',!e.target.checked));for(const p of Object.values(_leafletPolygons)){if(e.target.checked)p.addTo(_leafletMapInstance);else _leafletMapInstance.removeLayer(p);}}if(e.target.id==='mapLabels'){$$('.plot').forEach(p=>p.textContent=e.target.checked?p.dataset.id:'');for(const [id,p]of Object.entries(_leafletPolygons)){if(e.target.checked)p.bindTooltip(id,{permanent:true,direction:'center'});else p.unbindTooltip();}}}catch(error){toast(error.message);}});
+document.addEventListener('change',async e=>{try{if(e.target.id==='d_division'){const district=$('#d_district');district.innerHTML='<option value="">Select…</option>'+(divisions[e.target.value]||[]).map(d=>`<option>${esc(d)}</option>`).join('');}if(e.target.dataset.uploadCategory){const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024)throw Error('Maximum sample file size is 2 MiB');const content=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.onerror=reject;r.readAsDataURL(file);});await uploadEvidence(getApp(e.target.dataset.application),e.target.dataset.uploadCategory,file.name,content);}if(e.target.id==='applicationStatus')filterApplications();if(e.target.id==='serviceCategory')filterServices();if(e.target.id==='featurePriority'){state.featurePriority=e.target.value;state.featureLimit=20;$('#featureResults').innerHTML=featureCards();}if(e.target.id==='featureModule'){state.featureModule=e.target.value;state.featureLimit=20;$('#featureResults').innerHTML=featureCards();}if(e.target.id==='mapWater')$('.map-river').hidden=!e.target.checked;if(e.target.id==='mapParcels')$$('.plot').forEach(p=>p.classList.toggle('hidden',!e.target.checked));if(e.target.id==='mapLabels')$$('.plot').forEach(p=>p.textContent=e.target.checked?p.dataset.id:'');}catch(error){toast(error.message);}});
 function filterServices(){const q=normalize($('#serviceSearch').value),cat=$('#serviceCategory').value;$('#serviceGrid').innerHTML=serviceCards(state.catalog.services.filter(s=>(cat==='all'||s.category===cat)&&normalize(s.name+' '+s.en+' '+s.description).includes(q)));}
 function filterApplications(){const q=normalize($('#applicationSearch').value),status=$('#applicationStatus').value;$('#applicationResults').innerHTML=applicationTable(state.applications.filter(a=>(location.hash!=='#queue'||a.service.reviewer===state.user.role)&&(status==='all'||a.status===status)&&normalize(a.id+' '+a.service.name+' '+a.owner+' '+Object.values(a.details).join(' ')).includes(q)));}
 document.addEventListener('input',e=>{if(e.target.id==='serviceSearch')filterServices();if(e.target.id==='applicationSearch')filterApplications();if(e.target.id==='featureSearch'){state.featureQuery=e.target.value;state.featureLimit=20;$('#featureResults').innerHTML=featureCards();}});
@@ -231,7 +332,111 @@ $('#menu').onclick=()=>{const open=$('#sidebar').classList.toggle('open');$('#me
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#globalSearch').focus();}});
 window.addEventListener('hashchange',async()=>{closeModal();$('#content').setAttribute('aria-busy','true');$('#content').inert=true;try{await flushPageNotes();await refresh();await render();window.scrollTo(0,0);}catch(error){toast(error.message);}finally{$('#content').inert=false;$('#content').removeAttribute('aria-busy');}});
 setInterval(async()=>{if(!state.user||document.hidden||document.activeElement?.matches('input,textarea,select')||$('#modal').open||location.hash.startsWith('#wizard')||location.hash.startsWith('#land-dossier/')||['#profile','#users','#settings','#tools','#knowledge'].includes(location.hash))return;try{await refresh();if(['#dashboard','#queue','#applications','#notifications','#payments'].includes(location.hash)||location.hash.startsWith('#application/'))await render();}catch{}},15000);
-async function init(){initTheme();initColorVariant();try{const [catalog,me]=await Promise.all([api('/catalog'),api('/me')]);state.catalog=catalog;state.user=me.user;state.csrf=me.csrf;state.settings=me.settings;if(location.pathname!=='/portal/'+state.user.role)history.replaceState(null,'','/portal/'+state.user.role+(location.hash||'#dashboard'));$('#sandboxBanner').append(' '+state.settings.notice);await refresh();state.preferences.language=state.preferences.language||'bn';document.documentElement.lang=state.preferences.language;applyTheme(localStorage.getItem('ebhumi_theme')||'light');initColorVariant();await render();}catch(error){$('#content').innerHTML=`<section class="panel"><h1>Workspace unavailable</h1><p>${esc(error.message)}</p><a class="btn" href="/login.html">Sign in again</a></section>`;}}
+function initAiFloatingChatbot(){
+  const container=document.getElementById('aiFloatingContainer');
+  const btn=document.getElementById('aiFloatingBtn');
+  const card=document.getElementById('aiFloatingCard');
+  const close=document.getElementById('aiCardClose');
+  const form=document.getElementById('aiFloatingForm');
+  const input=document.getElementById('aiFloatingInput');
+  const messages=document.getElementById('aiFloatingMessages');
+  if(!container||!btn||!card||!form||!input||!messages)return;
+
+  function toggleCard(open){
+    const isCurrentlyHidden = card.hidden || card.classList.contains('hidden') || card.style.display === 'none';
+    const shouldOpen = open !== undefined ? open : isCurrentlyHidden;
+    card.hidden = !shouldOpen;
+    card.classList.toggle('hidden', !shouldOpen);
+    card.style.display = shouldOpen ? 'flex' : 'none';
+    if(shouldOpen){
+      setTimeout(()=>input.focus(),50);
+      messages.scrollTop=messages.scrollHeight;
+    }
+  }
+
+  btn.onclick=e=>{e.stopPropagation();toggleCard();};
+  if(close)close.onclick=e=>{e.preventDefault();e.stopPropagation();toggleCard(false);};
+
+  document.addEventListener('click',e=>{
+    const isCurrentlyHidden = card.hidden || card.classList.contains('hidden') || card.style.display === 'none';
+    if(!isCurrentlyHidden&&!container.contains(e.target)){
+      toggleCard(false);
+    }
+  });
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      const isCurrentlyHidden = card.hidden || card.classList.contains('hidden') || card.style.display === 'none';
+      if(!isCurrentlyHidden)toggleCard(false);
+    }
+  });
+
+  container.addEventListener('click',e=>{
+    const chip=e.target.closest('.ai-chip');
+    if(chip&&chip.dataset.ask){
+      e.preventDefault();
+      handleUserQuery(chip.dataset.ask);
+    }
+    const closeAi=e.target.closest('[data-close-ai]');
+    if(closeAi)toggleCard(false);
+    const hillBtn=e.target.closest('[data-open-hill]');
+    if(hillBtn){
+      toggleCard(false);
+      if(actionHandlers['hill-gis-btn'])actionHandlers['hill-gis-btn']();
+    }
+  });
+
+  function getAssistantResponse(query){
+    if(typeof assistantReply==='function')return assistantReply(query);
+    const q=normalize(query);
+    if(/পাহাড়|hill|terrain|ঢাল/.test(q)){
+      return {text:'পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষণে বাস্তব জমি মানচিত্রের চেয়ে বেশি থাকে। GIS ম্যাপে স্যাটেলাইট ভিউ ও "Hill 3D Topographic Area" ব্যবহার করে বাস্তব পৃষ্ঠতল পরিমাপ করুন।',serviceId:'gis'};
+    }
+    if(/নামজারি|namjari|mutation/.test(q)){
+      return {text:'ই-নামজারি (Mutation) আবেদনের জন্য মালিকানা দলিল, খতিয়ান, ওয়ারিশ সনদ ও ভূমি কর দাখিলা প্রয়োজন। আবেদন প্রস্তুত করতে সরাসরি নামজারি সেবায় যান।',serviceId:'mutation'};
+    }
+    if(/পর্চা|porcha|khatian|খতিয়ান/.test(q)){
+      return {text:'ই-পর্চা বা সার্টিফাইড খতিয়ান কপির জন্য আপনার মৌজা, খতিয়ান নম্বর ও দাগ নম্বর দিয়ে অনলাইন রেকর্ড অনুসন্ধান করুন।',serviceId:'eporcha'};
+    }
+    if(/tax|খাজনা|কর|dakhila/.test(q)){
+      return {text:'ভূমি উন্নয়ন কর (LD Tax) প্রদানের জন্য হোল্ডিং নম্বর ও কর পরিশোধের বছর নির্বাচন করুন। পেমেন্ট সম্পন্ন হলে ডিজিটাল দাখিলা পাওয়া যাবে।',serviceId:'land-tax'};
+    }
+    return {text:'আপনার প্রশ্নের জন্য সংশ্লিষ্ট সেবায় আবেদন করতে পারেন। e-Bhumi প্ল্যাটফর্মে নামজারি, পর্চা, খাজনা ও পাহাড়ি জমির ৩ডি পরিমাপ উপলব্ধ রয়েছে।',serviceId:null};
+  }
+
+  function handleUserQuery(query){
+    if(!query||!query.trim())return;
+    const cleanQuery=query.trim();
+    const userBubble=document.createElement('div');
+    userBubble.className='ai-bubble ai-bubble-user';
+    userBubble.textContent=cleanQuery;
+    messages.appendChild(userBubble);
+    messages.scrollTop=messages.scrollHeight;
+
+    setTimeout(()=>{
+      const resp=getAssistantResponse(cleanQuery);
+      const isBn=state.preferences?.language==='bn';
+      const assistantBubble=document.createElement('div');
+      assistantBubble.className='ai-bubble ai-bubble-assistant';
+      assistantBubble.innerHTML=`<div>${esc(resp.text)}</div>`+
+        (resp.serviceId?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+          <a class="btn small primary" href="#service/${esc(resp.serviceId)}" data-close-ai="true">${isBn?'সেবায় সরাসরি যান ↗':'Go to service ↗'}</a>
+          ${resp.serviceId==='gis'?'<button type="button" class="btn small" data-open-hill="true">'+(isBn?'পাহাড় ৩ডি বিশ্লেষক ↗':'Open 3D Hill Tool ↗')+'</button>':''}
+        </div>`:'');
+      messages.appendChild(assistantBubble);
+      messages.scrollTop=messages.scrollHeight;
+    },120);
+  }
+
+  form.onsubmit=e=>{
+    e.preventDefault();
+    const val=input.value;
+    input.value='';
+    handleUserQuery(val);
+  };
+}
+
+async function init(){initTheme();initColorVariant();initAiFloatingChatbot();try{const [catalog,me]=await Promise.all([api('/catalog'),api('/me')]);state.catalog=catalog;state.user=me.user;state.csrf=me.csrf;state.settings=me.settings;if(location.pathname!=='/portal/'+state.user.role)history.replaceState(null,'','/portal/'+state.user.role+(location.hash||'#dashboard'));$('#sandboxBanner').append(' '+state.settings.notice);await refresh();state.preferences.language=state.preferences.language||'bn';document.documentElement.lang=state.preferences.language;applyTheme(localStorage.getItem('ebhumi_theme')||'light');initColorVariant();await render();}catch(error){$('#content').innerHTML=`<section class="panel"><h1>Workspace unavailable</h1><p>${esc(error.message)}</p><a class="btn" href="/login.html">Sign in again</a></section>`;}}
 installPreservedFeatures();
 installWorkflowFeatures();
 installLandIntelligence();
