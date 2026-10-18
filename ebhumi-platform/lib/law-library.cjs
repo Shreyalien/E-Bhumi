@@ -501,6 +501,13 @@ entries.push(...[
   }
 ]);
 entries.push(...require('./research-2026-10-18.json'));
+// Curated reading guides have independent translations; statutory source text is unchanged.
+const lawEnglish=require('./law-en.json'),guideBangla={"mutation":"আবেদনের প্রস্তুতি ও দাখিলের ফি; প্রকৃত ব্যবহারের আগে সরকারি পোর্টাল যাচাই করুন।","stages":"আবেদন অনুসরণ, সিদ্ধান্ত এবং খতিয়ান ও ডিসিআর সংগ্রহ।","mutationPolicy":"কারণসহ সংশোধন ও শুনানির প্রয়োজন; প্রত্যেক আবেদনে শুনানি বাধ্যতামূলক নয়।","tax":"হোল্ডিং, কর দাবি, পেমেন্ট, দাখিলা, হিসাব সমন্বয় ও আপত্তি; নমুনা অর্থের হিসাব আইনগত কর নির্ধারণ নয়।","taxPortal":"নাগরিক ও প্রতিষ্ঠানের ভূমি কর সেবার নির্দেশিকা।","review":"আদেশ ও গ্রহণযোগ্যতার প্রসঙ্গ; স্বয়ংক্রিয় আপিলের অধিকার নয়।","survey":"জরিপ-পর্যায়ের আপত্তি, শুনানি ও রেকর্ড-সংক্রান্ত সিদ্ধান্ত; সব জমির সীমানা ছাড়পত্র নয়।","khas":"যোগ্যতা যাচাই ও কমিটির কাছে প্রেরণ; জমির প্রাপ্যতা ও যোগ্যতা স্থানীয় দপ্তরে নিশ্চিত করতে হবে।","tea":"ইজারার ফাইল, স্থানীয় যাচাই ও নবায়নের প্রক্রিয়া; দেশব্যাপী চলতি ফি নির্ধারণ নয়।","waterbody":"বিজ্ঞপ্তি অনুযায়ী অনলাইন ইজারার প্রস্তুতি; বর্তমান দরপত্রের শর্ত প্রযোজ্য।","cht":"আঞ্চলিক প্রতিবেদন ও জেলা দপ্তরে প্রেরণ; সার্কেল, ভূমির শ্রেণি ও বর্তমান কর্তৃপক্ষ নিশ্চিত করতে হবে।"};
+for(const e of entries){
+ if(e.id.startsWith('guide-')){e.noteEn=e.note.split('।')[0]+'. This is not a substitute for the governing law.';e.note=guideBangla[e.id.slice(6)]+' এটি মূল আইনের বিকল্প নয়।';}
+ else e.noteEn=e.noteEn||lawEnglish[e.id];
+ e.coverageEn=lawEnglish['coverage:'+e.id]||lawEnglish[e.id.startsWith('guide-')?'coverage:guide':'coverage:original'];
+}
 function handleLawLibrary(c){const {db,user:u,route,method,body,send,save,fail,audit}=c;if(!route.startsWith('/law-library'))return false;
  const ids=new Set(entries.map(e=>e.id));
  if(route==='/law-library'&&method==='GET'){send(200,{entries,checked:'2026-10-18',preferences:db.lawPreferences?.[u.id]||{bookmarks:[],read:[],notes:{}}});return true;}

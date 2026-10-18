@@ -68,7 +68,7 @@ for(const [id,p]of Object.entries(profiles)){
  if(id==='mouza-map')p.filingFee=520;
  if(id==='eporcha')p.postalFee=40;
  if(id==='mouza-map')p.postalFee=110;
- p.guidance=require('./research-2026-10-18.json').filter(e=>e.serviceIds.includes(id)).map(e=>({title:e.title,note:e.note,url:e.url,checked:e.checked}));
+ p.guidance=require('./research-2026-10-18.json').filter(e=>e.serviceIds.includes(id)).map(e=>({title:e.title,en:e.en,note:e.note,noteEn:e.noteEn,url:e.url,checked:e.checked}));
 }
 function procedureFor(id){return profiles[id];}
 module.exports={sources,profiles,procedureFor,RESEARCH_DATE};

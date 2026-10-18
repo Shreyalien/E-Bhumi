@@ -1,26 +1,82 @@
-MIT License
+E-BHUMI RESTRICTED SOURCE LICENCE
+Version 1.0 - 18 October 2026
 
-Copyright (c) 2026 LandLords
+Copyright (c) 2026 LandLords and the respective contributing rights holders.
+Project contributors: Pronob Das (@Pronob155) and Shreya Golder (@Shreyalien).
+All rights in the Restricted Materials are reserved.
 
-Project team: LandLords
-Contributors:
-- Pronob Das (@Pronob155)
-- Shreya Golder (@Shreyalien)
+1. Scope and existing licences
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+"Restricted Materials" means original project-owned code, documentation,
+artwork and other original expression first added after Git commit
+9eb2409b50eb0f893f3ffea2a5561d2264fb9164, to the extent the relevant rights
+holders make those additions available under this licence rather than another
+express licence. The rights holders retain ownership of their contributions.
+This notice does not transfer another contributor's rights.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Versions and portions previously made available under the MIT licence remain
+available under those terms. Their permissions are not withdrawn by this
+notice. The prior copyright, contributor attribution and complete MIT text are
+preserved in licenses/MIT-prior-releases.txt. New original additions and the
+applicable prior portions must be considered separately. This licence must not
+be read as making the entire historical codebase exclusive or proprietary.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. No source-use permission for Restricted Materials
+
+Except as permitted below, by applicable law, by an applicable prior or
+third-party licence, or by separate written permission from the relevant
+rights holders, no permission is granted to copy, use, modify, adapt, merge,
+publish, redistribute, sublicense, sell, host, deploy, embed, white-label,
+commercialise or create derivative works of Restricted Materials. Attribution
+alone does not grant those permissions. Publication or access to a repository
+is not a general source-code licence for the Restricted Materials.
+
+3. Authorised website interaction and platform rights
+
+Visitors may interact with a website intentionally hosted and made available
+by the rights holders, including copies necessarily made by a browser to use
+that site. This does not grant permission to operate another deployment,
+redistribute Restricted Materials or use the project branding for another
+product. If the source is public on GitHub, rights expressly required by
+GitHub's applicable terms, including viewing and forking within that service,
+are not restricted by this document. Nothing here changes GitHub's terms or
+revokes rights already obtained under another valid licence.
+
+4. Third-party components, official references and user material
+
+Third-party software, fonts, images, map tiles, dependencies and other licensed
+components keep their own licences and notices. See THIRD_PARTY_NOTICES.md.
+Government laws, notices, public facts, linked official material and material
+submitted by users are not claimed as exclusive project-owned expression by
+this licence. Public information and independently developed ideas or systems
+are not made exclusive merely because this project refers to them.
+
+5. Permission and branding
+
+Permission for Restricted Materials must identify the permitted use, scope,
+duration and any conditions in writing from the relevant rights holders.
+Contact the maintainers through the repository owner's available contact
+channel. No trademark, endorsement or government-affiliation right is granted.
+Do not remove or falsify copyright, attribution or provenance notices.
+
+6. Termination and mandatory rights
+
+Any express permission granted under this document ends for a recipient who
+materially breaches its conditions. The recipient must stop the unauthorised
+use and distribution of Restricted Materials, subject to mandatory law and
+rights held under an independent applicable licence. Remedies are those
+available under applicable law; this document does not create automatic fines
+or extinguish statutory exceptions.
+
+7. No warranty
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, RESTRICTED MATERIALS ARE
+PROVIDED "AS IS", WITHOUT EXPRESS OR IMPLIED WARRANTY, INCLUDING WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+THE RIGHTS HOLDERS ARE NOT LIABLE FOR LOSS ARISING FROM THEIR USE EXCEPT
+WHERE SUCH EXCLUSION IS PROHIBITED BY APPLICABLE LAW.
+
+This software is an independent sample workspace. It is not an official land
+registry, title decision, certified record, government filing or payment
+service. The English text above is the operative licence notice. Bilingual
+website summaries are provided for reading convenience.

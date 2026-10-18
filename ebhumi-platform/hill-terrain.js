@@ -208,31 +208,31 @@ function renderHillTerrainHTML(results = null) {
         <span class="eyebrow" style="color:#2d6a4f;">GEOSPATIAL TERRAIN ENGINE · METRIC UTM 46N (EPSG:32646)</span>
         <h2 style="margin:4px 0 6px 0; display:flex; align-items:center; gap:8px;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg>
-          <span>পাহাড় ও ভূমির ৩ডি পৃষ্ঠতল ক্ষেত্রফল ও ঢাল বিশ্লেষক</span>
+          <span>Hill terrain surface-area and slope analyser</span>
         </h2>
-        <p role="note"><b>শুধু কৃত্রিম নমুনা / Synthetic demonstration.</b> বাস্তব DEM, মাঠজরিপ বা ভূমিধসের পূর্বাভাস ব্যবহার করা হয়নি। পৃষ্ঠতলের ক্ষেত্রফল মালিকানার আয়তন বাড়ায় না।</p><p class="muted" style="margin:0; font-size:13.5px; line-height:1.6; max-width:820px;">
-          বাংলাদেশে খতিয়ান ও মৌজা ম্যাপে কেবল দ্বিমাত্রিক আনুভূমিক (Projected) জমি নথিভুক্ত থাকে। কিন্তু পাহাড় ও টিলায় বাস্তব ভূমি পৃষ্ঠতল (True 3D Ground Surface) অনেক বড়। স্থানগুলোর নাম দিয়ে তৈরি কৃত্রিম পৃষ্ঠের ক্ষেত্রফল ও ঢাল তুলনা করুন; এটি বাস্তব পাহাড়ের মাপ বা ঝুঁকির মূল্যায়ন নয়।
+        <p role="note"><b>Synthetic illustration only.</b> No measured elevation model, field survey or landslide forecast is used. Surface area does not increase legal ownership area.</p><p class="muted" style="margin:0; font-size:13.5px; line-height:1.6; max-width:820px;">
+          Compare projected area, generated surface area and slope on a synthetic terrain model. The selected place name provides context; these results do not measure a real hill or its risk.
         </p>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <button class="btn" id="btnExportTerrainCsv" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> CSV ডাউনলোড</button>
+        <button class="btn" id="btnExportTerrainCsv" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Download CSV</button>
         <button class="btn" id="btnExportTerrainGeoJson" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg> GeoJSON</button>
-        <button class="btn primary" id="btnPrintTerrainSummary" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> প্রিন্ট সামারি</button>
+        <button class="btn primary" id="btnPrintTerrainSummary" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print summary</button>
       </div>
     </div>
 
     <div class="toolbar" style="margin-top:16px; background:#f4f7f5; padding:12px; border-radius:8px;">
       <label style="font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px;">
-        পাহাড় সাইট নির্বাচন:
+        Select hill site:
         <select id="hillPresetSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #c9d8d0; font-family:inherit;">
           ${Object.values(HILL_PRESETS).map(p => `<option value="${p.id}" ${p.name === r.name ? 'selected' : ''}>${p.name}</option>`).join('')}
         </select>
       </label>
       <label style="font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px;">
-        কাট-এন্ড-ফিল টার্গেট উচ্চতা (m):
+        Cut-and-fill target elevation (m):
         <input type="number" id="hillTargetElev" value="${r.earthwork.target}" style="width:90px; padding:6px 8px; border-radius:6px; border:1px solid #c9d8d0;" step="5">
       </label>
-      <button class="btn primary" id="btnCalculateTerrain" style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px;">পুনরায় হিসাব করুন <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+      <button class="btn primary" id="btnCalculateTerrain" style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px;">Recalculate <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
     </div>
 
     <!-- Satellite Mountain Terrain Map Container -->
@@ -240,9 +240,9 @@ function renderHillTerrainHTML(results = null) {
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
         <span style="font-weight:600; font-size:13px; color:#173e33; display:flex; align-items:center; gap:6px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-          পাহাড়ের বাস্তব স্যাটেলাইট ভিউ ও ৩ডি ক্ষেত্রফল পরিধি (Interactive Satellite Mountain Topography)
+          Satellite basemap and illustrative terrain boundary
         </span>
-        <small class="muted" style="font-size:11.5px;">রেজোলিউশন: সাব-মিটার হাই-রেজোলিউশন স্যাটেলাইট ইমেজারি (Esri World Imagery)</small>
+        <small class="muted" style="font-size:11.5px;">Esri World Imagery basemap. Imagery date and resolution vary by location; elevation calculations use the synthetic model.</small>
       </div>
       <div id="hillSatelliteMap" style="height:260px; width:100%; border-radius:8px; border:1px solid #c9d8d0; overflow:hidden; z-index:1;"></div>
     </div>
@@ -250,24 +250,24 @@ function renderHillTerrainHTML(results = null) {
     <!-- 4 High Level Summary Metric Cards -->
     <div class="grid four" style="margin-top:16px;">
       <div class="panel metric" style="border-left:4px solid #4a5568;">
-        <span>আনুভূমিক রেকর্ড (Projected)</span>
+        <span>Projected horizontal area</span>
         <strong>${fmt(r.projected_m2, 1)} m²</strong>
         <small>${fmt(r.units.projected.decimal, 2)} শতক / ${fmt(r.units.projected.acre, 3)} একর</small>
       </div>
       <div class="panel metric" style="border-left:4px solid #2d6a4f; background:#f0fff4;">
-        <span style="color:#22543d;">বাস্তব ৩ডি পৃষ্ঠতল (True 3D Surface)</span>
+        <span style="color:#22543d;">Generated 3D surface area</span>
         <strong style="color:#22543d;">${fmt(r.surface_m2, 1)} m²</strong>
         <small style="color:#22543d; font-weight:600;">${fmt(r.units.surface.decimal, 2)} শতক / ${fmt(r.units.surface.acre, 3)} একর</small>
       </div>
       <div class="panel metric" style="border-left:4px solid #b7791f; background:#fffaf0;">
-        <span style="color:#7b341e;">কৃত্রিম পৃষ্ঠের পার্থক্য (Surface difference)</span>
+        <span style="color:#7b341e;">Surface difference</span>
         <strong style="color:#7b341e;">+${fmt(r.diff_m2, 1)} m²</strong>
         <small style="color:#7b341e; font-weight:600;">+${fmt(r.diff_pct, 1)}% পৃষ্ঠতল বৃদ্ধি (+${fmt(r.units.surface.decimal - r.units.projected.decimal, 2)} শতক)</small>
       </div>
       <div class="panel metric" style="border-left:4px solid #3182ce;">
-        <span>অনুপাত ও গড় ঢাল (Ratio & Slope)</span>
+        <span>Ratio and mean slope</span>
         <strong>${fmt(r.ratio, 3)}x</strong>
-        <small>গড় ঢাল: ${fmt(r.slope.mean, 1)}° (সর্বোচ্চ: ${fmt(r.slope.max, 1)}°)</small>
+        <small>Mean slope: ${fmt(r.slope.mean, 1)}° (সর্বোচ্চ: ${fmt(r.slope.max, 1)}°)</small>
       </div>
     </div>
 
@@ -275,15 +275,15 @@ function renderHillTerrainHTML(results = null) {
     <div class="grid two" style="margin-top:16px;">
       <!-- Area Units Table -->
       <div class="panel">
-        <h3 style="margin-top:0;">১. প্রচলিত ভূমি পরিমাপে ক্ষেত্রফল তুলনা</h3>
+        <h3 style="margin-top:0;">1. Area comparison in conventional units</h3>
         <div class="table-wrap">
           <table class="data-table" style="font-size:12.5px;">
             <thead>
               <tr>
-                <th>পরিমাপের একক</th>
-                <th>আনুভূমিক (খতিয়ান রেকর্ড)</th>
-                <th>প্রকৃত ৩ডি পৃষ্ঠতল</th>
-                <th>পাহাড়ের অতিরিক্ত জমি</th>
+                <th>Measurement unit</th>
+                <th>Projected horizontal area (record reference)</th>
+                <th>Generated 3D surface area</th>
+                <th>Surface-area difference</th>
               </tr>
             </thead>
             <tbody>
@@ -320,13 +320,13 @@ function renderHillTerrainHTML(results = null) {
             </tbody>
           </table>
         </div>
-        <p class="help" style="margin-top:8px;">১ একর = ১০০ শতক = ৪,০৪৬.৮৬ বর্গমিটার। ১ কাঠা = ৭২০ বর্গফুট (১.৬৫ শতক)। ১ বিঘা = ২০ কাঠা = ৩৩ শতক।</p>
+        <p class="help" style="margin-top:8px;">1 acre = 100 decimals = 4,046.86 square metres. This illustration uses 1 katha = 720 square feet and 1 bigha = 20 katha; local conventions may differ.</p>
       </div>
 
       <!-- Slope & Landslide Risk Breakdown -->
       <div class="panel">
-        <h3 style="margin-top:0;">২. পাহাড়ি ঢাল ও ভূমিধস সংবেদনশীলতা</h3>
-        <p style="font-size:12.5px; color:#527367; margin-bottom:12px;">উচ্চতা সীমা: সর্বনিম্ন <b>${fmt(r.elevation.min, 1)} m</b> · গড় <b>${fmt(r.elevation.mean, 1)} m</b> · সর্বোচ্চ <b>${fmt(r.elevation.max, 1)} m</b></p>
+        <h3 style="margin-top:0;">2. Synthetic slope distribution</h3>
+        <p style="font-size:12.5px; color:#527367; margin-bottom:12px;">Elevation range: minimum <b>${fmt(r.elevation.min, 1)} m</b> · mean <b>${fmt(r.elevation.mean, 1)} m</b> · maximum <b>${fmt(r.elevation.max, 1)} m</b></p>
         
         <div style="display:flex; flex-direction:column; gap:8px;">
           ${Object.entries(r.slope.classes).map(([className, pct]) => `
@@ -348,24 +348,24 @@ function renderHillTerrainHTML(results = null) {
               ${r.landslide_pct > 25 ? '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>' : '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>'}
             </svg>
             <b style="color:${r.landslide_pct > 25 ? '#9b2c2c' : '#22543d'}; font-size:13px;">
-              ${r.landslide_pct > 25 ? 'উচ্চ ভূমিধস ও পাহাড় ধস ঝুঁকি জোন' : 'মধ্যম ও সহনীয় ঢাল প্রোফাইল'}
+              ${r.landslide_pct > 25 ? 'উচ্চ ভূমিধস ও পাহাড় ধস ঝুঁকি জোন' : 'Moderate slope profile'}
             </b>
           </div>
           <p style="margin:4px 0 0 0; font-size:12px; color:#4a5568;">
-            এই কৃত্রিম মডেলের <b>${r.landslide_pct}%</b> cell-এ ঢাল ৩০ ডিগ্রির বেশি। এটি ভূমিধসের সম্ভাবনা বা কোনো আইনি নিষেধাজ্ঞার পরীক্ষা নয়। বাস্তব কাজের আগে প্রযোজ্য আইন, অনুমতি ও বিশেষজ্ঞ মূল্যায়ন প্রয়োজন।
+            In this synthetic model, <b>${r.landslide_pct}%</b> of cells have a slope above 30 degrees. This is neither a landslide probability nor a legal clearance. Check applicable law, permissions and expert assessments before real work.
           </p>
         </div>
 
         <div style="margin-top:12px; display:flex; justify-content:space-between; font-size:12px; background:#f7fafc; padding:8px 10px; border-radius:6px;">
-          <span>টার্গেট গ্রুমিং মাটি কাটা (Cut): <b>${r.earthwork.cut.toLocaleString()} m³</b></span>
-          <span>ভরাট (Fill): <b>${r.earthwork.fill.toLocaleString()} m³</b></span>
+          <span>Illustrative cut volume: <b>${r.earthwork.cut.toLocaleString()} m³</b></span>
+          <span>Fill volume: <b>${r.earthwork.fill.toLocaleString()} m³</b></span>
         </div>
       </div>
     </div>
 
     <!-- Official Notice -->
     <div style="margin-top:14px; padding:10px 14px; background:#fffaf0; border-left:4px solid #dd6b20; border-radius:4px; font-size:12px; color:#7b341e;">
-      <b>সার্ভে ও আইনি তথ্য সতর্কতা:</b> এই হিসেবটি টপোগ্রাফিক ও কারিগরি বিশ্লেষণের সাহায্যকারী টুল। এটি কোনো আইনি দলিলের প্রমাণ নয়। মালিকানা নির্ধারণে প্রযোজ্য আইন, নথি ও সক্ষম কর্তৃপক্ষের সিদ্ধান্ত প্রয়োজন। পার্বত্য চট্টগ্রামে জেলা প্রশাসন, প্রথাগত কর্তৃপক্ষ ও অন্যান্য প্রযোজ্য প্রতিষ্ঠানের এখতিয়ার যাচাই করুন। এই টুল পাহাড় কাটার অনুমতি বা নিরাপত্তা সনদ দেয় না।
+      <b>Survey and legal context:</b> This tool supports illustrative terrain analysis. It is not a legal instrument or title evidence. Check applicable laws, records and competent authorities. In the CHT, confirm the roles of district administration, customary authorities and other relevant institutions. This tool gives no hill-cutting permission or safety certificate.
     </div>
   </section>
   `;
@@ -425,10 +425,10 @@ function attachHillTerrainListeners() {
           <b style="color:#173e33;font-size:13.5px;">${preset.name}</b><br>
           <span style="color:#527367;">${preset.region || 'বাংলাদেশ'}</span><br>
           <hr style="border:0;border-top:1px solid #e2e8f0;margin:5px 0;">
-          <span>আনুভূমিক রেকর্ড: <b>${Number(r.projected_m2).toLocaleString('en-US', {maximumFractionDigits:1})} m²</b> (${(r.units.projected.decimal).toFixed(2)} শতক)</span><br>
-          <span>প্রকৃত ৩ডি পৃষ্ঠতল: <b style="color:#2d6a4f;">${Number(r.surface_m2).toLocaleString('en-US', {maximumFractionDigits:1})} m²</b> (${(r.units.surface.decimal).toFixed(2)} শতক)</span><br>
-          <span>পাহাড়ে অতিরিক্ত জমি: <b style="color:#b45309;">+${r.diff_pct.toFixed(1)}%</b></span><br>
-          <span>গড় ঢাল: <b>${r.slope.mean.toFixed(1)}°</b></span>
+          <span>Projected horizontal area: <b>${Number(r.projected_m2).toLocaleString('en-US', {maximumFractionDigits:1})} m²</b> (${(r.units.projected.decimal).toFixed(2)} শতক)</span><br>
+          <span>Generated 3D surface area: <b style="color:#2d6a4f;">${Number(r.surface_m2).toLocaleString('en-US', {maximumFractionDigits:1})} m²</b> (${(r.units.surface.decimal).toFixed(2)} শতক)</span><br>
+          <span>Surface difference: <b style="color:#b45309;">+${r.diff_pct.toFixed(1)}%</b></span><br>
+          <span>Mean slope: <b>${r.slope.mean.toFixed(1)}°</b></span>
         </div>
       `).openPopup();
 

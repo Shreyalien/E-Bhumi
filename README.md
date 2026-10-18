@@ -21,9 +21,15 @@ Primary interface defaults to Bangla, with seamless bilingual toggle to English.
 
 ## Current update — v5.9.0
 
+**Bilingual review:** all 33 service workflows now have separate Bangla/English guidance across 24 role platforms. **ল্যান্ড পাসপোর্ট** identifies the Land Passport throughout the Bangla interface. The 42-source law library includes English reading notes, translated filters keep their values, and repeated sample labels are reduced. The original fonts, green/white theme and layouts are preserved. [Translation, licence and deployment checks](docs/BILINGUAL_LICENCE_REVIEW_2026-10-18.md).
+
+| সেবার কার্যপ্রবাহ | Service workflows |
+| --- | --- |
+| ![Bangla service workflows](docs/screenshots-bilingual/workflows-bn.png) | ![English service workflows](docs/screenshots-bilingual/workflows-en.png) |
+
 Final authentication review: exact Unicode passwords (including leading/trailing spaces), byte-safe Bangla JSON requests, bounded login inputs, password-change session revocation and return to the requested page after re-login are verified. The law library now distinguishes the February 2026 record/map fee circular from historical demo checkout fixtures, and draft survey records from final records. [Final audit and sources](docs/FINAL_AUDIT_2026-10-18.md).
 
-All 24 roles now include a **Demo workflows & examples** library: 104 application examples and four separate vested-property desk examples. Every service has active desk work and a completed outcome example. New mutation requests include the initial AC Land order before union enquiry; existing saved requests keep their history. [Role guide, workflow evidence and palette screenshots](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
+All 24 roles include a **Service workflows** library: 104 application examples and four separate vested-property desk examples. Every service has active desk work and a completed outcome example. New mutation requests include the initial AC Land order before union enquiry; existing saved requests keep their history. [Role guide, workflow evidence and palette screenshots](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
 
 The original green-and-white palette is preserved. A compact bilingual topbar dropdown switches between Padma Green, Meghna Blue, Earth Clay and Surma Slate; the existing moon/sun button controls night/day mode. Meghna uses river-blue tones, while Surma uses a distinct muted plum-slate family. Preferences stay saved in the browser. Alternate palettes coordinate the canvas, sidebar, cards, forms, tables and buttons; status colours retain their meaning. Demo workflows, role examples, fonts and layout remain intact. For full palette screenshots and gallery, see [Role Themes & Demos Guide](docs/ROLE_DEMOS_AND_THEMES_v5.9.md).
 
@@ -399,7 +405,7 @@ Never commit credentials, real identity files or private land records. Report se
 
 ## License and authority
 
-This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 **LandLords**.
+Eligible new original contributions are covered by the [e-Bhumi Restricted Source Licence](LICENSE); using, copying, deploying or redistributing those additions requires written permission. Historical source already published under MIT keeps its [prior MIT permissions and attribution](licenses/MIT-prior-releases.txt). Public GitHub viewing/forking and third-party rights are not revoked. See [licence scope and third-party notices](THIRD_PARTY_NOTICES.md). Copyright (c) 2026 **LandLords** and the respective rights holders.
 
 **Project contributors**
 - Pronob Das ([`@Pronob155`](https://github.com/Pronob155))

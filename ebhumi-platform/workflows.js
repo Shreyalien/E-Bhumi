@@ -1,7 +1,7 @@
 'use strict';
 
 function calculatorWorkspace() {
-  return toolsPage().replace('যাচাই, area ও share proposal', 'Land Calculator · জমির হিসাব') + `
+  return toolsPage().replace('Evidence checks, area and proposed shares', 'Land Calculator') + `
     <div class="grid two">
       <form class="panel" id="localUnitForm">
         <h2>Local unit worksheet</h2>
