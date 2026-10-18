@@ -1,6 +1,6 @@
 # Vercel deployment and shared state
 
-The maintained repository is [E-Bhumi/E-Bhumi](https://github.com/E-Bhumi/E-Bhumi). The production address is [e-bhumi-xi.vercel.app](https://e-bhumi-xi.vercel.app). Deploy the repository root using Node.js 24; `vercel.json` builds the runtime and routes requests through `api/index.js`.
+The maintained repository is [Shreyalien/E-Bhumi](https://github.com/Shreyalien/E-Bhumi). The production address is [e-bhumi-xi.vercel.app](https://e-bhumi-xi.vercel.app). Deploy the repository root using Node.js 24; `vercel.json` builds the runtime and routes requests through `api/index.js`.
 
 ## Persistent hosted demo
 
