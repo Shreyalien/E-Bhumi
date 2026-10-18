@@ -35,9 +35,15 @@ The [official tax manuals](https://ldtax.gov.bd/manual) and [published fee refer
 
 The one-time `roleDemoEdition` migration adds deterministic IDs without resetting existing applications, edited examples, accounts or uploaded documents. Example content is generated independently; it never copies a user's edited request or uploaded evidence. New citizen registrations remain empty and private. Demo cases respect ownership, current desk, prior handoff and oversight permissions. Old v1-only configurations retain the compact v1 seed rather than receiving v2 workflows.
 
-## Original colours restored
+## Appearance collection
 
-The owner requested the previous colours after reviewing the theme update. The original Padma, Meghna, Sundarban and Surma palettes, sidebar fills, component colours and day/night appearance are restored from the pre-update styles. The demo stylesheet now contains layout rules only. Original font stacks, composition, reduced-motion support and all role/workflow additions remain intact.
+The original Padma green/white colours and existing green night mode remain unchanged. The three alternative palettes have coordinated daylight and nightfall shades: Meghna Blue, Earth Clay and Surma Slate. Muted surfaces, readable text, matching sidebars and restrained primary buttons replace the previous mix of green controls and differently coloured sidebars. Warning, error and status colours remain semantic. Map artwork remains illustrative.
+
+The topbar palette button opens **আপনার পছন্দের আবহ / A workspace in your colours**. Four miniature workspace previews update with the selected display mode. Native radio controls support keyboard selection, Escape closes the dialog and restores focus, and the layout fits a mobile screen. Palette and display mode are saved locally and synchronized across tabs; an unset display preference respects the operating system. English/Bangla labels follow the platform language. Workflow, account and application data are unaffected.
+
+| Appearance collection | Mobile appearance |
+| --- | --- |
+| ![Night collection](screenshots-role-themes/citizen-appearance-night.png) | ![Mobile picker](screenshots-role-themes/appearance-mobile.png) |
 
 | Blue day | Blue night |
 | --- | --- |
@@ -49,7 +55,7 @@ The owner requested the previous colours after reviewing the theme update. The o
 
 - 139 automated test cases passed: prior lifecycle/security regressions plus all 33 new service examples resolved using actual APIs, consultations returned to LA, VP handoff, outcome hashes, owner isolation and idempotent restart.
 - All 24 roles passed the 33-service example-library and mobile checks.
-- The browser regression checks all 192 role/theme/mode combinations against the original alternate sidebar colours, selected palette/mode and preserved font stack. The previous contrast results applied to the replaced palette and are not claims about the restored colours.
+- The browser regression checks 192 role/theme/mode combinations, original green/white computed colours, coordinated alternate sidebars and selected normal-text contrast targets (4.5:1). These are targeted checks, not a complete accessibility certification. Appearance controls, persistence, bilingual labels, focus return and mobile dialog bounds are also checked.
 - Screenshot renders are in `docs/screenshots-role-themes/`. Browser automation relays actual local responses when loopback is isolated; no fake API results are substituted.
 
 ```powershell
